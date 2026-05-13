@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;500;700&amp;family=Plus+Jakarta+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {"surface-tint": "#d0bcff", "surface-bright": "#3a393a", "tertiary-fixed": "#ffdadb", "on-tertiary": "#67001b", "primary-fixed": "#e9ddff", "outline-variant": "#494454", "on-secondary": "#003640", "on-primary-container": "#340080", "surface-container-lowest": "#0e0e0f", "on-primary": "#3c0091", "secondary-fixed-dim": "#4cd7f6", "error-container": "#93000a", "surface-dim": "#131314", "on-primary-fixed": "#23005c", error: "#ffb4ab", "inverse-surface": "#e5e2e3", "surface-container-low": "#1c1b1c", "on-tertiary-container": "#5b0017", "primary-container": "#a078ff", secondary: "#4cd7f6", "on-surface-variant": "#cbc3d7", "primary-fixed-dim": "#d0bcff", "on-error-container": "#ffdad6", "on-error": "#690005", "surface-container-high": "#2a2a2b", "surface-container": "#201f20", outline: "#958ea0", "on-primary-fixed-variant": "#5516be", background: "#131314", "on-surface": "#e5e2e3", "on-secondary-fixed-variant": "#004e5c", "on-secondary-fixed": "#001f26", "on-tertiary-fixed": "#40000d", surface: "#131314", tertiary: "#ffb2b7", "on-background": "#e5e2e3", "surface-container-highest": "#353436", "inverse-on-surface": "#313031", "on-secondary-container": "#00424e", primary: "#d0bcff", "tertiary-container": "#ff516a", "inverse-primary": "#6d3bd7", "secondary-fixed": "#acedff", "tertiary-fixed-dim": "#ffb2b7", "on-tertiary-fixed-variant": "#92002a", "secondary-container": "#03b5d3", "surface-variant": "#353436"}, borderRadius: {DEFAULT: "1rem", lg: "2rem", xl: "3rem", full: "9999px"}, spacing: {lg: "48px", "container-margin": "32px", base: "8px", md: "24px", gutter: "24px", xs: "4px", sm: "12px", xl: "80px"}, fontFamily: {"body-md": ["Plus Jakarta Sans"], "headline-md": ["Epilogue"], "headline-xl": ["Epilogue"], "label-md": ["Plus Jakarta Sans"], "headline-lg": ["Epilogue"], "body-lg": ["Plus Jakarta Sans"], headline: ["Epilogue"], display: ["Epilogue"], body: ["Plus Jakarta Sans"], label: ["Plus Jakarta Sans"]}, fontSize: {"body-md": ["16px", {lineHeight: "1.5", fontWeight: "400"}], "headline-md": ["24px", {lineHeight: "1.3", fontWeight: "700"}], "headline-xl": ["48px", {lineHeight: "1.1", letterSpacing: "-0.04em", fontWeight: "800"}], "label-md": ["14px", {lineHeight: "1.2", fontWeight: "600"}], "headline-lg": ["32px", {lineHeight: "1.2", letterSpacing: "-0.02em", fontWeight: "700"}], "body-lg": ["18px", {lineHeight: "1.6", fontWeight: "400"}]}}}};</script>
+<style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md min-h-screen pb-40">
+<!-- Top Navigation Anchor -->
+<header class="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-md">
+<div class="flex justify-between items-center px-container-margin py-6 w-full max-w-7xl mx-auto">
+<h1 class="text-headline-lg font-headline-lg tracking-tighter text-white">Hello, Julian</h1>
+<div class="flex gap-md">
+<button class="w-12 h-12 flex items-center justify-center rounded-full glass-card text-white hover:opacity-80 transition-opacity active:scale-95 duration-200">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</button>
+<button class="w-12 h-12 flex items-center justify-center rounded-full glass-card text-white hover:opacity-80 transition-opacity active:scale-95 duration-200">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</div>
+</div>
+</header>
+<main class="max-w-7xl mx-auto pt-[120px] px-container-margin space-y-xl">
+<!-- Filter Chips -->
+<section class="flex gap-sm overflow-x-auto no-scrollbar py-2">
+<button class="px-md py-sm bg-primary-container text-on-primary-container font-label-md text-label-md rounded-full whitespace-nowrap active:scale-95 transition-transform">Painting</button>
+<button class="px-md py-sm glass-card text-white/80 font-label-md text-label-md rounded-full whitespace-nowrap active:scale-95 transition-transform">Digital Art</button>
+<button class="px-md py-sm glass-card text-white/80 font-label-md text-label-md rounded-full whitespace-nowrap active:scale-95 transition-transform">Sculpture</button>
+<button class="px-md py-sm glass-card text-white/80 font-label-md text-label-md rounded-full whitespace-nowrap active:scale-95 transition-transform">Photography</button>
+<button class="px-md py-sm glass-card text-white/80 font-label-md text-label-md rounded-full whitespace-nowrap active:scale-95 transition-transform">Animation</button>
+</section>
+<!-- Hero: Project of the Day -->
+<section class="relative aspect-[3/4] md:aspect-[16/9] w-full overflow-hidden rounded-lg group">
+<img alt="Project of the day artwork" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="Hyper-detailed digital painting of an ethereal cosmic landscape with vibrant neon nebula and floating islands in obsidian sky" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6QIo1E372X7GXfy3rnEZ_TRlAP3G-yoLG-ODrrc3HMQxzrYhOAXHRwhz3bl5RlbE7gWCG0hhQi1uKRFQT4z1AAI9RYUn8W2voMSiqbX_XNIzyx7O3B-YYDy3wTE4HVM9KaT58kME5QvFFHrNl2ico7cWiSD9zQLPktZASI-QdfKdtX2ZKLQ2-esBTAExVy-GyP8amkpN5N7BnkiIPzvxzeO13yLVUs3rOBWLwWdsV1ut71WT4VcZSlJll_gz24iSU30eBuQsSVTE"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-lg w-full space-y-md">
+<span class="inline-block px-sm py-1 bg-secondary text-on-secondary text-label-md font-label-md rounded-full">Project of the Day</span>
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-md">
+<div class="space-y-sm">
+<h2 class="text-headline-xl font-headline-xl text-white">Infinite Horizons</h2>
+<p class="text-white/70 text-body-lg font-body-lg max-w-lg">A multidisciplinary exploration of digital spaces and human emotion.</p>
+</div>
+<button class="flex items-center gap-xs px-xl py-md bg-violet-600 text-white rounded-full font-label-md text-label-md hover:bg-violet-500 transition-colors active:scale-95">
+                        Collab
+                        <span class="material-symbols-outlined" data-icon="rocket_launch">rocket_launch</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Trending Artists (Horizontal Scroll) -->
+<section class="space-y-md">
+<div class="flex items-center justify-between">
+<h3 class="text-headline-md font-headline-md text-white">Trending Artists</h3>
+<button class="text-primary font-label-md text-label-md">View All</button>
+</div>
+<div class="flex gap-gutter overflow-x-auto no-scrollbar pb-sm">
+<!-- Artist Card 1 -->
+<div class="flex-shrink-0 w-64 space-y-sm">
+<div class="aspect-square rounded-full overflow-hidden border-2 border-primary/20 p-1">
+<img alt="Artist profile" class="w-full h-full object-cover rounded-full" data-alt="Portrait of a young creative woman with artistic makeup and cool studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBAxOfa2lX7yif4ag66kjSkJzd_S2qPvDz_XQDleIzWuFS0_CO40mQSQkkusfq8yoaaOjyYQ1fn5SY78fxH2as3wgevzfO8rlhixqXyy1fLiyUnKJkbSbAiTDStgUEZBPpn44sdP17e6WiZ3Yd4ZFv6gapvAm7zB1X9jfyZoO3CCUuICreV87CoxhFESx1GZ57gsLqeAD-8ZcuMMD0kq7uSGQl3x0Nhr28g8jWhgP44LuMYK6BU0h63Se3XyDT3g5ge2ytavMmDjUw"/>
+</div>
+<div class="text-center">
+<p class="text-white font-headline-md text-[18px]">Elena Rossi</p>
+<p class="text-white/60 text-label-md">3D Modeler</p>
+</div>
+</div>
+<!-- Artist Card 2 -->
+<div class="flex-shrink-0 w-64 space-y-sm">
+<div class="aspect-square rounded-full overflow-hidden border-2 border-primary/20 p-1">
+<img alt="Artist profile" class="w-full h-full object-cover rounded-full" data-alt="Portrait of a male artist with creative glasses in a dark moody studio setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_ioJ5NKR8sKQmVgDsBexOdxbpr2IJj5_KM33GTZB5b_GKslrbt7Tulsg6QrE1DHkwY_nasSUzDa3mifqgB0LwKkjMuc2dJpTQHMfjP-4_HPvZRprO3ETLTuq4bpSyzNVkBaiD6Diy4qhNPnx_EaMUeVeGbSJLqrr8gaqKsSa3RykjIqtd80aNQpq3-pblfjMhmkO-WoWyCFzo4cxACKa4R2gZZW7wMYDclaPdL1mimtNZlXCHOsTULrK_rfTwD0-OGKAuaMyjFnQ"/>
+</div>
+<div class="text-center">
+<p class="text-white font-headline-md text-[18px]">Marcus Thorne</p>
+<p class="text-white/60 text-label-md">Digital Painter</p>
+</div>
+</div>
+<!-- Artist Card 3 -->
+<div class="flex-shrink-0 w-64 space-y-sm">
+<div class="aspect-square rounded-full overflow-hidden border-2 border-primary/20 p-1">
+<img alt="Artist profile" class="w-full h-full object-cover rounded-full" data-alt="Close up portrait of a non-binary artist with vibrant hair and futuristic aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBH-MnzP5-va8Vgoq7l1RPVQr77b4DU_YscEP64y-neC1H464FciW5AaC9nXUlTtIwIwrOXuEKdZBcuFeCpovvMmcRjy63MgsbwYewyPGyqK61_Du1Bq5ScLeGoNJ1EbIzDyJuvmU9Us4NaU3vYuYA9DunAqRNKHX_PtVHtMwj69CO0pjXu9aC1FBMGY1b4Hdij9ann0t4l6xX-GY3nlXpn2IQqaDX981DZBQgP2ePGP8U2tT6_98wZQAp52wVFDGzOHqTjdEfEZig"/>
+</div>
+<div class="text-center">
+<p class="text-white font-headline-md text-[18px]">Sasha Vane</p>
+<p class="text-white/60 text-label-md">Mixed Media</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Feed: Artist Cards (Edge-to-Edge feel within container) -->
+<section class="space-y-lg">
+<h3 class="text-headline-md font-headline-md text-white">Recommended for You</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+<!-- Feed Item 1 -->
+<article class="relative aspect-[3/4] rounded-lg overflow-hidden glass-card group">
+<div class="h-[70%] w-full overflow-hidden">
+<img alt="Artwork" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" data-alt="Abstract expressionist painting with thick oil textures in deep reds and obsidian blacks" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBqAGa2XyVopWL2HNUzJvoGAD2VrxnNVzNTesiYGXr3lZ3OSze9I0TeSdxTPXYP5D2XRkrBxZAQ0soRGMvbg2wpCwFS4E_OS9QF2agRjyQP5cTjiAIKSLAKtBWrCXziLpBFVid_1DpiDmbhIYZHRPIZZz19HxW4b0dg0j_gF4VKaB253bnDLp5Bqff2MnnC3fRv8p9nY4OT-IKRM6GbhsGIZuW9AfYSTTEX89UkDPtcJ8KL5MgaRZ1Xz85DhbgyWg7ntGPULIHHaN0"/>
+</div>
+<div class="h-[30%] w-full flex items-center px-md bg-gradient-to-br from-surface-container-high to-surface-container-low">
+<div class="flex justify-between items-center w-full">
+<div class="space-y-xs">
+<h4 class="text-white font-headline-md text-[20px]">Crimson Echoes</h4>
+<p class="text-white/60 text-label-md">by Julianne Moore</p>
+</div>
+<div class="px-sm py-1 glass-card rounded-full text-white/80 text-[12px] font-label-md">Oil Painting</div>
+</div>
+</div>
+<button class="absolute top-md right-md w-10 h-10 rounded-full glass-card flex items-center justify-center text-white">
+<span class="material-symbols-outlined" data-icon="favorite">favorite</span>
+</button>
+</article>
+<!-- Feed Item 2 -->
+<article class="relative aspect-[3/4] rounded-lg overflow-hidden glass-card group">
+<div class="h-[70%] w-full overflow-hidden">
+<img alt="Artwork" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" data-alt="Minimalist sculpture made of brushed chrome and glass in a white studio space with soft shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuASZj3ZBAH_oi5WIyNUAQu1RYnFR3CslScFD8UqsiPoPGiPVU9aifUiZcbGQTUqNfSWk-h8BsTUPZBdDrwozuj9CiFf0otWRZR5Ij7B-pwizRtLvZuTqDSVEELh4JPjnbU8IDjOOnwH-QIe6CKeCmPd-4m4bXcUB0wAPjdcyoxk_OdHk37jYfCVK5MtFyqM9pEOJVI5xA40xXlBOFrwXUwC21vu97vdDkwamWnbdcRgkKl_fduVX0BaYUkSlu0CGaFvUbLpDpk8uWw"/>
+</div>
+<div class="h-[30%] w-full flex items-center px-md bg-gradient-to-br from-surface-container-high to-surface-container-low">
+<div class="flex justify-between items-center w-full">
+<div class="space-y-xs">
+<h4 class="text-white font-headline-md text-[20px]">Liquid Form #4</h4>
+<p class="text-white/60 text-label-md">by David Chen</p>
+</div>
+<div class="px-sm py-1 glass-card rounded-full text-white/80 text-[12px] font-label-md">Sculpture</div>
+</div>
+</div>
+<button class="absolute top-md right-md w-10 h-10 rounded-full glass-card flex items-center justify-center text-white">
+<span class="material-symbols-outlined" data-icon="favorite">favorite</span>
+</button>
+</article>
+</div>
+</section>
+<!-- Open Projects (Horizontal Scroll) -->
+<section class="space-y-md">
+<div class="flex items-center justify-between">
+<h3 class="text-headline-md font-headline-md text-white">Open Projects</h3>
+<button class="text-primary font-label-md text-label-md">Explore All</button>
+</div>
+<div class="flex gap-gutter overflow-x-auto no-scrollbar pb-sm">
+<!-- Project Card 1 -->
+<div class="flex-shrink-0 w-[300px] p-md glass-card rounded-lg space-y-md">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="movie">movie</span>
+</div>
+<div>
+<p class="text-white font-label-md">Short Film: Neon Nights</p>
+<p class="text-white/40 text-[12px]">Looking for Sound Designer</p>
+</div>
+</div>
+<div class="h-1 bg-white/10 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-2/3"></div>
+</div>
+<div class="flex justify-between items-center">
+<p class="text-white/60 text-[12px]">65% Funded</p>
+<button class="text-primary font-label-md text-label-md">Join</button>
+</div>
+</div>
+<!-- Project Card 2 -->
+<div class="flex-shrink-0 w-[300px] p-md glass-card rounded-lg space-y-md">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined" data-icon="book">book</span>
+</div>
+<div>
+<p class="text-white font-label-md">Anthology: Future Mythos</p>
+<p class="text-white/40 text-[12px]">Looking for Illustrators</p>
+</div>
+</div>
+<div class="h-1 bg-white/10 rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-1/4"></div>
+</div>
+<div class="flex justify-between items-center">
+<p class="text-white/60 text-[12px]">22% Funded</p>
+<button class="text-secondary font-label-md text-label-md">Join</button>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Shell -->
+<nav class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex justify-around items-center px-4 py-2 w-[90%] max-w-md bg-white/10 backdrop-blur-3xl rounded-full border border-white/10 shadow-2xl">
+<a class="flex flex-col items-center justify-center bg-violet-600 text-white rounded-full p-3 scale-95 duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="home" style="font-variation-settings: 'FILL' 1;">home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-white/50 p-3 hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</a>
+<a class="flex flex-col items-center justify-center text-white/50 p-3 hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+</a>
+<a class="flex flex-col items-center justify-center text-white/50 p-3 hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="folder">folder</span>
+</a>
+<a class="flex flex-col items-center justify-center text-white/50 p-3 hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+</a>
+</nav>
+</body></html>

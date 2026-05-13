@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LIZI - Collaboration Projects</title>
+    <style>
+        :root {
+            --bg-primary: linear-gradient(135deg, #301934 0%, #131313 100%);
+            --bg-secondary: rgba(48, 25, 52, 0.95);
+            --text-primary: #e5e2e1;
+            --text-secondary: #c4c7c8;
+            --border-color: #444748;
+            --card-bg: rgba(57, 57, 57, 0.5);
+            --accent: #8A2BE2;
+            --accent-hover: #7B1BA8;
+            --accent-alt: #00BFFF;
+            --success: #00D084;
+            --warning: #FFB800;
+            --danger: #FF4757;
+        }
+
+        [data-theme="light"] {
+            --bg-primary: linear-gradient(135deg, #f5f1ff 0%, #ffffff 100%);
+            --bg-secondary: rgba(255, 255, 255, 0.95);
+            --text-primary: #131313;
+            --text-secondary: #333333;
+            --border-color: #e0e0e0;
+            --card-bg: rgba(230, 230, 250, 0.3);
+            --accent: #8A2BE2;
+            --accent-hover: #7B1BA8;
+            --accent-alt: #00BFFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Roboto', 'Helvetica Neue', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--accent);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover {
+            color: var(--accent);
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .theme-toggle, .lang-toggle {
+            background: none;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-weight: 700;
+        }
+
+        .theme-toggle:hover, .lang-toggle:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, rgba(138, 43, 226, 0.2) 0%, rgba(0, 191, 255, 0.2) 100%);
+            border-bottom: 1px solid var(--border-color);
+            padding: 3rem 2rem;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .new-project-btn {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-alt));
+            border: none;
+            border-radius: 25px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .new-project-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(138, 43, 226, 0.3);
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 16px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-tab {
+            padding: 8px 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .filter-tab:hover,
+        .filter-tab.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        /* Projects Grid */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .project-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .project-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent);
+            box-shadow: 0 12px 30px rgba(138, 43, 226, 0.2);
+        }
+
+        .project-header {
+            padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(138, 43, 226, 0.1) 0%, rgba(0, 191, 255, 0.1) 100%);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .project-icon {
+            font-size: 32px;
+        }
+
+        .project-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: rgba(0, 208, 132, 0.2);
+            color: var(--success);
+        }
+
+        .status-in-progress {
+            background: rgba(255, 184, 0, 0.2);
+            color: var(--warning);
+        }
+
+        .status-completed {
+            background: rgba(138, 43, 226, 0.2);
+            color: var(--accent);
+        }
+
+        .project-body {
+            padding: 1.5rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .project-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .project-description {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+
+        .project-genres {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .genre-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(138, 43, 226, 0.2);
+            border: 1px solid var(--accent);
+            border-radius: 12px;
+            color: var(--accent-alt);
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .project-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .collaborators {
+            margin-bottom: 1rem;
+        }
+
+        .collaborators-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .collaborators-avatars {
+            display: flex;
+            gap: -8px;
+        }
+
+        .collaborator-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent-alt));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            border: 2px solid var(--bg-primary);
+            margin-left: -8px;
+        }
+
+        .collaborator-avatar:first-child {
+            margin-left: 0;
+        }
+
+        .project-footer {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: auto;
+        }
+
+        .project-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .view-btn {
+            background: linear-gradient(135deg, var(--accent), var(--accent-alt));
+            color: white;
+        }
+
+        .view-btn:hover {
+            transform: scale(1.02);
+        }
+
+        .manage-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+        }
+
+        .manage-btn:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 24px;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .empty-state p {
+            margin-bottom: 1rem;
+        }
+
+        .empty-state-btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-alt));
+            border: none;
+            border-radius: 25px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .empty-state-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Stats Section */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            padding: 2rem;
+            text-align: center;
+            color: var(--text-secondary);
+            margin-top: 3rem;
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .header h1 {
+                font-size: 28px;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+
+            nav {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .filter-tabs {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html" class="logo">🎵 LIZI</a>
+        <div style="display: flex; gap: 2rem;">
+            <a href="index.html">Home</a>
+            <a href="search.html">Search</a>
+            <a href="collaboration.html" style="color: var(--accent); font-weight: 600;">Projects</a>
+        </div>
+        <div class="nav-buttons">
+            <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+            <button class="lang-toggle" onclick="toggleLanguage()">EN</button>
+            <a href="profile.html" style="color: var(--accent); font-weight: 600;">My Profile</a>
+        </div>
+    </nav>
+
+    <div class="header">
+        <div class="header-content">
+            <h1>Collaboration Projects</h1>
+            <button class="new-project-btn" onclick="createNewProject()">+ New Project</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Stats -->
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value">8</div>
+                <div class="stat-label">Active Projects</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">24</div>
+                <div class="stat-label">Total Collaborators</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">3</div>
+                <div class="stat-label">Completed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">15</div>
+                <div class="stat-label">Pending Reviews</div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <div class="search-box">
+                <input type="text" placeholder="Search projects by name or collaborator...">
+            </div>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="filter-tabs">
+            <button class="filter-tab active" onclick="filterProjects('all')">All</button>
+            <button class="filter-tab" onclick="filterProjects('active')">Active</button>
+            <button class="filter-tab" onclick="filterProjects('in-progress')">In Progress</button>
+            <button class="filter-tab" onclick="filterProjects('completed')">Completed</button>
+            <button class="filter-tab" onclick="filterProjects('archived')">Archived</button>
+        </div>
+
+        <!-- Projects Grid -->
+        <div class="projects-grid" id="projectsGrid">
+            <!-- Project Card 1 -->
+            <div class="project-card">
+                <div class="project-header">
+                    <div class="project-icon">🎵</div>
+                    <span class="project-status status-active">Active</span>
+                </div>
+                <div class="project-body">
+                    <div class="project-title">Summer Beats Compilation</div>
+                    <p class="project-description">A collaborative compilation album featuring summer vibes from multiple artists</p>
+                    <div class="project-genres">
+                        <span class="genre-tag">Electronic</span>
+                        <span class="genre-tag">Pop</span>
+                        <span class="genre-tag">Summer</span>
+                    </div>
+                    <div class="project-meta">
+                        <span>Started: May 2024</span>
+                        <span>Target: Aug 2024</span>
+                    </div>
+                    <div class="collaborators">
+                        <div class="collaborators-label">Collaborators</div>
+                        <div class="collaborators-avatars">
+                            <div class="collaborator-avatar">👨</div>
+                            <div class="collaborator-avatar">👩</div>
+                            <div class="collaborator-avatar">🧑</div>
+                            <div class="collaborator-avatar">+2</div>
+                        </div>
+                    </div>
+                    <div class="project-footer">
+                        <button class="project-btn view-btn">View Details</button>
+                        <button class="project-btn manage-btn">Manage</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project Card 2 -->
+            <div class="project-card">
+                <div class="project-header">
+                    <div class="project-icon">🎸</div>
+                    <span class="project-status status-in-progress">In Progress</span>
+                </div>
+                <div class="project-body">
+                    <div class="project-title">Rock Revival Sessions</div>
+                    <p class="project-description">Reimagined classic rock songs with modern production techniques</p>
+                    <div class="project-genres">
+                        <span class="genre-tag">Rock</span>
+                        <span class="genre-tag">Fusion</span>
+                    </div>
+                    <div class="project-meta">
+                        <span>Started: Mar 2024</span>
+                        <span>Target: Sep 2024</span>
+                    </div>
+                    <div class="collaborators">
+                        <div class="collaborators-label">Collaborators</div>
+                        <div class="collaborators-avatars">
+                            <div class="collaborator-avatar">👨</div>
+                            <div class="collaborator-avatar">👩</div>
+                        </div>
+                    </div>
+                    <div class="project-footer">
+                        <button class="project-btn view-btn">View Details</button>
+                        <button class="project-btn manage-btn">Manage</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project Card 3 -->
+            <div class="project-card">
+                <div class="project-header">
+                    <div class="project-icon">🎤</div>
+                    <span class="project-status status-active">Active</span>
+                </div>
+                <div class="project-body">
+                    <div class="project-title">Hip-Hop Collab Album</div>
+                    <p class="project-description">Collaborative hip-hop album featuring emerging and established artists</p>
+                    <div class="project-genres">
+                        <span class="genre-tag">Hip-Hop</span>
+                        <span class="genre-tag">Rap</span>
+                        <span class="genre-tag">Trap</span>
+                    </div>
+                    <div class="project-meta">
+                        <span>Started: Apr 2024</span>
+                        <span>Target: Oct 2024</span>
+                    </div>
+                    <div class="collaborators">
+                        <div class="collaborators-label">Collaborators</div>
+                        <div class="collaborators-avatars">
+                            <div class="collaborator-avatar">👨</div>
+                            <div class="collaborator-avatar">👩</div>
+                            <div class="collaborator-avatar">🧑</div>
+                            <div class="collaborator-avatar">+4</div>
+                        </div>
+                    </div>
+                    <div class="project-footer">
+                        <button class="project-btn view-btn">View Details</button>
+                        <button class="project-btn manage-btn">Manage</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project Card 4 -->
+            <div class="project-card">
+                <div class="project-header">
+                    <div class="project-icon">🎹</div>
+                    <span class="project-status status-completed">Completed</span>
+                </div>
+                <div class="project-body">
+                    <div class="project-title">Jazz Standards Reimagined</div>
+                    <p class="project-description">Modern take on classic jazz standards with contemporary instrumentation</p>
+                    <div class="project-genres">
+                        <span class="genre-tag">Jazz</span>
+                        <span class="genre-tag">Contemporary</span>
+                    </div>
+                    <div class="project-meta">
+                        <span>Started: Jan 2024</span>
+                        <span>Completed: Apr 2024</span>
+                    </div>
+                    <div class="collaborators">
+                        <div class="collaborators-label">Collaborators</div>
+                        <div class="collaborators-avatars">
+                            <div class="collaborator-avatar">👨</div>
+                            <div class="collaborator-avatar">👩</div>
+                        </div>
+                    </div>
+                    <div class="project-footer">
+                        <button class="project-btn view-btn">View Details</button>
+                        <button class="project-btn manage-btn">Manage</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project Card 5 -->
+            <div class="project-card">
+                <div class="project-header">
+                    <div class="project-icon">🎧</div>
+                    <span class="project-status status-active">Active</span>
+                </div>
+                <div class="project-body">
+                    <div class="project-title">Electronic Music Festival</div>
+                    <p class="project-description">Compilation album for the annual electronic music festival</p>
+                    <div class="project-genres">
+                        <span class="genre-tag">Electronic</span>
+                        <span class="genre-tag">EDM</span>
+                        <span class="genre-tag">Ambient</span>
+                    </div>
+                    <div class="project-meta">
+                        <span>Started: Feb 2024</span>
+                        <span>Target: Jul 2024</span>
+                    </div>
+                    <div class="collaborators">
+                        <div class="collaborators-label">Collaborators</div>
+                        <div class="collaborators-avatars">
+                            <div class="collaborator-avatar">👨</div>
+                            <div class="collaborator-avatar">👩</div>
+                            <div class="collaborator-avatar">🧑</div>
+                        </div>
+                    </div>
+                    <div class="project-footer">
+                        <button class="project-btn view-btn">View Details</button>
+                        <button class="project-btn manage-btn">Manage</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project Card 6 -->
+            <div class="project-card">
+                <div class="project-header">
+                    <div class="project-icon">🎺</div>
+                    <span class="project-status status-in-progress">In Progress</span>
+                </div>
+                <div class="project-body">
+                    <div class="project-title">Latin Fusion Beats</div>
+                    <p class="project-description">Fusion of traditional Latin music with modern production styles</p>
+                    <div class="project-genres">
+                        <span class="genre-tag">Latin</span>
+                        <span class="genre-tag">Fusion</span>
+                    </div>
+                    <div class="project-meta">
+                        <span>Started: Mar 2024</span>
+                        <span>Target: Nov 2024</span>
+                    </div>
+                    <div class="collaborators">
+                        <div class="collaborators-label">Collaborators</div>
+                        <div class="collaborators-avatars">
+                            <div class="collaborator-avatar">👨</div>
+                            <div class="collaborator-avatar">👩</div>
+                            <div class="collaborator-avatar">+1</div>
+                        </div>
+                    </div>
+                    <div class="project-footer">
+                        <button class="project-btn view-btn">View Details</button>
+                        <button class="project-btn manage-btn">Manage</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 LIZI - Music Collaboration Platform. All rights reserved.</p>
+    </footer>
+
+    <script>
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            const themeBtn = document.querySelector('.theme-toggle');
+            themeBtn.textContent = newTheme === 'light' ? '☀️' : '🌙';
+        }
+
+        function toggleLanguage() {
+            // TODO: Implement language toggle
+            alert('Language toggle coming soon!');
+        }
+
+        function createNewProject() {
+            alert('Create new project form coming soon!');
+        }
+
+        function filterProjects(filter) {
+            const buttons = document.querySelectorAll('.filter-tab');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            console.log('Filtering by:', filter);
+            // TODO: Implement filter functionality
+        }
+
+        // Load theme preference
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            
+            const themeBtn = document.querySelector('.theme-toggle');
+            themeBtn.textContent = savedTheme === 'light' ? '☀️' : '🌙';
+        });
+    </script>
+</body>
+</html>

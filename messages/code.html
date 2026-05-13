@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;500;700&amp;family=Plus+Jakarta+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #131314;
+            color: #e5e2e3;
+            -webkit-font-smoothing: antialiased;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glow-button {
+            box-shadow: 0 4px 20px rgba(160, 120, 255, 0.3);
+        }
+    </style>
+<script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {"on-tertiary-container": "#5b0017", "inverse-on-surface": "#313031", "tertiary-fixed": "#ffdadb", "surface-container-lowest": "#0e0e0f", tertiary: "#ffb2b7", "on-background": "#e5e2e3", "on-primary-container": "#340080", "error-container": "#93000a", "on-primary": "#3c0091", "on-primary-fixed": "#23005c", "on-error-container": "#ffdad6", "secondary-container": "#03b5d3", "surface-tint": "#d0bcff", "surface-container": "#201f20", "primary-container": "#a078ff", "primary-fixed": "#e9ddff", primary: "#d0bcff", secondary: "#4cd7f6", "on-surface-variant": "#cbc3d7", background: "#131314", "tertiary-fixed-dim": "#ffb2b7", "inverse-surface": "#e5e2e3", "surface-dim": "#131314", "secondary-fixed-dim": "#4cd7f6", "outline-variant": "#494454", "on-secondary-fixed-variant": "#004e5c", "on-primary-fixed-variant": "#5516be", "tertiary-container": "#ff516a", "surface-container-high": "#2a2a2b", "on-secondary-container": "#00424e", "on-secondary": "#003640", error: "#ffb4ab", "secondary-fixed": "#acedff", "on-tertiary": "#67001b", "surface-container-highest": "#353436", "on-tertiary-fixed": "#40000d", "surface-container-low": "#1c1b1c", "on-surface": "#e5e2e3", "on-error": "#690005", outline: "#958ea0", "on-tertiary-fixed-variant": "#92002a", "surface-variant": "#353436", "on-secondary-fixed": "#001f26", surface: "#131314", "primary-fixed-dim": "#d0bcff", "surface-bright": "#3a393a", "inverse-primary": "#6d3bd7"}, borderRadius: {DEFAULT: "1rem", lg: "2rem", xl: "3rem", full: "9999px"}, spacing: {lg: "48px", gutter: "24px", xs: "4px", base: "8px", xl: "80px", md: "24px", sm: "12px", "container-margin": "32px"}, fontFamily: {"headline-xl": ["Epilogue"], "body-md": ["Plus Jakarta Sans"], "label-md": ["Plus Jakarta Sans"], "headline-md": ["Epilogue"], "headline-lg": ["Epilogue"], "body-lg": ["Plus Jakarta Sans"], headline: ["Epilogue"], display: ["Epilogue"], body: ["Plus Jakarta Sans"], label: ["Plus Jakarta Sans"]}, fontSize: {"headline-xl": ["48px", {lineHeight: "1.1", letterSpacing: "-0.04em", fontWeight: "800"}], "body-md": ["16px", {lineHeight: "1.5", fontWeight: "400"}], "label-md": ["14px", {lineHeight: "1.2", fontWeight: "600"}], "headline-md": ["24px", {lineHeight: "1.3", fontWeight: "700"}], "headline-lg": ["32px", {lineHeight: "1.2", letterSpacing: "-0.02em", fontWeight: "700"}], "body-lg": ["18px", {lineHeight: "1.6", fontWeight: "400"}]}}}};</script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface min-h-screen flex flex-col font-body-md">
+<!-- TopAppBar -->
+<header class="bg-zinc-950/80 backdrop-blur-3xl border-b border-white/10 fixed top-0 z-50 flex justify-between items-center w-full px-6 h-16">
+<button class="text-zinc-400 hover:bg-white/5 transition-all active:scale-95 p-2 rounded-full">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="font-['Epilogue'] tracking-tight font-semibold text-white text-lg">Compose</h1>
+<button class="text-zinc-400 hover:bg-white/5 transition-all active:scale-95 p-2 rounded-full">
+<span class="material-symbols-outlined" data-icon="visibility">visibility</span>
+</button>
+</header>
+<!-- Main Content -->
+<main class="flex-grow pt-24 pb-32 px-container-margin max-w-4xl mx-auto w-full">
+<form class="space-y-gutter">
+<!-- Recipient Field -->
+<div class="glass-panel p-4 rounded-lg flex items-center gap-sm">
+<span class="text-outline font-label-md min-w-[60px]">To:</span>
+<div class="flex items-center bg-white/10 rounded-full pl-1 pr-4 py-1 gap-2">
+<img alt="Julian Thorne" class="w-8 h-8 rounded-full object-cover" data-alt="Close-up portrait of a stylish man with a short beard and creative eyewear in a modern design studio setting with soft moody lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAgWa02OTR30yvsvJrOtNMwOpYmy6eRdvA2vlW1Nr9cFF55ViE15aIqxd54gTCcKh062yKYD1vlsp9M1Mi8_UYdLlASgCmwJSjRPMK8u5ZDCffpLNJVb1mKnh-QNYEOFzWisGU2xSX1T7tPbdppvxn4G9R2MMJooe-6Y25SKT4eu15BHc_K6SzOibL6qlNRSSM2adVnX3GtVM0s3jt8ZviXLsVkm-kXi5Ai9syMeDBxlx-KEUsJZZgzr_Xf2-pPDstEWwpNDHm6aP4"/>
+<span class="text-white font-label-md">Julian Thorne</span>
+<span class="material-symbols-outlined text-[16px] text-zinc-500 cursor-pointer">close</span>
+</div>
+<div class="flex-grow"></div>
+<span class="material-symbols-outlined text-zinc-500">add_circle</span>
+</div>
+<!-- Subject Field -->
+<div class="glass-panel p-4 rounded-lg flex items-center gap-sm focus-within:ring-2 focus-within:ring-primary-container/50 transition-all">
+<span class="text-outline font-label-md min-w-[60px]">Subject:</span>
+<input class="bg-transparent border-none focus:ring-0 text-white w-full placeholder:text-zinc-600 font-body-md" placeholder="Subject" type="text"/>
+</div>
+<!-- Message Body -->
+<div class="glass-panel p-6 rounded-lg min-h-[400px] flex flex-col focus-within:ring-2 focus-within:ring-primary-container/50 transition-all">
+<textarea class="bg-transparent border-none focus:ring-0 text-white w-full flex-grow placeholder:text-zinc-600 font-body-lg resize-none" placeholder="Type your message here..."></textarea>
+<!-- Composition Tools -->
+<div class="mt-md pt-md border-t border-white/5 flex items-center justify-between">
+<div class="flex gap-4">
+<button class="text-zinc-500 hover:text-primary transition-colors" type="button">
+<span class="material-symbols-outlined">format_bold</span>
+</button>
+<button class="text-zinc-500 hover:text-primary transition-colors" type="button">
+<span class="material-symbols-outlined">attach_file</span>
+</button>
+<button class="text-zinc-500 hover:text-primary transition-colors" type="button">
+<span class="material-symbols-outlined">image</span>
+</button>
+<button class="text-zinc-500 hover:text-primary transition-colors" type="button">
+<span class="material-symbols-outlined">sentiment_satisfied</span>
+</button>
+</div>
+<div class="text-zinc-600 text-[12px] font-medium uppercase tracking-widest">
+                        Draft saved
+                    </div>
+</div>
+</div>
+<!-- Send Button -->
+<div class="flex justify-end pt-base">
+<button class="bg-primary-container text-on-primary-container font-headline-md px-12 py-4 rounded-full glow-button flex items-center gap-3 hover:bg-primary transition-all active:scale-95 group">
+<span>Send</span>
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">send</span>
+</button>
+</div>
+</form>
+</main>
+<!-- BottomNavBar -->
+<nav class="bg-zinc-950/80 backdrop-blur-3xl fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-4 rounded-t-[32px] border-t border-white/10 shadow-[0_-4px_20px_rgba(0,0,0,0.5)]">
+<a class="flex items-center justify-center text-zinc-500 p-3 hover:text-violet-400 transition-colors active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+</a>
+<a class="flex items-center justify-center text-zinc-500 p-3 hover:text-violet-400 transition-colors active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</a>
+<a class="flex items-center justify-center text-zinc-500 p-3 hover:text-violet-400 transition-colors active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+</a>
+<a class="flex items-center justify-center bg-violet-500/20 text-violet-500 rounded-full p-3 active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="chat_bubble" style="font-variation-settings: 'FILL' 1;">chat_bubble</span>
+</a>
+<a class="flex items-center justify-center text-zinc-500 p-3 hover:text-violet-400 transition-colors active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+</a>
+</nav>
+</body></html>
