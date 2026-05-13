@@ -1,38 +1,32 @@
 <!DOCTYPE html>
-
-<html class="dark" lang="en"><head>
+<html class="dark" lang="en">
+<head>
+<title>Lizi Music Platform</title>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;500;700&amp;family=Plus+Jakarta+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {"surface-tint": "#d0bcff", "surface-bright": "#3a393a", "tertiary-fixed": "#ffdadb", "on-tertiary": "#67001b", "primary-fixed": "#e9ddff", "outline-variant": "#494454", "on-secondary": "#003640", "on-primary-container": "#340080", "surface-container-lowest": "#0e0e0f", "on-primary": "#3c0091", "secondary-fixed-dim": "#4cd7f6", "error-container": "#93000a", "surface-dim": "#131314", "on-primary-fixed": "#23005c", error: "#ffb4ab", "inverse-surface": "#e5e2e3", "surface-container-low": "#1c1b1c", "on-tertiary-container": "#5b0017", "primary-container": "#a078ff", secondary: "#4cd7f6", "on-surface-variant": "#cbc3d7", "primary-fixed-dim": "#d0bcff", "on-error-container": "#ffdad6", "on-error": "#690005", "surface-container-high": "#2a2a2b", "surface-container": "#201f20", outline: "#958ea0", "on-primary-fixed-variant": "#5516be", background: "#131314", "on-surface": "#e5e2e3", "on-secondary-fixed-variant": "#004e5c", "on-secondary-fixed": "#001f26", "on-tertiary-fixed": "#40000d", surface: "#131314", tertiary: "#ffb2b7", "on-background": "#e5e2e3", "surface-container-highest": "#353436", "inverse-on-surface": "#313031", "on-secondary-container": "#00424e", primary: "#d0bcff", "tertiary-container": "#ff516a", "inverse-primary": "#6d3bd7", "secondary-fixed": "#acedff", "tertiary-fixed-dim": "#ffb2b7", "on-tertiary-fixed-variant": "#92002a", "secondary-container": "#03b5d3", "surface-variant": "#353436"}, borderRadius: {DEFAULT: "1rem", lg: "2rem", xl: "3rem", full: "9999px"}, spacing: {lg: "48px", "container-margin": "32px", base: "8px", md: "24px", gutter: "24px", xs: "4px", sm: "12px", xl: "80px"}, fontFamily: {"body-md": ["Plus Jakarta Sans"], "headline-md": ["Epilogue"], "headline-xl": ["Epilogue"], "label-md": ["Plus Jakarta Sans"], "headline-lg": ["Epilogue"], "body-lg": ["Plus Jakarta Sans"], headline: ["Epilogue"], display: ["Epilogue"], body: ["Plus Jakarta Sans"], label: ["Plus Jakarta Sans"]}, fontSize: {"body-md": ["16px", {lineHeight: "1.5", fontWeight: "400"}], "headline-md": ["24px", {lineHeight: "1.3", fontWeight: "700"}], "headline-xl": ["48px", {lineHeight: "1.1", letterSpacing: "-0.04em", fontWeight: "800"}], "label-md": ["14px", {lineHeight: "1.2", fontWeight: "600"}], "headline-lg": ["32px", {lineHeight: "1.2", letterSpacing: "-0.02em", fontWeight: "700"}], "body-lg": ["18px", {lineHeight: "1.6", fontWeight: "400"}]}}}};</script>
 <style>
-        .glass-card {
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(24px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-    </style>
-<style>
-    body {
-      min-height: max(884px, 100dvh);
-    }
-  </style>
-<style>
-    body {
-      min-height: max(884px, 100dvh);
-    }
-  </style>
-  </head>
+  .glass-card {
+    background: rgba(255, 255, 255, 0.08);
+    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: thin;
+  }
+  body {
+    min-height: max(884px, 100dvh);
+  }
+</style>
+</head>
 <body class="bg-background text-on-background font-body-md min-h-screen pb-40">
 <!-- Top Navigation Anchor -->
 <header class="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-md">
@@ -205,7 +199,7 @@
 </section>
 </main>
 <!-- Bottom Navigation Shell -->
-<nav class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex justify-around items-center px-4 py-2 w-[90%] max-w-md bg-white/10 backdrop-blur-3xl rounded-full border border-white/10 shadow-2xl">
+<nav class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex justify-around items-center px-4 py-2 w-[90%] max-w-md bg-white/10 backdrop-blur-xl rounded-full border border-white/10 shadow-2xl">
 <a class="flex flex-col items-center justify-center bg-violet-600 text-white rounded-full p-3 scale-95 duration-300" href="#">
 <span class="material-symbols-outlined" data-icon="home" style="font-variation-settings: 'FILL' 1;">home</span>
 </a>
