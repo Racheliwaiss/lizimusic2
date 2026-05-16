@@ -1,0 +1,202 @@
+.discover {
+  max-width: 900px;
+}
+
+.page-title {
+  font-family: var(--font-display);
+  font-size: var(--text-display-lg-size);
+  font-weight: 800;
+  color: var(--color-primary);
+  letter-spacing: -0.03em;
+  margin-bottom: 8px;
+}
+
+.page-subtitle {
+  color: var(--color-on-surface-variant);
+  font-size: var(--text-body-lg-size);
+  margin-bottom: 32px;
+}
+
+/* Search */
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: var(--radius-full);
+  padding: 12px 24px;
+  margin-bottom: 24px;
+}
+
+.search-icon {
+  font-size: 18px;
+  color: var(--color-outline);
+  flex-shrink: 0;
+}
+
+.search-input {
+  background: none;
+  border: none;
+  outline: none;
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: var(--text-body-md-size);
+  color: var(--color-primary);
+}
+
+.search-input::placeholder {
+  color: var(--color-outline);
+}
+
+/* Genre chips */
+.genre-filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 32px;
+}
+
+.genre-chip {
+  padding: 8px 20px;
+  border-radius: var(--radius-full);
+  font-size: var(--text-label-md-size);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  background: var(--color-surface-container);
+  color: var(--color-on-surface-variant);
+  border: 1px solid transparent;
+  transition: all var(--transition-fast);
+}
+
+.genre-chip:hover {
+  background: var(--color-surface-container-high);
+  color: var(--color-primary);
+}
+
+.genre-chip.active {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+/* Track list */
+.track-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 48px;
+  color: var(--color-on-surface-variant);
+  font-size: var(--text-body-lg-size);
+}
+
+.track-row {
+  display: grid;
+  grid-template-columns: 32px 48px 1fr auto auto auto 40px;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  transition: background var(--transition-fast), transform var(--transition-fast);
+  cursor: pointer;
+}
+
+.track-row:hover {
+  background: var(--color-surface-container-high) !important;
+  transform: translateX(4px);
+}
+
+.row-index {
+  font-size: var(--text-label-md-size);
+  font-weight: 600;
+  color: var(--color-outline);
+  font-variant-numeric: tabular-nums;
+}
+
+.row-thumb {
+  width: 48px;
+  height: 48px;
+  background: var(--color-surface-container-high);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: var(--color-secondary);
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.row-play {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: var(--color-primary);
+  background: rgba(0,0,0,0.6);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.track-row:hover .row-play { opacity: 1; }
+
+.row-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.row-title {
+  font-weight: 600;
+  font-size: var(--text-body-md-size);
+  color: var(--color-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.row-artist {
+  font-size: var(--text-label-md-size);
+  color: var(--color-on-surface-variant);
+}
+
+.row-genre {
+  font-size: var(--text-label-sm-size);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+  white-space: nowrap;
+}
+
+.row-plays,
+.row-duration {
+  font-size: var(--text-label-md-size);
+  color: var(--color-outline);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.row-like {
+  font-size: 18px;
+  color: var(--color-outline);
+  transition: color var(--transition-fast), transform var(--transition-fast);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.row-like:hover { color: var(--color-primary); transform: scale(1.2); }
+.row-like.liked  { color: var(--color-accent); }
+
+@media (max-width: 640px) {
+  .track-row {
+    grid-template-columns: 40px 1fr auto 40px;
+  }
+  .row-index, .row-genre, .row-plays, .row-duration { display: none; }
+}
