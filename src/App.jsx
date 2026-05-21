@@ -9,6 +9,7 @@ import Messages from './pages/Messages';
 import Collaboration from './pages/Collaboration';
 import Search from './pages/Search';
 import OpenStage from './pages/OpenStage';
+import About from './pages/About';
 
 function AppContent() {
   const { language } = useLanguage();
@@ -29,6 +30,7 @@ function AppContent() {
             <Layout>
               <Routes>
                 <Route path="/" element={<Home />} />
+                <Route path="/about" element={<About />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/messages" element={<Messages />} />
                 <Route path="/collaboration" element={<Collaboration />} />

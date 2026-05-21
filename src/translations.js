@@ -10,6 +10,7 @@ const translations = {
       collaborate: 'Collaborate',
       messages: 'Messages',
       profile: 'Profile',
+      about: 'About',
     },
 
     // Home Page
@@ -89,6 +90,25 @@ const translations = {
       followers: 'followers',
       listenNow: 'Listen Now',
     },
+
+    // About Page
+    about: {
+      title: 'About LIZI',
+      subtitle: 'Empowering Musicians Worldwide',
+      mission: 'Our Mission',
+      missionDesc: 'LIZI is dedicated to democratizing music creation and distribution. We believe every musician deserves a platform to create, collaborate, and share their artistry with the world.',
+      vision: 'Our Vision',
+      visionDesc: 'To build a vibrant global community where amateur and professional musicians can collaborate, inspire each other, and create incredible music together.',
+      values: 'Our Values',
+      creativity: 'Creativity',
+      creativetyDesc: 'We celebrate artistic expression in all its forms',
+      community: 'Community',
+      communityDesc: 'We foster connections between musicians worldwide',
+      accessibility: 'Accessibility',
+      accessibilityDesc: 'Quality music tools should be available to everyone',
+      innovation: 'Innovation',
+      innovationDesc: 'We continuously evolve to serve our musicians better',
+    },
   },
   he: {
     // Navigation
@@ -100,6 +120,7 @@ const translations = {
       collaborate: 'שיתוף פעולה',
       messages: 'הודעות',
       profile: 'פרופיל',
+      about: 'אודות',
     },
 
     // Home Page
@@ -178,6 +199,25 @@ const translations = {
       allGenres: 'כל הז\'אנרים',
       followers: 'עוקבים',
       listenNow: 'היוזן עכשיו',
+    },
+
+    // About Page
+    about: {
+      title: 'אודות LIZI',
+      subtitle: 'הנעת מוזיקאים ברחבי העולם',
+      mission: 'המשימה שלנו',
+      missionDesc: 'LIZI מוקדשת לדמוקרטיזציה של יצירה וחלוקה של מוזיקה. אנחנו מאמינים שלכל מוזיקאי מגיע פלטפורמה ליצור, לשתף פעולה ולשתף את יצירתו עם העולם.',
+      vision: 'החזון שלנו',
+      visionDesc: 'לבנות קהילה גלובלית תוססת שבה מוזיקאים חובבים ומקצועיים יכולים לשתף פעולה, להשראות זה את זה ליצור מוזיקה מדהימה ביחד.',
+      values: 'הערכים שלנו',
+      creativity: 'יצירתיות',
+      creativetyDesc: 'אנחנו חוגגים ביטוי אמנותי בכל הצורות שלו',
+      community: 'קהילה',
+      communityDesc: 'אנחנו טוענים חיבורים בין מוזיקאים ברחבי העולם',
+      accessibility: 'נגישות',
+      accessibilityDesc: 'כלים איכותיים למוזיקה צריכים להיות זמינים לכולם',
+      innovation: 'חדשנות',
+      innovationDesc: 'אנחנו מתפתחים כל הזמן כדי לשרת את המוזיקאים שלנו בצורה טובה יותר',
     },
   },
 };

@@ -24,6 +24,7 @@ function Layout({ children }) {
         </div>
         <div className="nav-links">
           <Link to="/" className={isActive('/') ? 'active' : ''}>{t('nav.home')}</Link>
+          <Link to="/about" className={isActive('/about') ? 'active' : ''}>{t('nav.about')}</Link>
           <Link to="/open-stage" className={isActive('/open-stage') ? 'active' : ''}>{t('nav.discover')}</Link>
           <Link to="/search" className={isActive('/search') ? 'active' : ''}>{t('nav.search')}</Link>
           <Link to="/collaboration" className={isActive('/collaboration') ? 'active' : ''}>{t('nav.collaborate')}</Link>
