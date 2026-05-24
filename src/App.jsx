@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { LanguageProvider, useLanguage } from './LanguageContext';
+import { AuthProvider, useAuth } from './AuthContext';
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -10,6 +11,15 @@ import Collaboration from './pages/Collaboration';
 import Search from './pages/Search';
 import OpenStage from './pages/OpenStage';
 import About from './pages/About';
+
+// Protected Route Component
+function ProtectedRoute({ element }) {
+  const { isAuthenticated, loading } = useAuth();
+
+  if (loading) return <div>Loading...</div>;
+  
+  return isAuthenticated ? element : <Navigate to="/login" replace />;
+}
 
 function AppContent() {
   const { language } = useLanguage();
@@ -31,7 +41,7 @@ function AppContent() {
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/about" element={<About />} />
-                <Route path="/profile" element={<Profile />} />
+                <Route path="/profile" element={<ProtectedRoute element={<Profile />} />} />
                 <Route path="/messages" element={<Messages />} />
                 <Route path="/collaboration" element={<Collaboration />} />
                 <Route path="/search" element={<Search />} />
@@ -48,7 +58,9 @@ function AppContent() {
 function App() {
   return (
     <LanguageProvider>
-      <AppContent />
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
     </LanguageProvider>
   );
 }

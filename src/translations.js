@@ -41,6 +41,9 @@ const translations = {
       loginBtn: 'Login',
       noAccount: "Don't have an account?",
       signup: 'Sign up',
+      orContinueWith: 'Or continue with',
+      googleLogin: 'Continue with Google',
+      googleSignup: 'Sign up with Google',
     },
 
     // Profile Page
@@ -151,6 +154,9 @@ const translations = {
       loginBtn: 'התחברות',
       noAccount: 'אין לך חשבון?',
       signup: 'הירשם',
+      orContinueWith: 'או המשך עם',
+      googleLogin: 'המשך עם Google',
+      googleSignup: 'הירשם עם Google',
     },
 
     // Profile Page
