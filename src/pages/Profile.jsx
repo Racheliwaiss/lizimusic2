@@ -48,7 +48,11 @@ function Profile() {
   return (
     <div className="page profile-page">
       <div className="profile-header">
-        <div className="profile-banner"></div>
+        <div className="profile-banner">
+          <div className="banner-decoration">🎵</div>
+          <div className="banner-decoration">🎶</div>
+          <div className="banner-decoration">🎵</div>
+        </div>
         <div className="profile-info">
           <div className="profile-avatar">🎵</div>
           {isEditing ? (
@@ -109,7 +113,9 @@ function Profile() {
         <div className="works-grid">
           {(user.recentWorks || [1, 2, 3, 4]).map((item, index) => (
             <div key={index} className="work-card">
-              <div className="work-thumbnail">🎵</div>
+              <div className="work-thumbnail">
+                {['🎵', '🎶', '🎤', '🎧'][index % 4]}
+              </div>
               <h3>Track {index + 1}</h3>
               <p>{t('profile.collaboration')} • 2 {t('profile.weeksAgo')}</p>
             </div>
