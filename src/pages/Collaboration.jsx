@@ -13,7 +13,16 @@ function Collaboration() {
 
   return (
     <div className="page collaboration-page">
-      <h1>{t('collaboration.title')}</h1>
+      <section className="hero">
+        <div className="hero-sound-bars">
+          <div className="bar"></div>
+          <div className="bar"></div>
+          <div className="bar"></div>
+          <div className="bar"></div>
+          <div className="bar"></div>
+        </div>
+        <h1>🎼 {t('collaboration.title')}</h1>
+      </section>
       <button className="new-project-btn">{t('collaboration.newProject')}</button>
 
       <div className="projects-grid">

@@ -13,6 +13,9 @@ function Messages() {
 
   return (
     <div className="page messages-page">
+      <section className="hero">
+        <h1>💬 {t('messages.title')}</h1>
+      </section>
       <div className="messages-container">
         <div className="messages-sidebar">
           <h2>{t('messages.title')}</h2>

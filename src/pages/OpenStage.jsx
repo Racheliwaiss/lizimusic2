@@ -16,8 +16,17 @@ function OpenStage() {
 
   return (
     <div className="page open-stage-page">
-      <h1>{t('openStage.title')}</h1>
-      <p className="subtitle">{t('openStage.subtitle')}</p>
+      <section className="hero">
+        <div className="hero-sound-bars">
+          <div className="bar"></div>
+          <div className="bar"></div>
+          <div className="bar"></div>
+          <div className="bar"></div>
+          <div className="bar"></div>
+        </div>
+        <h1>🎤 {t('openStage.title')}</h1>
+        <p className="subtitle">{t('openStage.subtitle')}</p>
+      </section>
 
       <div className="filters">
         <button className="filter-btn active">{t('openStage.allGenres')}</button>

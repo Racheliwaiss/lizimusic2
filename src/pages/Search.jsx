@@ -14,7 +14,16 @@ function Search() {
 
   return (
     <div className="page search-page">
-      <h1>{t('search.title')}</h1>
+      <section className="hero">
+        <div className="hero-sound-bars">
+          <div className="bar"></div>
+          <div className="bar"></div>
+          <div className="bar"></div>
+          <div className="bar"></div>
+          <div className="bar"></div>
+        </div>
+        <h1>🔍 {t('search.title')}</h1>
+      </section>
       
       <div className="search-bar">
         <input 
