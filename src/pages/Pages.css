@@ -222,6 +222,11 @@
               url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,0,110,0.1)"/><circle cx="80" cy="80" r="2" fill="rgba(0,217,255,0.1)"/></svg>');
 }
 
+[data-theme="light"] .login-page {
+  background: linear-gradient(135deg, rgba(245, 230, 255, 0.95), rgba(255, 230, 240, 0.95)), 
+              url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,0,110,0.15)"/><circle cx="80" cy="80" r="2" fill="rgba(0,217,255,0.15)"/></svg>');
+}
+
 .login-container {
   width: 100%;
 }
@@ -238,6 +243,13 @@
               inset 0 0 60px rgba(0, 217, 255, 0.05);
   -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
+}
+
+[data-theme="light"] .login-box {
+  background: linear-gradient(135deg, rgba(255, 230, 255, 0.95) 0%, rgba(240, 200, 255, 0.9) 100%);
+  border-image: linear-gradient(135deg, #E600B8, #B366FF) 1;
+  box-shadow: 0 8px 40px rgba(230, 0, 184, 0.15),
+              inset 0 0 60px rgba(179, 102, 255, 0.08);
 }
 
 .login-box h1 {
@@ -276,11 +288,27 @@
   transition: all 0.3s ease;
 }
 
+[data-theme="light"] .form-group input {
+  background: rgba(179, 102, 255, 0.08);
+  border-color: #B366FF;
+  color: #131313;
+}
+
+[data-theme="light"] .form-group input::placeholder {
+  color: #666666;
+}
+
 .form-group input:focus {
   outline: none;
   border-color: var(--music-pink);
   background: rgba(255, 0, 110, 0.1);
   box-shadow: 0 0 20px rgba(255, 0, 110, 0.3);
+}
+
+[data-theme="light"] .form-group input:focus {
+  border-color: #E600B8;
+  background: rgba(230, 0, 184, 0.12);
+  box-shadow: 0 0 20px rgba(230, 0, 184, 0.25);
 }
 
 .login-button {
