@@ -662,6 +662,125 @@
   color: var(--text-secondary);
 }
 
+.chat-selected {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+.chat-header {
+  background: linear-gradient(135deg, var(--music-pink), var(--music-purple));
+  padding: var(--spacing-lg);
+  border-radius: 8px 8px 0 0;
+  margin-bottom: var(--spacing-md);
+  color: white;
+}
+
+.chat-header h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.3rem;
+}
+
+.chat-header .last-message {
+  margin: 0;
+  opacity: 0.9;
+  font-size: 0.9rem;
+}
+
+.chat-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.message {
+  display: inline-block;
+  max-width: 70%;
+  padding: var(--spacing-md);
+  border-radius: 8px;
+  margin-bottom: var(--spacing-md);
+}
+
+.message.incoming {
+  background: rgba(0, 217, 255, 0.1);
+  border-left: 3px solid var(--music-cyan);
+}
+
+.message p {
+  margin: 0 0 0.5rem 0;
+}
+
+.time-stamp {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+.chat-actions {
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: center;
+}
+
+.whatsapp-btn,
+.email-btn {
+  flex: 1;
+  padding: 0.8rem var(--spacing-md);
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.whatsapp-btn {
+  background: linear-gradient(135deg, #25D366, #128C7E);
+  color: white;
+  box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+}
+
+.whatsapp-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+}
+
+.email-btn {
+  background: linear-gradient(135deg, var(--music-pink), var(--music-purple));
+  color: white;
+  box-shadow: 0 4px 15px rgba(255, 0, 110, 0.3);
+}
+
+.email-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 0, 110, 0.4);
+}
+
+.conversation-item.active {
+  background: rgba(0, 217, 255, 0.15);
+  border-left: 3px solid var(--music-cyan);
+}
+
+/* WhatsApp Button on Profile */
+.whatsapp-btn-profile {
+  padding: 0.7rem var(--spacing-md);
+  background: linear-gradient(135deg, #25D366, #128C7E);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+}
+
+.whatsapp-btn-profile:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+}
+
 /* Collaboration Page */
 .collaboration-page {
   display: flex;
@@ -1631,4 +1750,76 @@
 
 .no-selection p {
   font-size: 1.2rem;
+}
+
+/* Light Mode - Chat and WhatsApp */
+[data-theme="light"] .messages-main {
+  background: rgba(255, 242, 255, 0.7);
+  border-color: #E0B3FF;
+}
+
+[data-theme="light"] .chat-header {
+  background: linear-gradient(135deg, #E600B8, #B366FF);
+  color: white;
+}
+
+[data-theme="light"] .message.incoming {
+  background: rgba(179, 102, 255, 0.1);
+  border-left-color: #B366FF;
+}
+
+[data-theme="light"] .chat-content {
+  background: rgba(255, 242, 255, 0.5);
+}
+
+[data-theme="light"] .chat-actions {
+  background: rgba(255, 242, 255, 0.6);
+  padding: var(--spacing-md);
+  border-radius: 6px;
+}
+
+[data-theme="light"] .whatsapp-btn:hover {
+  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.5);
+}
+
+[data-theme="light"] .email-btn {
+  background: linear-gradient(135deg, #E600B8, #B366FF);
+}
+
+[data-theme="light"] .email-btn:hover {
+  box-shadow: 0 6px 20px rgba(230, 0, 184, 0.4);
+}
+
+[data-theme="light"] .conversation-item {
+  background: rgba(255, 242, 255, 0.6);
+  border-color: #E0B3FF;
+}
+
+[data-theme="light"] .conversation-item:hover {
+  background: linear-gradient(135deg, rgba(230, 200, 255, 0.8), rgba(240, 200, 255, 0.6));
+  border-left-color: #B366FF;
+}
+
+[data-theme="light"] .conversation-item.active {
+  background: rgba(179, 102, 255, 0.15);
+  border-left-color: #B366FF;
+}
+
+[data-theme="light"] .messages-sidebar {
+  background: rgba(245, 230, 255, 0.7);
+}
+
+[data-theme="light"] .search-input {
+  background: rgba(255, 242, 255, 0.8);
+  border-color: #E0B3FF;
+  color: #131313;
+}
+
+[data-theme="light"] .search-input::placeholder {
+  color: rgba(19, 19, 19, 0.5);
+}
+
+[data-theme="light"] .whatsapp-btn-profile {
+  background: linear-gradient(135deg, #25D366, #128C7E);
+  box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
 }
