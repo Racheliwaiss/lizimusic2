@@ -63,6 +63,9 @@ const translations = {
       title: 'Messages',
       searchConversations: 'Search conversations...',
       selectConversation: 'Select a conversation to start messaging',
+      whatsappChat: 'WhatsApp',
+      sendEmail: 'Email',
+      whatsappGreeting: 'Hi, I\'d like to connect with you on LIZI!',
     },
 
     // Collaboration Page
@@ -176,6 +179,9 @@ const translations = {
       title: 'הודעות',
       searchConversations: 'חפש שיחות...',
       selectConversation: 'בחר שיחה כדי להתחיל הודעות',
+      whatsappChat: 'WhatsApp',
+      sendEmail: 'דוא"ל',
+      whatsappGreeting: 'היי, הייתי רוצה להתחבר איתך ב-LIZI!',
     },
 
     // Collaboration Page

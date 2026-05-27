@@ -101,7 +101,19 @@ function Profile() {
 
           <div className="profile-actions">
             {!isEditing && (
-              <button className="edit-btn" onClick={() => setIsEditing(true)}>✏️ Edit Profile</button>
+              <>
+                <button className="edit-btn" onClick={() => setIsEditing(true)}>✏️ Edit Profile</button>
+                <button 
+                  className="whatsapp-btn-profile"
+                  onClick={() => {
+                    const phone = user.phone || '+1234567890';
+                    const cleanPhone = phone.replace(/\D/g, '');
+                    window.open(`https://wa.me/${cleanPhone}`, '_blank');
+                  }}
+                >
+                  💬 WhatsApp
+                </button>
+              </>
             )}
             <button className="logout-btn" onClick={handleLogout}>Logout</button>
           </div>
