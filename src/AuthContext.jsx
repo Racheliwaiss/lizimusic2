@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from './lib/supabase';
 
 const AuthContext = createContext();
 
@@ -6,49 +7,126 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Load user from localStorage on mount
+  // Initialize auth session on mount
   useEffect(() => {
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
+    const initializeAuth = async () => {
       try {
-        setUser(JSON.parse(savedUser));
-      } catch (error) {
-        console.error('Error loading user:', error);
-        localStorage.removeItem('user');
+        // Get current session
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting session:', error);
+        } else if (session?.user) {
+          setUser(session.user);
+        }
+      } catch (err) {
+        console.error('Auth initialization error:', err);
+      } finally {
+        setLoading(false);
       }
-    }
-    setLoading(false);
+    };
+
+    initializeAuth();
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (session?.user) {
+          setUser(session.user);
+        } else {
+          setUser(null);
+        }
+      }
+    );
+
+    return () => {
+      subscription?.unsubscribe();
+    };
   }, []);
 
-  const login = (email, password, userData = {}) => {
-    const userObj = {
-      id: Date.now(),
-      email,
-      ...userData,
-      loginTime: new Date().toISOString(),
-    };
-    setUser(userObj);
-    localStorage.setItem('user', JSON.stringify(userObj));
-    return userObj;
+  const signUp = async (email, password, metadata = {}) => {
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: metadata,
+        },
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      return { user: data.user, error: null };
+    } catch (error) {
+      return { user: null, error: error.message };
+    }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('user');
+  const signIn = async (email, password) => {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      return { user: data.user, error: null };
+    } catch (error) {
+      return { user: null, error: error.message };
+    }
   };
 
-  const updateProfile = (updates) => {
-    if (!user) return;
-    const updatedUser = { ...user, ...updates };
-    setUser(updatedUser);
-    localStorage.setItem('user', JSON.stringify(updatedUser));
-    return updatedUser;
+  const logout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        throw error;
+      }
+      setUser(null);
+      return { error: null };
+    } catch (error) {
+      return { error: error.message };
+    }
+  };
+
+  const updateProfile = async (updates) => {
+    if (!user) return { error: 'No user logged in' };
+    
+    try {
+      const { data, error } = await supabase.auth.updateUser({
+        data: updates,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      setUser(data.user);
+      return { user: data.user, error: null };
+    } catch (error) {
+      return { user: null, error: error.message };
+    }
   };
 
   const isAuthenticated = !!user;
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, updateProfile, isAuthenticated }}>
+    <AuthContext.Provider 
+      value={{ 
+        user, 
+        loading, 
+        signUp, 
+        signIn, 
+        logout, 
+        updateProfile, 
+        isAuthenticated 
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
