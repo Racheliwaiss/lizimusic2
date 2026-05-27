@@ -1,17 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useLanguage } from '../LanguageContext';
 import './Layout.css';
 
 function Layout({ children }) {
-  const [theme, setTheme] = useState('dark');
+  const [theme, setTheme] = useState(
+    localStorage.getItem('theme') || 'dark'
+  );
   const { language, toggleLanguage, t } = useLanguage();
   const location = useLocation();
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
 
   const toggleTheme = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);
-    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
   };
 
   const isActive = (path) => location.pathname === path;

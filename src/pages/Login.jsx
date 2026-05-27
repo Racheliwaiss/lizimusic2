@@ -10,15 +10,21 @@ function Login() {
   const [name, setName] = useState('');
   const [isSignup, setIsSignup] = useState(false);
   const [error, setError] = useState('');
-  const [theme, setTheme] = useState('dark');
+  const [theme, setTheme] = useState(
+    localStorage.getItem('theme') || 'dark'
+  );
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { login } = useAuth();
 
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
+
   const toggleTheme = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);
-    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
   };
 
   // Handle Google Login
