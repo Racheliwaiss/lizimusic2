@@ -10,9 +10,16 @@ function Login() {
   const [name, setName] = useState('');
   const [isSignup, setIsSignup] = useState(false);
   const [error, setError] = useState('');
+  const [theme, setTheme] = useState('dark');
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { login } = useAuth();
+
+  const toggleTheme = () => {
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+    document.documentElement.setAttribute('data-theme', newTheme);
+  };
 
   // Handle Google Login
   const handleGoogleLogin = (response) => {
@@ -107,6 +114,9 @@ function Login() {
 
   return (
     <div className="page login-page">
+      <button className="login-theme-toggle" onClick={toggleTheme} title="Toggle Theme">
+        {theme === 'dark' ? '☀️' : '🌙'}
+      </button>
       <div className="login-container">
         <div className="login-box">
           <h1>🎵 LIZI</h1>
