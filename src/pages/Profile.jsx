@@ -30,9 +30,11 @@ function Profile() {
     );
   }
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
+  const handleLogout = async () => {
+    const result = await logout();
+    if (!result.error) {
+      navigate('/login');
+    }
   };
 
   const handleChange = (e) => {
@@ -40,9 +42,11 @@ function Profile() {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSave = () => {
-    updateProfile(formData);
-    setIsEditing(false);
+  const handleSave = async () => {
+    const result = await updateProfile(formData);
+    if (!result.error) {
+      setIsEditing(false);
+    }
   };
 
   return (

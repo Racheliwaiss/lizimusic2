@@ -10,16 +10,24 @@ function Login() {
   const [name, setName] = useState('');
   const [isSignup, setIsSignup] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const [theme, setTheme] = useState(
     localStorage.getItem('theme') || 'dark'
   );
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const { login } = useAuth();
+  const { signUp, signIn, user } = useAuth();
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
+
+  // Redirect to profile if already logged in
+  useEffect(() => {
+    if (user) {
+      navigate('/profile');
+    }
+  }, [user, navigate]);
 
   const toggleTheme = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
@@ -41,19 +49,8 @@ function Login() {
             .join('')
         );
         const userData = JSON.parse(jsonPayload);
-
-        // Login/Sign up with Google data
-        login(userData.email, 'google-oauth', {
-          name: userData.name,
-          picture: userData.picture,
-          bio: '🎵 Music Creator',
-          followers: 0,
-          following: 0,
-          collaborations: 0,
-          recentWorks: [],
-        });
-
-        navigate('/profile');
+        
+        setError('Google OAuth integration coming soon');
       } catch (err) {
         setError('Google login failed. Please try again.');
       }
@@ -86,35 +83,49 @@ function Login() {
     }
   }, [handleGoogleLogin]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
 
     // Basic validation
     if (!email || !password) {
       setError('Please fill in all fields');
+      setLoading(false);
       return;
     }
 
     if (isSignup && !name) {
       setError('Please enter your name');
+      setLoading(false);
       return;
     }
 
-    // Simulate authentication
     try {
-      login(email, password, {
-        name: name || email.split('@')[0],
-        bio: '🎵 Music Creator',
-        followers: 0,
-        following: 0,
-        collaborations: 0,
-        recentWorks: [],
-      });
+      let result;
       
+      if (isSignup) {
+        // Sign up with Supabase
+        result = await signUp(email, password, {
+          name: name || email.split('@')[0],
+          bio: '🎵 Music Creator',
+        });
+      } else {
+        // Sign in with Supabase
+        result = await signIn(email, password);
+      }
+
+      if (result.error) {
+        setError(result.error);
+        setLoading(false);
+        return;
+      }
+
+      // Successfully authenticated - redirect to dashboard/profile
       navigate('/profile');
     } catch (err) {
-      setError('Login failed. Please try again.');
+      setError(isSignup ? 'Sign up failed. Please try again.' : 'Invalid email or password');
+      setLoading(false);
     }
   };
 
@@ -169,8 +180,8 @@ function Login() {
               />
             </div>
             
-            <button type="submit" className="login-button">
-              {isSignup ? 'Sign Up' : t('login.loginBtn')}
+            <button type="submit" className="login-button" disabled={loading}>
+              {loading ? 'Loading...' : (isSignup ? 'Sign Up' : t('login.loginBtn'))}
             </button>
           </form>
 

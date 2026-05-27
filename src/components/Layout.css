@@ -85,7 +85,8 @@
 }
 
 .language-toggle,
-.theme-toggle {
+.theme-toggle,
+.logout-btn {
   background: rgba(255, 0, 110, 0.1);
   border: 2px solid var(--music-pink);
   color: var(--text-primary);
@@ -98,10 +99,21 @@
 }
 
 .language-toggle:hover,
-.theme-toggle:hover {
+.theme-toggle:hover,
+.logout-btn:hover {
   border-color: var(--music-cyan);
   background: rgba(0, 217, 255, 0.2);
   box-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
+}
+
+.logout-btn {
+  background: linear-gradient(135deg, rgba(255, 0, 110, 0.15), rgba(138, 43, 226, 0.1));
+  border-color: var(--music-pink);
+}
+
+.logout-btn:hover {
+  background: linear-gradient(135deg, rgba(255, 0, 110, 0.25), rgba(138, 43, 226, 0.2));
+  box-shadow: 0 0 20px rgba(255, 0, 110, 0.4);
 }
 
 .main-content {
@@ -147,6 +159,32 @@
   .main-content {
     padding: var(--spacing-md);
   }
+}
+
+/* Light Mode Styles */
+[data-theme="light"] .logout-btn {
+  background: linear-gradient(135deg, rgba(230, 0, 184, 0.15), rgba(179, 102, 255, 0.1));
+  border-color: #E600B8;
+  color: #131313;
+}
+
+[data-theme="light"] .logout-btn:hover {
+  background: linear-gradient(135deg, rgba(230, 0, 184, 0.25), rgba(179, 102, 255, 0.2));
+  box-shadow: 0 0 20px rgba(230, 0, 184, 0.4);
+}
+
+[data-theme="light"] .language-toggle,
+[data-theme="light"] .theme-toggle {
+  background: rgba(230, 0, 184, 0.1);
+  border-color: #E600B8;
+  color: #131313;
+}
+
+[data-theme="light"] .language-toggle:hover,
+[data-theme="light"] .theme-toggle:hover {
+  border-color: #B366FF;
+  background: rgba(179, 102, 255, 0.2);
+  box-shadow: 0 0 20px rgba(179, 102, 255, 0.3);
 }
 
 /* Animations */

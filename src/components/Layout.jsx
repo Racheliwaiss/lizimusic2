@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../LanguageContext';
+import { useAuth } from '../AuthContext';
 import './Layout.css';
 
 function Layout({ children }) {
@@ -8,7 +9,9 @@ function Layout({ children }) {
     localStorage.getItem('theme') || 'dark'
   );
   const { language, toggleLanguage, t } = useLanguage();
+  const { user, logout } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -18,6 +21,13 @@ function Layout({ children }) {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);
     localStorage.setItem('theme', newTheme);
+  };
+
+  const handleLogout = async () => {
+    const result = await logout();
+    if (!result.error) {
+      navigate('/');
+    }
   };
 
   const isActive = (path) => location.pathname === path;
@@ -44,6 +54,11 @@ function Layout({ children }) {
           <button className="theme-toggle" onClick={toggleTheme}>
             {theme === 'dark' ? '☀️' : '🌙'}
           </button>
+          {user && (
+            <button className="logout-btn" onClick={handleLogout} title="Logout">
+              🚪 Logout
+            </button>
+          )}
         </div>
       </nav>
       <main className="main-content">
