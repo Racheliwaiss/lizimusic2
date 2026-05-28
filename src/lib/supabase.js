@@ -15,10 +15,10 @@ const mockAuth = {
   },
 
   signUp: async (email, password, options) => {
-    // Mock signup
+    const normalizedEmail = typeof email === 'string' ? email : email?.email || '';
     const user = {
       id: Math.random().toString(36).substr(2, 9),
-      email,
+      email: normalizedEmail,
       user_metadata: options?.data || {},
       created_at: new Date().toISOString(),
     };
@@ -27,10 +27,10 @@ const mockAuth = {
   },
 
   signInWithPassword: async (email, password) => {
-    // Mock login
+    const normalizedEmail = typeof email === 'string' ? email : email?.email || '';
     const user = {
       id: Math.random().toString(36).substr(2, 9),
-      email,
+      email: normalizedEmail,
       user_metadata: {},
       created_at: new Date().toISOString(),
     };

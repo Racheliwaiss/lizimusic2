@@ -13,8 +13,16 @@ function Profile() {
 
   const profileData = useMemo(() => {
     const metadata = user?.user_metadata || {};
+    const userEmail = typeof user?.email === 'string'
+      ? user.email
+      : typeof user?.email?.email === 'string'
+      ? user.email.email
+      : '';
+
+    const defaultName = metadata.name || user?.name || (userEmail ? userEmail.split('@')[0] : '');
+
     return {
-      name: metadata.name || user?.name || user?.email?.split('@')[0] || '',
+      name: defaultName,
       bio: metadata.bio || user?.bio || '',
       about: metadata.about || '',
       favoriteGenres: metadata.favoriteGenres || '',
@@ -24,6 +32,7 @@ function Profile() {
       createGoals: metadata.createGoals || '',
       musicStyle: metadata.musicStyle || '',
       phone: metadata.phone || user?.phone || '',
+      email: userEmail,
     };
   }, [user]);
 
