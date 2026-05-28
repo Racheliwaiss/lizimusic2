@@ -121,8 +121,9 @@ function Login() {
         return;
       }
 
-      // Successfully authenticated - redirect to dashboard/profile
-      navigate('/profile');
+      // Successfully authenticated - redirect to home
+      setLoading(false);
+      navigate('/');
     } catch (err) {
       setError(isSignup ? 'Sign up failed. Please try again.' : 'Invalid email or password');
       setLoading(false);

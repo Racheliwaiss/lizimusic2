@@ -58,6 +58,10 @@ export function AuthProvider({ children }) {
         throw error;
       }
 
+      if (data?.user) {
+        setUser(data.user);
+      }
+
       return { user: data.user, error: null };
     } catch (error) {
       return { user: null, error: error.message };
@@ -73,6 +77,10 @@ export function AuthProvider({ children }) {
 
       if (error) {
         throw error;
+      }
+
+      if (data?.user) {
+        setUser(data.user);
       }
 
       return { user: data.user, error: null };

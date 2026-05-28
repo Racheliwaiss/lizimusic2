@@ -9,7 +9,7 @@ const mockAuth = {
   getSession: async () => {
     const user = localStorage.getItem('supabase_user');
     return {
-      data: { session: user ? JSON.parse(user) : null },
+      data: { session: user ? { user: JSON.parse(user) } : null },
       error: null,
     };
   },
@@ -55,7 +55,7 @@ const mockAuth = {
 
   onAuthStateChange: (callback) => {
     const user = localStorage.getItem('supabase_user');
-    callback('INITIAL_SESSION', user ? JSON.parse(user) : null);
+    callback('INITIAL_SESSION', user ? { session: { user: JSON.parse(user) } } : { session: null });
 
     return {
       data: {
