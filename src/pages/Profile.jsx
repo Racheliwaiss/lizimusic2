@@ -8,7 +8,7 @@ function Profile() {
   const { t } = useLanguage();
   const { user, isAuthenticated, logout, updateProfile } = useAuth();
   const navigate = useNavigate();
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(true);
   const [saveError, setSaveError] = useState('');
 
   const profileData = useMemo(() => {
@@ -34,6 +34,15 @@ function Profile() {
       setFormData(profileData);
     }
   }, [profileData, user]);
+
+  useEffect(() => {
+    if (!user) return;
+    const metadata = user.user_metadata || {};
+    const needsProfile = !metadata.about && !metadata.favoriteGenres && !metadata.instruments && !metadata.createGoals && !metadata.musicStyle && !metadata.connectAges && !metadata.lookingFor;
+    if (needsProfile) {
+      setIsEditing(true);
+    }
+  }, [user]);
 
   // Redirect to login if not authenticated
   if (!isAuthenticated) {
