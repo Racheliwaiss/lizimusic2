@@ -21,6 +21,8 @@ function Profile() {
       instruments: metadata.instruments || '',
       connectAges: metadata.connectAges || '',
       lookingFor: metadata.lookingFor || '',
+      createGoals: metadata.createGoals || '',
+      musicStyle: metadata.musicStyle || '',
       phone: metadata.phone || user?.phone || '',
     };
   }, [user]);
@@ -74,6 +76,8 @@ function Profile() {
       instruments: formData.instruments,
       connectAges: formData.connectAges,
       lookingFor: formData.lookingFor,
+      createGoals: formData.createGoals,
+      musicStyle: formData.musicStyle,
       phone: formData.phone,
     };
 
@@ -135,6 +139,20 @@ function Profile() {
               />
               <input
                 type="text"
+                name="createGoals"
+                value={formData.createGoals || ''}
+                onChange={handleChange}
+                placeholder={t('profile.createGoals')}
+              />
+              <input
+                type="text"
+                name="musicStyle"
+                value={formData.musicStyle || ''}
+                onChange={handleChange}
+                placeholder={t('profile.musicStyle')}
+              />
+              <input
+                type="text"
                 name="connectAges"
                 value={formData.connectAges || ''}
                 onChange={handleChange}
@@ -166,6 +184,8 @@ function Profile() {
               <div className="profile-details">
                 <p><strong>{t('profile.favoriteGenres')}:</strong> {profileData.favoriteGenres || t('profile.noPreference')}</p>
                 <p><strong>{t('profile.instruments')}:</strong> {profileData.instruments || t('profile.noPreference')}</p>
+                <p><strong>{t('profile.createGoals')}:</strong> {profileData.createGoals || t('profile.noPreference')}</p>
+                <p><strong>{t('profile.musicStyle')}:</strong> {profileData.musicStyle || t('profile.noPreference')}</p>
                 <p><strong>{t('profile.connectAges')}:</strong> {profileData.connectAges || t('profile.noPreference')}</p>
                 <p><strong>{t('profile.lookingFor')}:</strong> {profileData.lookingFor || t('profile.noPreference')}</p>
               </div>
