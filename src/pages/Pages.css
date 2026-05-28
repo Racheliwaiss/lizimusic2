@@ -1159,7 +1159,8 @@
   margin-bottom: var(--spacing-lg);
 }
 
-.edit-form input {
+.edit-form input,
+.edit-form textarea {
   padding: 12px var(--spacing-md);
   background: rgba(0, 217, 255, 0.05);
   border: 2px solid var(--music-cyan);
@@ -1169,7 +1170,8 @@
   transition: all 0.3s ease;
 }
 
-.edit-form input:focus {
+.edit-form input:focus,
+.edit-form textarea:focus {
   outline: none;
   border-color: var(--music-pink);
   background: rgba(255, 0, 110, 0.1);
@@ -1221,6 +1223,25 @@
   justify-content: center;
   margin-top: var(--spacing-lg);
   flex-wrap: wrap;
+}
+
+.profile-details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-lg);
+  width: 100%;
+  max-width: 560px;
+}
+
+.profile-details p {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.profile-details strong {
+  color: var(--text-primary);
 }
 
 .edit-btn,

@@ -50,12 +50,21 @@ const translations = {
     profile: {
       artistName: 'Artist Name',
       bio: 'Music Producer | Singer | Composer',
+      aboutPlaceholder: 'Tell us about yourself',
+      favoriteGenres: 'Favorite Genres',
+      instruments: 'Instruments',
+      connectAges: 'Preferred Ages',
+      lookingFor: 'Looking For',
+      noPreference: 'Add your music preferences to connect with the right collaborators',
+      noAboutYet: 'Write a short About section to introduce yourself',
       followers: 'Followers',
       following: 'Following',
       collaborations: 'Collaborations',
       recentWorks: 'Recent Works',
       collaboration: 'Collaboration',
       weeksAgo: 'weeks ago',
+      saveChanges: 'Save Changes',
+      cancel: 'Cancel',
     },
 
     // Messages Page
@@ -166,12 +175,21 @@ const translations = {
     profile: {
       artistName: 'שם האמן',
       bio: 'מפיק מוזיקה | זמר | מלחין',
+      aboutPlaceholder: 'ספר על עצמך',
+      favoriteGenres: 'ז\'אנרים מועדפים',
+      instruments: 'כלי נגינה',
+      connectAges: 'גילאים מועדפים',
+      lookingFor: 'מחפש/ת קשר עם',
+      noPreference: 'הוסיפו את העדפות המוזיקה שלכם כדי להתחבר לשיתופי פעולה נכונים',
+      noAboutYet: 'כתבו פסקת אודות קצרה כדי להציג את עצמכם',
       followers: 'עוקבים',
       following: 'עוקב אחר',
       collaborations: 'שיתופי פעולה',
       recentWorks: 'עבודות אחרונות',
       collaboration: 'שיתוף פעולה',
       weeksAgo: 'שבועות',
+      saveChanges: 'שמירה',
+      cancel: 'ביטול',
     },
 
     // Messages Page
