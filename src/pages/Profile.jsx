@@ -120,8 +120,10 @@ function Profile() {
           <div className="banner-decoration">🎶</div>
           <div className="banner-decoration">🎵</div>
         </div>
-        <div className="profile-info">
-          <div className="profile-avatar">🎵</div>
+        <div className="profile-card">
+          <div className="profile-info">
+            <div className="profile-avatar">🎵</div>
+            <h1>{profileData.name || t('profile.artistName')}</h1>
           {isEditing ? (
             <form className="edit-form" onSubmit={handleSave}>
               <label>
@@ -223,7 +225,6 @@ function Profile() {
             </form>
           ) : (
             <>
-              <h1>{profileData.name}</h1>
               <p className="bio">{profileData.bio || t('profile.bio')}</p>
               {profileData.about ? (
                 <p className="about-text">{profileData.about}</p>
