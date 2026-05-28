@@ -66,7 +66,11 @@ function Profile() {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSave = async () => {
+  const handleSave = async (e) => {
+    if (e) {
+      e.preventDefault();
+    }
+
     setSaveError('');
     const updates = {
       name: formData.name,
@@ -101,76 +105,104 @@ function Profile() {
         <div className="profile-info">
           <div className="profile-avatar">🎵</div>
           {isEditing ? (
-            <div className="edit-form">
-              <input
-                type="text"
-                name="name"
-                value={formData.name || ''}
-                onChange={handleChange}
-                placeholder={t('profile.artistName')}
-              />
-              <input
-                type="text"
-                name="bio"
-                value={formData.bio || ''}
-                onChange={handleChange}
-                placeholder={t('profile.bio')}
-              />
-              <textarea
-                name="about"
-                value={formData.about || ''}
-                onChange={handleChange}
-                placeholder={t('profile.aboutPlaceholder')}
-                rows={4}
-              />
-              <input
-                type="text"
-                name="favoriteGenres"
-                value={formData.favoriteGenres || ''}
-                onChange={handleChange}
-                placeholder={t('profile.favoriteGenres')}
-              />
-              <input
-                type="text"
-                name="instruments"
-                value={formData.instruments || ''}
-                onChange={handleChange}
-                placeholder={t('profile.instruments')}
-              />
-              <input
-                type="text"
-                name="createGoals"
-                value={formData.createGoals || ''}
-                onChange={handleChange}
-                placeholder={t('profile.createGoals')}
-              />
-              <input
-                type="text"
-                name="musicStyle"
-                value={formData.musicStyle || ''}
-                onChange={handleChange}
-                placeholder={t('profile.musicStyle')}
-              />
-              <input
-                type="text"
-                name="connectAges"
-                value={formData.connectAges || ''}
-                onChange={handleChange}
-                placeholder={t('profile.connectAges')}
-              />
-              <input
-                type="text"
-                name="lookingFor"
-                value={formData.lookingFor || ''}
-                onChange={handleChange}
-                placeholder={t('profile.lookingFor')}
-              />
+            <form className="edit-form" onSubmit={handleSave}>
+              <label>
+                {t('profile.artistName')}
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name || ''}
+                  onChange={handleChange}
+                  placeholder={t('profile.artistName')}
+                  required
+                />
+              </label>
+              <label>
+                {t('profile.bio')}
+                <input
+                  type="text"
+                  name="bio"
+                  value={formData.bio || ''}
+                  onChange={handleChange}
+                  placeholder={t('profile.bio')}
+                />
+              </label>
+              <label>
+                {t('profile.aboutPlaceholder')}
+                <textarea
+                  name="about"
+                  value={formData.about || ''}
+                  onChange={handleChange}
+                  placeholder={t('profile.aboutPlaceholder')}
+                  rows={4}
+                />
+              </label>
+              <label>
+                {t('profile.favoriteGenres')}
+                <input
+                  type="text"
+                  name="favoriteGenres"
+                  value={formData.favoriteGenres || ''}
+                  onChange={handleChange}
+                  placeholder={t('profile.favoriteGenres')}
+                />
+              </label>
+              <label>
+                {t('profile.instruments')}
+                <input
+                  type="text"
+                  name="instruments"
+                  value={formData.instruments || ''}
+                  onChange={handleChange}
+                  placeholder={t('profile.instruments')}
+                />
+              </label>
+              <label>
+                {t('profile.createGoals')}
+                <input
+                  type="text"
+                  name="createGoals"
+                  value={formData.createGoals || ''}
+                  onChange={handleChange}
+                  placeholder={t('profile.createGoals')}
+                />
+              </label>
+              <label>
+                {t('profile.musicStyle')}
+                <input
+                  type="text"
+                  name="musicStyle"
+                  value={formData.musicStyle || ''}
+                  onChange={handleChange}
+                  placeholder={t('profile.musicStyle')}
+                />
+              </label>
+              <label>
+                {t('profile.connectAges')}
+                <input
+                  type="text"
+                  name="connectAges"
+                  value={formData.connectAges || ''}
+                  onChange={handleChange}
+                  placeholder={t('profile.connectAges')}
+                />
+              </label>
+              <label>
+                {t('profile.lookingFor')}
+                <input
+                  type="text"
+                  name="lookingFor"
+                  value={formData.lookingFor || ''}
+                  onChange={handleChange}
+                  placeholder={t('profile.lookingFor')}
+                />
+              </label>
               {saveError && <div className="error-message">{saveError}</div>}
               <div className="edit-buttons">
-                <button className="save-btn" onClick={handleSave}>{t('profile.saveChanges')}</button>
-                <button className="cancel-btn" onClick={() => setIsEditing(false)}>{t('profile.cancel')}</button>
+                <button className="save-btn" type="submit">{t('profile.saveChanges')}</button>
+                <button className="cancel-btn" type="button" onClick={() => setIsEditing(false)}>{t('profile.cancel')}</button>
               </div>
-            </div>
+            </form>
           ) : (
             <>
               <h1>{profileData.name}</h1>
