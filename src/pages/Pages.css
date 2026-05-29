@@ -133,6 +133,39 @@
   border: none;
 }
 
+.logged-actions {
+  margin: var(--spacing-xl) 0;
+  text-align: center;
+}
+
+.logged-actions h2 {
+  font-size: 1.4rem;
+  margin-bottom: var(--spacing-md);
+}
+
+.actions-row {
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  background: linear-gradient(90deg, var(--music-cyan), var(--music-pink));
+  color: white;
+  padding: 12px 20px;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 600;
+  box-shadow: 0 8px 30px rgba(0, 217, 255, 0.12);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.action-btn:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 40px rgba(0, 217, 255, 0.18);
+}
+
 /* Home Page */
 .features {
   margin-top: var(--spacing-xl);

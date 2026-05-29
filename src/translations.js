@@ -18,6 +18,13 @@ const translations = {
       title: 'Welcome to LIZI',
       subtitle: 'Your Music Collaboration Platform',
       cta: 'Get Started',
+      ctaLogged: 'Open Your Profile',
+      quickActions: 'Quick Actions',
+      actions: {
+        createProfile: 'Create / Edit Profile',
+        seeMusic: 'See Music',
+        messages: 'Messages',
+      },
       whyLizi: 'Why LIZI?',
       features: {
         collaborate: '🎤 Collaborate',
@@ -145,6 +152,13 @@ const translations = {
       title: 'ברוכים הבאים ל-LIZI',
       subtitle: 'פלטפורמת שיתוף פעולה למוזיקה שלך',
       cta: 'התחל עכשיו',
+      ctaLogged: 'פתח/י את הפרופיל שלך',
+      quickActions: 'פעולות מהירות',
+      actions: {
+        createProfile: 'צור/ערוך פרופיל',
+        seeMusic: 'האזן למוזיקה',
+        messages: 'הודעות',
+      },
       whyLizi: 'למה LIZI?',
       features: {
         collaborate: '🎤 שיתוף פעולה',
