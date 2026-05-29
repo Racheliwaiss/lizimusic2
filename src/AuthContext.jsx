@@ -7,18 +7,32 @@ const AuthContext = createContext();
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const apiAuthEnabled = Boolean(import.meta.env.VITE_AUTH_API_URL);
+
+  const normalizeSessionResponse = (response) => {
+    if (!response) return null;
+    if (response?.session?.user) return response.session.user;
+    if (response?.user) return response.user;
+    return null;
+  };
 
   // Initialize auth session on mount
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        // Get current session
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error('Error getting session:', error);
-        } else if (session?.user) {
-          setUser(session.user);
+        if (apiAuthEnabled) {
+          const sessionResponse = await authApi.getSession();
+          const sessionUser = normalizeSessionResponse(sessionResponse);
+          if (sessionUser) {
+            setUser(sessionUser);
+          }
+        } else {
+          const { data: { session }, error } = await supabase.auth.getSession();
+          if (error) {
+            console.error('Error getting session:', error);
+          } else if (session?.user) {
+            setUser(session.user);
+          }
         }
       } catch (err) {
         console.error('Auth initialization error:', err);
@@ -29,31 +43,41 @@ export function AuthProvider({ children }) {
 
     initializeAuth();
 
-    // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (session?.user) {
-          setUser(session.user);
-        } else {
-          setUser(null);
+    let unsubscribe = () => {};
+
+    if (!apiAuthEnabled) {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(
+        (event, session) => {
+          if (session?.user) {
+            setUser(session.user);
+          } else {
+            setUser(null);
+          }
         }
-      }
-    );
+      );
+
+      unsubscribe = () => subscription?.unsubscribe();
+    }
 
     return () => {
-      subscription?.unsubscribe();
+      unsubscribe();
     };
-  }, []);
+  }, [apiAuthEnabled]);
 
   const signUp = async (email, password, metadata = {}) => {
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: metadata,
-        },
-      });
+      const response = apiAuthEnabled
+        ? await authApi.signUp(email, password, metadata)
+        : await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              data: metadata,
+            },
+          });
+
+      const data = apiAuthEnabled ? response : response.data;
+      const error = apiAuthEnabled ? null : response.error;
 
       if (error) {
         throw error;
@@ -63,7 +87,7 @@ export function AuthProvider({ children }) {
         setUser(data.user);
       }
 
-      return { user: data.user, error: null };
+      return { user: data?.user, error: null };
     } catch (error) {
       return { user: null, error: error.message };
     }
@@ -71,10 +95,15 @@ export function AuthProvider({ children }) {
 
   const signIn = async (email, password) => {
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const response = apiAuthEnabled
+        ? await authApi.signIn(email, password)
+        : await supabase.auth.signInWithPassword({
+            email,
+            password,
+          });
+
+      const data = apiAuthEnabled ? response : response.data;
+      const error = apiAuthEnabled ? null : response.error;
 
       if (error) {
         throw error;
@@ -84,7 +113,7 @@ export function AuthProvider({ children }) {
         setUser(data.user);
       }
 
-      return { user: data.user, error: null };
+      return { user: data?.user, error: null };
     } catch (error) {
       return { user: null, error: error.message };
     }
@@ -92,10 +121,15 @@ export function AuthProvider({ children }) {
 
   const logout = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        throw error;
+      if (apiAuthEnabled) {
+        await authApi.signOut();
+      } else {
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+          throw error;
+        }
       }
+
       setUser(null);
       return { error: null };
     } catch (error) {
@@ -105,18 +139,26 @@ export function AuthProvider({ children }) {
 
   const updateProfile = async (updates) => {
     if (!user) return { error: 'No user logged in' };
-    
+
     try {
-      const { data, error } = await supabase.auth.updateUser({
-        data: updates,
-      });
+      const response = apiAuthEnabled
+        ? await authApi.updateUser(updates)
+        : await supabase.auth.updateUser({
+            data: updates,
+          });
+
+      const data = apiAuthEnabled ? response : response.data;
+      const error = apiAuthEnabled ? null : response.error;
 
       if (error) {
         throw error;
       }
 
-      setUser(data.user);
-      return { user: data.user, error: null };
+      if (data?.user) {
+        setUser(data.user);
+      }
+
+      return { user: data?.user, error: null };
     } catch (error) {
       return { user: null, error: error.message };
     }
