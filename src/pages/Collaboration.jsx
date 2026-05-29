@@ -219,6 +219,14 @@ function Collaboration() {
           </Link>
         </>
       )}
+      {!user && (
+        <div className="login-prompt">
+          <p>{t('collaboration.loginToCreateProject')}</p>
+          <button className="new-project-btn" onClick={() => navigate('/login')}>
+            {t('collaboration.loginToCreate')}
+          </button>
+        </div>
+      )}
 
       <div className="projects-grid">
         {filteredProjects.length > 0 ? (
