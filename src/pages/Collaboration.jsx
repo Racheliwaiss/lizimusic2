@@ -103,7 +103,7 @@ function Collaboration() {
     const userAgeRange = parseAgeRange(user?.user_metadata?.connectAges);
 
     if (userGenres.length === 0 && userInstruments.length === 0 && !userAgeRange) {
-      return allProjects;
+      return projects;
     }
 
     return projects.filter(project => {

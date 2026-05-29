@@ -919,6 +919,21 @@
   margin-bottom: var(--spacing-md);
 }
 
+.login-prompt {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin: var(--spacing-lg) 0;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  padding: var(--spacing-lg);
+  border-radius: 12px;
+}
+
+.login-prompt p {
+  margin: 0;
+}
+
 .projects-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
