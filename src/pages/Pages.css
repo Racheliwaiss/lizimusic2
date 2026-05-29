@@ -868,6 +868,12 @@
   margin-bottom: var(--spacing-xl);
 }
 
+.filter-hint {
+  color: var(--text-secondary);
+  margin-top: var(--spacing-sm);
+  font-size: 0.95rem;
+}
+
 .project-card {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
@@ -888,6 +894,21 @@
 }
 
 .genre {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin: var(--spacing-sm) 0;
+}
+
+.description {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  margin: var(--spacing-sm) 0 var(--spacing-md);
+  line-height: 1.5;
+}
+
+.age-range,
+.instruments,
+.style-tag {
   color: var(--text-secondary);
   font-size: 0.9rem;
   margin: var(--spacing-sm) 0;
@@ -1019,6 +1040,35 @@
   text-align: center;
   transition: all 0.3s ease;
   cursor: pointer;
+}
+
+.style-tag {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin: var(--spacing-sm) 0;
+}
+
+.age-range {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin: var(--spacing-sm) 0;
+}
+
+.listen-btn, .join-btn {
+  background: linear-gradient(135deg, var(--music-cyan), var(--music-pink));
+  color: white;
+  border: none;
+  padding: 0.85rem 1rem;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.listen-btn:hover,
+.join-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(255, 0, 110, 0.2);
 }
 
 .artist-card:hover {
