@@ -157,82 +157,80 @@ function Collaboration() {
 
           {newProjectOpen && (
             <section className="new-project-form">
-          <h2>{t('collaboration.newProjectFormTitle')}</h2>
-          {createError && <div className="form-error">{createError}</div>}
-          {successMessage && <div className="form-success">{successMessage}</div>}
-          <form onSubmit={handleCreateProject}>
-            <div className="form-row">
-              <label>
-                {t('collaboration.projectTitle')}
-                <input
-                  type="text"
-                  className="form-input"
-                  value={newProjectData.title}
-                  onChange={handleNewProjectChange('title')}
-                  placeholder={t('collaboration.projectTitle')}
-                />
-              </label>
-              <label>
-                {t('collaboration.projectGenre')}
-                <input
-                  type="text"
-                  className="form-input"
-                  value={newProjectData.genre}
-                  onChange={handleNewProjectChange('genre')}
-                  placeholder={t('collaboration.projectGenre')}
-                />
-              </label>
-            </div>
-            <div className="form-row">
-              <label>
-                {t('collaboration.projectInstruments')}
-                <input
-                  type="text"
-                  className="form-input"
-                  value={newProjectData.instruments}
-                  onChange={handleNewProjectChange('instruments')}
-                  placeholder={t('collaboration.projectInstruments')}
-                />
-              </label>
-              <label>
-                {t('collaboration.projectAgeRange')}
-                <input
-                  type="text"
-                  className="form-input"
-                  value={newProjectData.ageRange}
-                  onChange={handleNewProjectChange('ageRange')}
-                  placeholder={t('collaboration.projectAgeRange')}
-                />
-              </label>
-            </div>
-            <div className="form-row">
-              <label className="full-width">
-                {t('collaboration.projectDescription')}
-                <textarea
-                  className="form-input"
-                  value={newProjectData.description}
-                  onChange={handleNewProjectChange('description')}
-                  placeholder={t('collaboration.projectDescription')}
-                />
-              </label>
-            </div>
-            <div className="project-form-actions">
-              <button type="submit" className="new-project-btn">
-                {t('collaboration.projectCreateButton')}
-              </button>
-            </div>
-          </form>
-        </section>
-      )}
-      {user && (
-        <>
+              <h2>{t('collaboration.newProjectFormTitle')}</h2>
+              {createError && <div className="form-error">{createError}</div>}
+              {successMessage && <div className="form-success">{successMessage}</div>}
+              <form onSubmit={handleCreateProject}>
+                <div className="form-row">
+                  <label>
+                    {t('collaboration.projectTitle')}
+                    <input
+                      type="text"
+                      className="form-input"
+                      value={newProjectData.title}
+                      onChange={handleNewProjectChange('title')}
+                      placeholder={t('collaboration.projectTitle')}
+                    />
+                  </label>
+                  <label>
+                    {t('collaboration.projectGenre')}
+                    <input
+                      type="text"
+                      className="form-input"
+                      value={newProjectData.genre}
+                      onChange={handleNewProjectChange('genre')}
+                      placeholder={t('collaboration.projectGenre')}
+                    />
+                  </label>
+                </div>
+                <div className="form-row">
+                  <label>
+                    {t('collaboration.projectInstruments')}
+                    <input
+                      type="text"
+                      className="form-input"
+                      value={newProjectData.instruments}
+                      onChange={handleNewProjectChange('instruments')}
+                      placeholder={t('collaboration.projectInstruments')}
+                    />
+                  </label>
+                  <label>
+                    {t('collaboration.projectAgeRange')}
+                    <input
+                      type="text"
+                      className="form-input"
+                      value={newProjectData.ageRange}
+                      onChange={handleNewProjectChange('ageRange')}
+                      placeholder={t('collaboration.projectAgeRange')}
+                    />
+                  </label>
+                </div>
+                <div className="form-row">
+                  <label className="full-width">
+                    {t('collaboration.projectDescription')}
+                    <textarea
+                      className="form-input"
+                      value={newProjectData.description}
+                      onChange={handleNewProjectChange('description')}
+                      placeholder={t('collaboration.projectDescription')}
+                    />
+                  </label>
+                </div>
+                <div className="project-form-actions">
+                  <button type="submit" className="new-project-btn">
+                    {t('collaboration.projectCreateButton')}
+                  </button>
+                </div>
+              </form>
+            </section>
+          )}
+
           <p className="suggested-label">{t('collaboration.suggestedForYou')}</p>
           <Link to="/profile" className="profile-action-btn">
             {t('collaboration.updateProfile')}
           </Link>
         </>
-      )}
-      {!user && (
+      ) : (
         <div className="login-prompt">
           <p>{t('collaboration.loginToCreateProject')}</p>
           <button className="new-project-btn" onClick={() => navigate('/login')}>
