@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useMemo, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../LanguageContext';
 import { useAuth } from '../AuthContext';
 import './Pages.css';
@@ -16,8 +16,57 @@ const allProjects = [
 ];
 
 function Collaboration() {
+  const navigate = useNavigate();
   const { t } = useLanguage();
   const { user } = useAuth();
+  const [projects, setProjects] = useState(allProjects);
+  const [newProjectOpen, setNewProjectOpen] = useState(false);
+  const [newProjectData, setNewProjectData] = useState({
+    title: '',
+    genre: '',
+    instruments: '',
+    ageRange: '',
+    description: '',
+  });
+  const [createError, setCreateError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+
+  const handleNewProjectChange = (field) => (event) => {
+    setNewProjectData((prev) => ({ ...prev, [field]: event.target.value }));
+  };
+
+  const handleCreateProject = (event) => {
+    event.preventDefault();
+    setCreateError('');
+    setSuccessMessage('');
+
+    const { title, genre, instruments, ageRange, description } = newProjectData;
+    if (!title.trim() || !genre.trim() || !instruments.trim() || !ageRange.trim()) {
+      setCreateError('Please fill in the title, genre, instruments, and age range.');
+      return;
+    }
+
+    const nextId = Math.max(...projects.map((project) => project.id), 0) + 1;
+    const newProject = {
+      id: nextId,
+      title: title.trim(),
+      genre: genre.trim(),
+      instruments: instruments.trim(),
+      ageRange: ageRange.trim(),
+      members: 1,
+      description: description.trim() || 'A fresh collaboration idea waiting for artists.',
+    };
+
+    setProjects([newProject, ...projects]);
+    setNewProjectData({
+      title: '',
+      genre: '',
+      instruments: '',
+      ageRange: '',
+      description: '',
+    });
+    setSuccessMessage('Project added to the collaboration board.');
+  };
 
   const parseAgeRange = (range) => {
     const normalized = String(range || '').trim();
@@ -47,7 +96,7 @@ function Collaboration() {
   };
 
   const filteredProjects = useMemo(() => {
-    if (!user) return allProjects;
+    if (!user) return projects;
 
     const userGenres = user?.user_metadata?.favoriteGenres?.toLowerCase().split(',').map(g => g.trim()).filter(Boolean) || [];
     const userInstruments = user?.user_metadata?.instruments?.toLowerCase().split(',').map(i => i.trim()).filter(Boolean) || [];
@@ -57,7 +106,7 @@ function Collaboration() {
       return allProjects;
     }
 
-    return allProjects.filter(project => {
+    return projects.filter(project => {
       const genreMatch = userGenres.length === 0 || userGenres.some(g => project.genre.toLowerCase().includes(g) || g.includes(project.genre.toLowerCase()));
       const instrumentMatch = userInstruments.length === 0 || userInstruments.some(ui => project.instruments.toLowerCase().includes(ui));
       const ageMatch = !userAgeRange || rangeOverlap(userAgeRange, parseAgeRange(project.ageRange));
@@ -80,7 +129,88 @@ function Collaboration() {
           <p className="filter-hint">Showing projects matched to your interests</p>
         )}
       </section>
-      <button className="new-project-btn">{t('collaboration.newProject')}</button>
+      {user ? (
+        <>
+          <button
+            className="new-project-btn"
+            onClick={() => {
+              setNewProjectOpen((prev) => !prev);
+              setCreateError('');
+              setSuccessMessage('');
+            }}
+          >
+            {newProjectOpen ? t('collaboration.cancelNewProject') : t('collaboration.newProject')}
+          </button>
+
+          {newProjectOpen && (
+            <section className="new-project-form">
+          <h2>{t('collaboration.newProjectFormTitle')}</h2>
+          {createError && <div className="form-error">{createError}</div>}
+          {successMessage && <div className="form-success">{successMessage}</div>}
+          <form onSubmit={handleCreateProject}>
+            <div className="form-row">
+              <label>
+                {t('collaboration.projectTitle')}
+                <input
+                  type="text"
+                  className="form-input"
+                  value={newProjectData.title}
+                  onChange={handleNewProjectChange('title')}
+                  placeholder={t('collaboration.projectTitle')}
+                />
+              </label>
+              <label>
+                {t('collaboration.projectGenre')}
+                <input
+                  type="text"
+                  className="form-input"
+                  value={newProjectData.genre}
+                  onChange={handleNewProjectChange('genre')}
+                  placeholder={t('collaboration.projectGenre')}
+                />
+              </label>
+            </div>
+            <div className="form-row">
+              <label>
+                {t('collaboration.projectInstruments')}
+                <input
+                  type="text"
+                  className="form-input"
+                  value={newProjectData.instruments}
+                  onChange={handleNewProjectChange('instruments')}
+                  placeholder={t('collaboration.projectInstruments')}
+                />
+              </label>
+              <label>
+                {t('collaboration.projectAgeRange')}
+                <input
+                  type="text"
+                  className="form-input"
+                  value={newProjectData.ageRange}
+                  onChange={handleNewProjectChange('ageRange')}
+                  placeholder={t('collaboration.projectAgeRange')}
+                />
+              </label>
+            </div>
+            <div className="form-row">
+              <label className="full-width">
+                {t('collaboration.projectDescription')}
+                <textarea
+                  className="form-input"
+                  value={newProjectData.description}
+                  onChange={handleNewProjectChange('description')}
+                  placeholder={t('collaboration.projectDescription')}
+                />
+              </label>
+            </div>
+            <div className="project-form-actions">
+              <button type="submit" className="new-project-btn">
+                {t('collaboration.projectCreateButton')}
+              </button>
+            </div>
+          </form>
+        </section>
+      )}
       {user && (
         <>
           <p className="suggested-label">{t('collaboration.suggestedForYou')}</p>
