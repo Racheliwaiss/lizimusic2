@@ -874,6 +874,19 @@
   font-size: 0.95rem;
 }
 
+.suggested-label {
+  color: var(--accent);
+  margin: var(--spacing-sm) 0 var(--spacing-md);
+  font-weight: 700;
+}
+
+.no-results {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  text-align: center;
+  width: 100%;
+}
+
 .project-card {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
@@ -1054,7 +1067,7 @@
   margin: var(--spacing-sm) 0;
 }
 
-.listen-btn, .join-btn {
+.listen-btn, .join-btn, .profile-action-btn {
   background: linear-gradient(135deg, var(--music-cyan), var(--music-pink));
   color: white;
   border: none;
@@ -1063,6 +1076,10 @@
   cursor: pointer;
   font-weight: 600;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .listen-btn:hover,

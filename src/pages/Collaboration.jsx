@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { useLanguage } from '../LanguageContext';
 import { useAuth } from '../AuthContext';
 import './Pages.css';
@@ -18,29 +19,48 @@ function Collaboration() {
   const { t } = useLanguage();
   const { user } = useAuth();
 
-  // Filter projects based on user interests
+  const parseAgeRange = (range) => {
+    const normalized = String(range || '').trim();
+    if (!normalized) return null;
+
+    const plusMatch = normalized.match(/^(\d+)\+$/);
+    if (plusMatch) {
+      return { min: Number(plusMatch[1]), max: Infinity };
+    }
+
+    const betweenMatch = normalized.match(/^(\d+)[^\d]+(\d+)$/);
+    if (betweenMatch) {
+      return { min: Number(betweenMatch[1]), max: Number(betweenMatch[2]) };
+    }
+
+    const single = Number(normalized.replace(/[^0-9]/g, ''));
+    if (!Number.isNaN(single)) {
+      return { min: single, max: single };
+    }
+
+    return null;
+  };
+
+  const rangeOverlap = (a, b) => {
+    if (!a || !b) return false;
+    return a.min <= b.max && b.min <= a.max;
+  };
+
   const filteredProjects = useMemo(() => {
     if (!user) return allProjects;
-    if (!user) return allProjects;
 
-    const userGenres = user?.user_metadata?.favoriteGenres?.toLowerCase().split(',').map(g => g.trim()) || [];
-    const userInstruments = user?.user_metadata?.instruments?.toLowerCase().split(',').map(i => i.trim()) || [];
-    const userAgeRange = user?.user_metadata?.connectAges?.toLowerCase() || '';
+    const userGenres = user?.user_metadata?.favoriteGenres?.toLowerCase().split(',').map(g => g.trim()).filter(Boolean) || [];
+    const userInstruments = user?.user_metadata?.instruments?.toLowerCase().split(',').map(i => i.trim()).filter(Boolean) || [];
+    const userAgeRange = parseAgeRange(user?.user_metadata?.connectAges);
+
+    if (userGenres.length === 0 && userInstruments.length === 0 && !userAgeRange) {
+      return allProjects;
+    }
 
     return allProjects.filter(project => {
-      // If user has no preferences, show all
-      if (userGenres.length === 0 && userInstruments.length === 0 && !userAgeRange) {
-        return true;
-      }
-
-      // Check genre match
       const genreMatch = userGenres.length === 0 || userGenres.some(g => project.genre.toLowerCase().includes(g) || g.includes(project.genre.toLowerCase()));
-
-      // Check instrument match
-      const instrumentMatch = userInstruments.length === 0 || userInstruments.some(ui => project.instruments.toLowerCase().includes(ui) || ui.split(' ').some(word => project.instruments.toLowerCase().includes(word)));
-
-      // Check age range match (simplified - just check if user's preference overlaps)
-      const ageMatch = !userAgeRange || userAgeRange.includes(project.ageRange) || project.ageRange.includes(userAgeRange);
+      const instrumentMatch = userInstruments.length === 0 || userInstruments.some(ui => project.instruments.toLowerCase().includes(ui));
+      const ageMatch = !userAgeRange || rangeOverlap(userAgeRange, parseAgeRange(project.ageRange));
 
       return genreMatch && instrumentMatch && ageMatch;
     });
@@ -61,6 +81,14 @@ function Collaboration() {
         )}
       </section>
       <button className="new-project-btn">{t('collaboration.newProject')}</button>
+      {user && (
+        <>
+          <p className="suggested-label">{t('collaboration.suggestedForYou')}</p>
+          <Link to="/profile" className="profile-action-btn">
+            {t('collaboration.updateProfile')}
+          </Link>
+        </>
+      )}
 
       <div className="projects-grid">
         {filteredProjects.length > 0 ? (
