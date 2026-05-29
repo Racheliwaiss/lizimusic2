@@ -68,6 +68,19 @@ function Collaboration() {
     setSuccessMessage('Project added to the collaboration board.');
   };
 
+  const handleJoinProject = (projectId) => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
+    setProjects((currentProjects) => currentProjects.map((project) => {
+      if (project.id !== projectId) return project;
+      return { ...project, members: project.members + 1 };
+    }));
+    setSuccessMessage('You joined the project successfully.');
+  };
+
   const parseAgeRange = (range) => {
     const normalized = String(range || '').trim();
     if (!normalized) return null;
@@ -113,7 +126,7 @@ function Collaboration() {
 
       return genreMatch && instrumentMatch && ageMatch;
     });
-  }, [user]);
+  }, [user, projects]);
   return (
     <div className="page collaboration-page">
       <section className="hero">
@@ -241,7 +254,9 @@ function Collaboration() {
               <div className="members">
                 <span>{project.members} {t('collaboration.members')}</span>
               </div>
-              <button className="join-btn">{t('collaboration.joinProject')}</button>
+              <button className="join-btn" onClick={() => handleJoinProject(project.id)}>
+                {t('collaboration.joinProject')}
+              </button>
             </div>
           ))
         ) : (

@@ -241,7 +241,7 @@ const translations = {
       cancelNewProject: 'ביטול',
       newProjectFormTitle: 'צור פרויקט שיתוף פעולה חדש',
       projectTitle: 'כותרת הפרויקט',
-      projectGenre: 'ז'אנר',
+      projectGenre: "ז'אנר",
       projectInstruments: 'כלים',
       projectAgeRange: 'טווח גילאים',
       projectDescription: 'תיאור',
