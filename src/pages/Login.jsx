@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../LanguageContext';
 import { useAuth } from '../AuthContext';
@@ -14,6 +14,8 @@ function Login() {
   const [theme, setTheme] = useState(
     localStorage.getItem('theme') || 'dark'
   );
+  const [googleReady, setGoogleReady] = useState(false);
+  const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { signUp, signIn, user } = useAuth();
@@ -36,10 +38,9 @@ function Login() {
   };
 
   // Handle Google Login
-  const handleGoogleLogin = (response) => {
-    if (response.credential) {
+  const handleGoogleLogin = useCallback((response) => {
+    if (response?.credential) {
       try {
-        // Decode the JWT token to get user info
         const base64Url = response.credential.split('.')[1];
         const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
         const jsonPayload = decodeURIComponent(
@@ -49,39 +50,45 @@ function Login() {
             .join('')
         );
         const userData = JSON.parse(jsonPayload);
-        
+        console.log('Google user data', userData);
         setError('Google OAuth integration coming soon');
       } catch (err) {
         setError('Google login failed. Please try again.');
       }
     }
-  };
+  }, []);
 
-  // Load Google Sign-In script
+  // Load Google Sign-In script only when a client ID is configured.
   useEffect(() => {
+    if (!GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID.includes('YOUR_GOOGLE_CLIENT_ID')) {
+      return;
+    }
+
     const script = document.createElement('script');
     script.src = 'https://accounts.google.com/gsi/client';
     script.async = true;
+    script.onload = () => setGoogleReady(true);
+    script.onerror = () => setGoogleReady(false);
     document.head.appendChild(script);
 
     return () => {
       document.head.removeChild(script);
+      setGoogleReady(false);
     };
-  }, []);
+  }, [GOOGLE_CLIENT_ID]);
 
-  // Initialize Google Sign-In button
   useEffect(() => {
-    if (window.google) {
-      window.google.accounts.id.initialize({
-        client_id: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com', // Replace with your Google Client ID
-        callback: handleGoogleLogin,
-      });
-      window.google.accounts.id.renderButton(
-        document.getElementById('google-button'),
-        { theme: 'outline', size: 'large', text: 'signup_with' }
-      );
-    }
-  }, [handleGoogleLogin]);
+    if (!googleReady || !window.google) return;
+
+    window.google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: handleGoogleLogin,
+    });
+    window.google.accounts.id.renderButton(
+      document.getElementById('google-button'),
+      { theme: 'outline', size: 'large', text: 'signup_with' }
+    );
+  }, [googleReady, handleGoogleLogin, GOOGLE_CLIENT_ID]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
