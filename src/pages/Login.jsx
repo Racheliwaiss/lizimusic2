@@ -15,7 +15,8 @@ function Login() {
     localStorage.getItem('theme') || 'dark'
   );
   const [googleReady, setGoogleReady] = useState(false);
-  const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
+  const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
+  const showGoogleButton = Boolean(GOOGLE_CLIENT_ID);
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { signUp, signIn, user } = useAuth();
@@ -60,7 +61,7 @@ function Login() {
 
   // Load Google Sign-In script only when a client ID is configured.
   useEffect(() => {
-    if (!GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID.includes('YOUR_GOOGLE_CLIENT_ID')) {
+    if (!showGoogleButton) {
       return;
     }
 
@@ -75,7 +76,7 @@ function Login() {
       document.head.removeChild(script);
       setGoogleReady(false);
     };
-  }, [GOOGLE_CLIENT_ID]);
+  }, [showGoogleButton]);
 
   useEffect(() => {
     if (!googleReady || !window.google) return;
@@ -89,6 +90,13 @@ function Login() {
       { theme: 'outline', size: 'large', text: 'signup_with' }
     );
   }, [googleReady, handleGoogleLogin, GOOGLE_CLIENT_ID]);
+
+  const normalizeError = (errorValue) => {
+    if (!errorValue) return 'An unknown error occurred.';
+    if (typeof errorValue === 'string') return errorValue;
+    if (errorValue?.message) return errorValue.message;
+    return JSON.stringify(errorValue);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -112,27 +120,24 @@ function Login() {
       let result;
       
       if (isSignup) {
-        // Sign up with Supabase
         result = await signUp(email, password, {
           name: name || email.split('@')[0],
           bio: '🎵 Music Creator',
         });
       } else {
-        // Sign in with Supabase
         result = await signIn(email, password);
       }
 
       if (result.error) {
-        setError(result.error);
+        setError(normalizeError(result.error));
         setLoading(false);
         return;
       }
 
-      // Successfully authenticated - redirect to home
       setLoading(false);
       navigate('/');
     } catch (err) {
-      setError(isSignup ? 'Sign up failed. Please try again.' : 'Invalid email or password');
+      setError(normalizeError(err));
       setLoading(false);
     }
   };
@@ -197,9 +202,15 @@ function Login() {
             <span>{t('login.orContinueWith')}</span>
           </div>
 
-          <div className="oauth-buttons">
-            <div id="google-button"></div>
-          </div>
+          {showGoogleButton ? (
+            <div className="oauth-buttons">
+              <div id="google-button"></div>
+            </div>
+          ) : (
+            <div className="oauth-disabled-note">
+              Google sign-in is disabled until a Google Client ID is configured.
+            </div>
+          )}
           
           <p className="signup-link">
             {isSignup ? (
