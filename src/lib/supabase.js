@@ -1,10 +1,9 @@
-// Mock Supabase Client - Replace with real package when npm install works
-// import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// Mock auth implementation for development
+// Robust mock auth implementation for development when API keys are not configured
 const mockAuth = {
   getSession: async () => {
     const user = localStorage.getItem('supabase_user');
@@ -15,11 +14,21 @@ const mockAuth = {
   },
 
   signUp: async (email, password, options) => {
-    const normalizedEmail = typeof email === 'string' ? email : email?.email || '';
+    let finalEmail = '';
+    let finalMetadata = {};
+
+    if (typeof email === 'object' && email !== null) {
+      finalEmail = email.email || '';
+      finalMetadata = email.options?.data || {};
+    } else {
+      finalEmail = typeof email === 'string' ? email : '';
+      finalMetadata = options?.data || {};
+    }
+
     const user = {
       id: Math.random().toString(36).substr(2, 9),
-      email: normalizedEmail,
-      user_metadata: options?.data || {},
+      email: finalEmail,
+      user_metadata: finalMetadata,
       created_at: new Date().toISOString(),
     };
     localStorage.setItem('supabase_user', JSON.stringify(user));
@@ -27,10 +36,16 @@ const mockAuth = {
   },
 
   signInWithPassword: async (email, password) => {
-    const normalizedEmail = typeof email === 'string' ? email : email?.email || '';
+    let finalEmail = '';
+    if (typeof email === 'object' && email !== null) {
+      finalEmail = email.email || '';
+    } else {
+      finalEmail = typeof email === 'string' ? email : '';
+    }
+
     const user = {
       id: Math.random().toString(36).substr(2, 9),
-      email: normalizedEmail,
+      email: finalEmail,
       user_metadata: {},
       created_at: new Date().toISOString(),
     };
@@ -67,8 +82,15 @@ const mockAuth = {
   },
 };
 
-// Mock Supabase client
-export const supabase = {
-  auth: mockAuth,
-};
+const isSupabaseConfigured = 
+  supabaseUrl && 
+  supabaseAnonKey && 
+  supabaseUrl !== 'https://your-supabase-url' && 
+  supabaseAnonKey !== 'your-supabase-anon-key';
+
+// Export the real Supabase client if configured, otherwise fallback to mock
+export const supabase = isSupabaseConfigured
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : { auth: mockAuth };
+
 
