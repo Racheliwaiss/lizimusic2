@@ -1,38 +1,21 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from './lib/supabase';
-import { authApi } from './lib/authApi';
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const apiAuthEnabled = Boolean(import.meta.env.VITE_AUTH_API_URL);
-
-  const normalizeSessionResponse = (response) => {
-    if (!response) return null;
-    if (response?.session?.user) return response.session.user;
-    if (response?.user) return response.user;
-    return null;
-  };
 
   // Initialize auth session on mount
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        if (apiAuthEnabled) {
-          const sessionResponse = await authApi.getSession();
-          const sessionUser = normalizeSessionResponse(sessionResponse);
-          if (sessionUser) {
-            setUser(sessionUser);
-          }
-        } else {
-          const { data: { session }, error } = await supabase.auth.getSession();
-          if (error) {
-            console.error('Error getting session:', error);
-          } else if (session?.user) {
-            setUser(session.user);
-          }
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error('Error getting session:', error);
+        } else if (session?.user) {
+          setUser(session.user);
         }
       } catch (err) {
         console.error('Auth initialization error:', err);
@@ -43,41 +26,30 @@ export function AuthProvider({ children }) {
 
     initializeAuth();
 
-    let unsubscribe = () => {};
-
-    if (!apiAuthEnabled) {
-      const { data: { subscription } } = supabase.auth.onAuthStateChange(
-        (event, session) => {
-          if (session?.user) {
-            setUser(session.user);
-          } else {
-            setUser(null);
-          }
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (session?.user) {
+          setUser(session.user);
+        } else {
+          setUser(null);
         }
-      );
-
-      unsubscribe = () => subscription?.unsubscribe();
-    }
+      }
+    );
 
     return () => {
-      unsubscribe();
+      subscription?.unsubscribe();
     };
-  }, [apiAuthEnabled]);
+  }, []);
 
   const signUp = async (email, password, metadata = {}) => {
     try {
-      const response = apiAuthEnabled
-        ? await authApi.signUp(email, password, metadata)
-        : await supabase.auth.signUp({
-            email,
-            password,
-            options: {
-              data: metadata,
-            },
-          });
-
-      const data = apiAuthEnabled ? response : response.data;
-      const error = apiAuthEnabled ? null : response.error;
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: metadata,
+        },
+      });
 
       if (error) {
         throw error;
@@ -95,15 +67,10 @@ export function AuthProvider({ children }) {
 
   const signIn = async (email, password) => {
     try {
-      const response = apiAuthEnabled
-        ? await authApi.signIn(email, password)
-        : await supabase.auth.signInWithPassword({
-            email,
-            password,
-          });
-
-      const data = apiAuthEnabled ? response : response.data;
-      const error = apiAuthEnabled ? null : response.error;
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
       if (error) {
         throw error;
@@ -121,13 +88,9 @@ export function AuthProvider({ children }) {
 
   const logout = async () => {
     try {
-      if (apiAuthEnabled) {
-        await authApi.signOut();
-      } else {
-        const { error } = await supabase.auth.signOut();
-        if (error) {
-          throw error;
-        }
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        throw error;
       }
 
       setUser(null);
@@ -141,14 +104,9 @@ export function AuthProvider({ children }) {
     if (!user) return { error: 'No user logged in' };
 
     try {
-      const response = apiAuthEnabled
-        ? await authApi.updateUser(updates)
-        : await supabase.auth.updateUser({
-            data: updates,
-          });
-
-      const data = apiAuthEnabled ? response : response.data;
-      const error = apiAuthEnabled ? null : response.error;
+      const { data, error } = await supabase.auth.updateUser({
+        data: updates,
+      });
 
       if (error) {
         throw error;

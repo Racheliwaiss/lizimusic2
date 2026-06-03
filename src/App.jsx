@@ -42,6 +42,7 @@ function AppContent() {
                 <Route path="/" element={<Home />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/profile" element={<ProtectedRoute element={<Profile />} />} />
+                <Route path="/dashboard" element={<ProtectedRoute element={<Profile />} />} />
                 <Route path="/messages" element={<ProtectedRoute element={<Messages />} />} />
                 <Route path="/collaboration" element={<Collaboration />} />
                 <Route path="/search" element={<Search />} />

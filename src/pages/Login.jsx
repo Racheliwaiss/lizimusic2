@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../LanguageContext';
 import { useAuth } from '../AuthContext';
+import { supabase } from '../lib/supabase';
 import './Pages.css';
 
 function Login() {
@@ -25,10 +26,10 @@ function Login() {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
-  // Redirect to profile if already logged in
+  // Redirect to dashboard if already logged in
   useEffect(() => {
     if (user) {
-      navigate('/profile');
+      navigate('/dashboard');
     }
   }, [user, navigate]);
 
@@ -117,25 +118,38 @@ function Login() {
     }
 
     try {
-      let result;
-      
       if (isSignup) {
-        result = await signUp(email, password, {
-          name: name || email.split('@')[0],
-          bio: '🎵 Music Creator',
+        const { data, error: signUpError } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              name: name || email.split('@')[0],
+              bio: '🎵 Music Creator',
+            },
+          },
         });
-      } else {
-        result = await signIn(email, password);
-      }
 
-      if (result.error) {
-        setError(normalizeError(result.error));
-        setLoading(false);
-        return;
+        if (signUpError) {
+          setError(normalizeError(signUpError));
+          setLoading(false);
+          return;
+        }
+      } else {
+        const { data, error: signInError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (signInError) {
+          setError('Invalid email or password');
+          setLoading(false);
+          return;
+        }
       }
 
       setLoading(false);
-      navigate('/');
+      navigate('/dashboard');
     } catch (err) {
       setError(normalizeError(err));
       setLoading(false);

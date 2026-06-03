@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../LanguageContext';
 import { useAuth } from '../AuthContext';
+import { supabase } from '../lib/supabase';
 import './Layout.css';
 
 function Layout({ children }) {
@@ -24,10 +25,15 @@ function Layout({ children }) {
   };
 
   const handleLogout = async () => {
-    const result = await logout();
-    if (!result.error) {
-      navigate('/');
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Logout error:', error);
+      }
+    } catch (err) {
+      console.error('Logout error:', err);
     }
+    navigate('/');
   };
 
   const isActive = (path) => location.pathname === path;
@@ -45,7 +51,7 @@ function Layout({ children }) {
           <Link to="/search" className={isActive('/search') ? 'active' : ''}>{t('nav.search')}</Link>
           <Link to="/collaboration" className={isActive('/collaboration') ? 'active' : ''}>{t('nav.collaborate')}</Link>
           <Link to="/messages" className={isActive('/messages') ? 'active' : ''}>{t('nav.messages')}</Link>
-          <Link to="/profile" className={isActive('/profile') ? 'active' : ''}>{t('nav.profile')}</Link>
+          <Link to="/dashboard" className={isActive('/dashboard') ? 'active' : ''}>{t('nav.profile')}</Link>
         </div>
         <div className="navbar-controls">
           <button className="language-toggle" onClick={toggleLanguage} title="Toggle Language">
