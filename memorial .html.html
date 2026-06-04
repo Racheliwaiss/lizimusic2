@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LIZI - לזכרה של ליזי חלפון אלחרר</title>
+    <style>
+        :root {
+            --bg-primary: linear-gradient(135deg, #301934 0%, #131313 100%);
+            --bg-secondary: rgba(48, 25, 52, 0.95);
+            --text-primary: #e5e2e1;
+            --text-secondary: #c4c7c8;
+            --border-color: #444748;
+            --accent: #8A2BE2;
+            --accent-hover: #7B1BA8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Roboto', 'Helvetica Neue', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--accent);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover {
+            color: var(--accent);
+        }
+
+        .nav-back {
+            padding: 0.75rem 1.5rem;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            border-radius: 9999px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+
+        .nav-back:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* Main Content */
+        main {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        section {
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: rgba(57, 57, 57, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+        }
+
+        h1 {
+            font-size: 48px;
+            font-weight: 800;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            text-align: right;
+        }
+
+        p {
+            font-size: 16px;
+            line-height: 1.8;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            text-align: right;
+        }
+
+        .tribute-box {
+            background: rgba(138, 43, 226, 0.1);
+            border-left: 4px solid var(--accent);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        .tribute-box p {
+            margin: 0;
+        }
+
+        .song-link {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: var(--accent);
+            color: white;
+            text-decoration: none;
+            border-radius: 9999px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .song-link:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border-color);
+            margin-top: 3rem;
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                padding: 1rem;
+            }
+
+            .logo {
+                font-size: 24px;
+            }
+
+            main {
+                padding: 1.5rem 1rem;
+            }
+
+            h1 {
+                font-size: 32px;
+            }
+
+            h2 {
+                font-size: 24px;
+            }
+
+            section {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <a href="index.html" class="logo">♪ LIZI</a>
+        <a href="index.html" class="nav-back">← חזרה לעמוד הבית</a>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <section>
+            <h1>לזכרה של ליזי חלפון אלחרר</h1>
+            
+            <section class="tribute-box">
+                <p>אתר זה מוקדש ללזכרה של <strong>ליזי חלפון אלחרר</strong> שנרצחה בטרור ב-07 באוקטובר 2023.</p>
+            </section>
+        </section>
+
+        <section>
+            <h2>מי הייתה ליזי</h2>
+            <p>ליזי הייתה חברת ילדות שלנו, וחברותנו נמשכה שנים רבות מימי התיכון ועד למרחק הטרוגי של הריגתה.</p>
+            
+            <p>ליזי אהבה בכל ליבה את המוזיקה הישראלית - במיוחד יצירות של דויד ברוזה, דני רובס ודורון מזר. קולה היה חם וכנוע, ותמיד הרגישה בעומק של המילים והמנגינות.</p>
+            
+            <p>היא היתה אחת הנשים היפות ביותר שפגשנו, עם צניעות טבעית וקול שקט שהעיד על עוצמה פנימית. היא הייתה כמו מרכז של שקט - מישהו שנעצרת ליד זה, הכל היה טוב יותר.</p>
+            
+            <p>ליזי אהבה לעבוד עם אמנים ויוצרים. היא הייתה תמך אמיתי של הקולות החדשות בעולם האמנות הישראלית.</p>
+            
+            <p>היא הייתה חברת קיבוץ חולית והיתה מלאת חוזק ורוח. היא שרה בשמחה ושיחקה בכמה סרטי סטודנטים - תמיד היתה שם כדי לתמוך בחברים.</p>
+        </section>
+
+        <section>
+            <h2>הקמת LIZI - הדלקת הלהט</h2>
+            <p>החלטתי להקים את הפלטפורמה הזו <strong>LIZI</strong> - בשביל היצירה הישראלית, בשביל האמנים, ובשביל הקולות שליזי כל כך אהבה.</p>
+            
+            <p>אתר זה מוקדש למוזיקה, לשיתוף פעולה בין אמנים, ול<strong>הנצחת חוזק של הרוח הישראלית</strong> שליזי ייצגה.</p>
+            
+            <div class="tribute-box">
+                <p><strong>יהי זכרה ברוך.</strong> ליזי תמיד תישאר בלבנו דרך המוזיקה, דרך היצירה, ודרך הקול שלה שהעביר אהבה לכל מי שהכירו אותה.</p>
+            </div>
+        </section>
+
+        <section>
+            <h2>שיר להנצחתה</h2>
+            <p>שיר מיוחד הופק להנצחת זכרה ולחיזוק הרוח:</p>
+            <iframe 
+                width="100%" 
+                height="400" 
+                src="https://www.youtube.com/embed/BruIGjQ554U" 
+                title="שיר לזכרה של ליזי"
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                allowfullscreen>
+            </iframe>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 LIZI - Music Collaboration Platform | Dedicated to the memory of Lizi Chalfon Elharrer</p>
+    </footer>
+</body>
+</html>

@@ -11,6 +11,7 @@ const translations = {
       messages: 'Messages',
       profile: 'Profile',
       about: 'About',
+      memorial: 'Memorial',
     },
 
     // Home Page
@@ -147,6 +148,23 @@ const translations = {
       innovation: 'Innovation',
       innovationDesc: 'We continuously evolve to serve our musicians better',
     },
+    memorial: {
+      title: 'In Memory of Lizi Chalfon Elharrer',
+      subtitle: 'This site is dedicated to the memory of Lizi Chalfon Elharrer, murdered in terror on October 7, 2023.',
+      whoWasLiziTitle: 'Who was Lizi',
+      whoWasLiziP1: 'Lizi was our childhood friend, and our friendship lasted for many years, from high school days to the tragic moment of her death.',
+      whoWasLiziP2: 'Lizi loved Israeli music with all her heart - especially works by David Broza, Danny Robas, and Doron Mazar. Her voice was warm and gentle, and she always felt the depth of the words and melodies.',
+      whoWasLiziP3: 'She was one of the most beautiful women we have ever met, with a natural modesty and a quiet voice that testified to inner strength. She was like a center of calm - someone you would pause next to, and everything would be better.',
+      whoWasLiziP4: 'Lizi loved working with artists and creators. She was a true supporter of new voices in the Israeli art world.',
+      whoWasLiziP5: 'She was a member of Kibbutz Holit and was full of strength and spirit. She sang with joy and acted in several student films - always there to support friends.',
+      establishmentTitle: 'Establishing LIZI - Igniting the Flame',
+      establishmentP1: 'I decided to establish this platform - LIZI - for Israeli creation, for artists, and for the voices that Lizi loved so much.',
+      establishmentP2: 'This site is dedicated to music, to collaboration between artists, and to commemorating the strength of the Israeli spirit that Lizi represented.',
+      memoryBlessed: 'May her memory be a blessing. Lizi will always remain in our hearts through music, creation, and her voice that conveyed love to all who knew her.',
+      commemorativeSong: 'Commemorative Song',
+      commemorativeSongDesc: 'A special song produced to commemorate her memory and strengthen the spirit:',
+      backHome: '← Back to Home',
+    },
   },
   he: {
     // Navigation
@@ -159,6 +177,7 @@ const translations = {
       messages: 'הודעות',
       profile: 'פרופיל',
       about: 'אודות',
+      memorial: 'לזכרה',
     },
 
     // Home Page
@@ -294,6 +313,23 @@ const translations = {
       accessibilityDesc: 'כלים איכותיים למוזיקה צריכים להיות זמינים לכולם',
       innovation: 'חדשנות',
       innovationDesc: 'אנחנו מתפתחים כל הזמן כדי לשרת את המוזיקאים שלנו בצורה טובה יותר',
+    },
+    memorial: {
+      title: 'לזכרה של ליזי חלפון אלחרר',
+      subtitle: 'אתר זה מוקדש ללזכרה של ליזי חלפון אלחרר שנרצחה בטרור ב-07 באוקטובר 2023.',
+      whoWasLiziTitle: 'מי הייתה ליזי',
+      whoWasLiziP1: 'ליזי הייתה חברת ילדות שלנו, וחברותנו נמשכה שנים רבות מימי התיכון ועד למרחק הטרגי של הירצחה.',
+      whoWasLiziP2: 'ליזי אהבה בכל ליבה את המוזיקה הישראלית - במיוחד יצירות של דויד ברוזה, דני רובס ודורון מזר. קולה היה חם ועדין, ותמיד הרגישה בעומק של המילים והמנגינות.',
+      whoWasLiziP3: 'היא הייתה אחת הנשים היפות ביותר שפגשנו, עם צניעות טבעית וקול שקט שהעיד על עוצמה פנימית. היא הייתה כמו מרכז של שקט - מישהו שנעצרת ליד זה, הכל היה טוב יותר.',
+      whoWasLiziP4: 'ליזי אהבה לעבוד עם אמנים ויוצרים. היא הייתה תומכת אמיתית של הקולות החדשים בעולם האמנות הישראלית.',
+      whoWasLiziP5: 'היא הייתה חברת קיבוץ חולית והייתה מלאת חוזק ורוח. היא שרה בשמחה ושיחקה בכמה סרטי סטודנטים - תמיד הייתה שם כדי לתמוך בחברים.',
+      establishmentTitle: 'הקמת LIZI - הדלקת הלהט',
+      establishmentP1: 'החלטתי להקים את הפלטפורמה הזו LIZI - בשביל היצירה הישראלית, בשביל האמנים, ובשביל הקולות שליזי כל כך אהבה.',
+      establishmentP2: 'אתר זה מוקדש למוזיקה, לשיתוף פעולה בין אמנים, ולהנצחת חוזק של הרוח הישראלית שליזי ייצגה.',
+      memoryBlessed: 'יהי זכרה ברוך. ליזי תמיד תישאר בלבנו דרך המוזיקה, דרך היצירה, ודרך הקול שלה שהעביר אהבה לכל מי שהכירו אותה.',
+      commemorativeSong: 'שיר להנצחתה',
+      commemorativeSongDesc: 'שיר מיוחד הופק להנצחת זכרה ולחיזוק הרוח:',
+      backHome: '← חזרה לעמוד הבית',
     },
   },
 };

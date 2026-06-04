@@ -11,6 +11,7 @@ import Collaboration from './pages/Collaboration';
 import Search from './pages/Search';
 import OpenStage from './pages/OpenStage';
 import About from './pages/About';
+import Memorial from './pages/Memorial';
 
 // Protected Route Component
 function ProtectedRoute({ element }) {
@@ -41,6 +42,7 @@ function AppContent() {
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/about" element={<About />} />
+                <Route path="/memorial" element={<Memorial />} />
                 <Route path="/profile" element={<ProtectedRoute element={<Profile />} />} />
                 <Route path="/dashboard" element={<ProtectedRoute element={<Profile />} />} />
                 <Route path="/messages" element={<ProtectedRoute element={<Messages />} />} />

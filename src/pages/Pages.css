@@ -2100,3 +2100,161 @@
   background: linear-gradient(135deg, #25D366, #128C7E);
   box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
 }
+
+/* Memorial Page */
+.memorial-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: var(--spacing-xl) var(--spacing-lg);
+  animation: fadeIn 0.5s ease-in;
+}
+
+.memorial-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+.memorial-header-section {
+  text-align: center;
+  margin-bottom: var(--spacing-lg);
+}
+
+.memorial-header-section h1 {
+  font-size: 3rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--music-pink), var(--music-purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: var(--spacing-md);
+}
+
+.tribute-accent-line {
+  height: 4px;
+  width: 80px;
+  background: linear-gradient(90deg, var(--music-cyan), var(--music-pink));
+  margin: var(--spacing-sm) auto var(--spacing-md) auto;
+  border-radius: 2px;
+}
+
+.memorial-subtitle {
+  font-size: 1.25rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.memorial-card-section {
+  background: linear-gradient(135deg, rgba(30, 15, 50, 0.85) 0%, rgba(15, 8, 25, 0.95) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: var(--spacing-xl);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(12px);
+}
+
+[data-theme="light"] .memorial-card-section {
+  background: linear-gradient(135deg, rgba(255, 240, 255, 0.9) 0%, rgba(245, 220, 255, 0.85) 100%);
+  border-color: rgba(179, 102, 255, 0.2);
+  box-shadow: 0 10px 30px rgba(179, 102, 255, 0.1);
+}
+
+.memorial-card-section h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-lg);
+  border-bottom: 2px solid rgba(255, 0, 110, 0.15);
+  padding-bottom: var(--spacing-sm);
+  text-align: start;
+}
+
+[dir="rtl"] .memorial-card-section h2 {
+  text-align: right;
+}
+
+.memorial-card-section .text-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.memorial-card-section p {
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  text-align: start;
+  margin: 0;
+}
+
+[dir="rtl"] .memorial-card-section p {
+  text-align: right;
+}
+
+.tribute-quote-box {
+  background: rgba(255, 0, 110, 0.08);
+  border-left: 4px solid var(--music-pink);
+  padding: var(--spacing-lg);
+  margin-top: var(--spacing-lg);
+  border-radius: 0 8px 8px 0;
+}
+
+[dir="rtl"] .tribute-quote-box {
+  border-left: none;
+  border-right: 4px solid var(--music-pink);
+  border-radius: 8px 0 0 8px;
+}
+
+.quote-text {
+  font-size: 1.15rem !important;
+  font-style: italic;
+  font-weight: 600;
+  color: var(--text-primary) !important;
+}
+
+.song-section {
+  text-align: center;
+}
+
+.song-desc {
+  margin-bottom: var(--spacing-lg) !important;
+  color: var(--text-secondary);
+}
+
+[dir="rtl"] .song-desc {
+  text-align: center !important;
+}
+
+.video-wrapper {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #000;
+  margin-top: var(--spacing-md);
+}
+
+.memorial-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--spacing-lg);
+}
+
+.back-btn {
+  display: inline-block;
+  padding: 12px 30px;
+  background: linear-gradient(135deg, var(--music-pink), var(--music-purple));
+  color: white;
+  text-decoration: none;
+  border-radius: 30px;
+  font-weight: 700;
+  box-shadow: 0 8px 25px rgba(255, 0, 110, 0.4);
+  transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 35px rgba(255, 0, 110, 0.6);
+  color: white;
+}
