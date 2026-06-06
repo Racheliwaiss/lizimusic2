@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../LanguageContext';
 import { useAuth } from '../AuthContext';
+import UploadTrack from '../components/UploadTrack';
 import './Pages.css';
 
 function Profile() {
@@ -10,6 +11,8 @@ function Profile() {
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(true);
   const [saveError, setSaveError] = useState('');
+  const [tracks, setTracks] = useState([]);
+  const [showUpload, setShowUpload] = useState(false);
 
   const profileData = useMemo(() => {
     const metadata = user?.user_metadata || {};
@@ -281,19 +284,41 @@ function Profile() {
       </div>
 
       <section className="profile-content">
-        <h2>{t('profile.recentWorks')}</h2>
-        <div className="works-grid">
-          {(user.recentWorks || [1, 2, 3, 4]).map((item, index) => (
-            <div key={index} className="work-card">
-              <div className="work-thumbnail">
-                {['🎵', '🎶', '🎤', '🎧'][index % 4]}
-              </div>
-              <h3>Track {index + 1}</h3>
-              <p>{t('profile.collaboration')} • 2 {t('profile.weeksAgo')}</p>
-            </div>
-          ))}
+        <div className="works-header">
+          <h2>{t('profile.recentWorks')}</h2>
+          <button className="upload-track-btn" onClick={() => setShowUpload(true)}>
+            + {t('upload.uploadBtn')}
+          </button>
         </div>
+
+        {tracks.length === 0 ? (
+          <div className="no-tracks">
+            <div className="no-tracks-icon">🎵</div>
+            <p>{t('upload.noTracksYet')}</p>
+            <button className="save-btn" onClick={() => setShowUpload(true)}>
+              {t('upload.uploadFirst')}
+            </button>
+          </div>
+        ) : (
+          <div className="works-grid">
+            {tracks.map((track) => (
+              <div key={track.id} className="work-card track-card">
+                <div className="work-thumbnail">🎵</div>
+                <h3 className="track-title">{track.title}</h3>
+                {track.genre && <p className="track-genre">{track.genre}</p>}
+                <audio className="track-player" controls src={track.url} />
+              </div>
+            ))}
+          </div>
+        )}
       </section>
+
+      {showUpload && (
+        <UploadTrack
+          onUpload={(track) => setTracks((prev) => [track, ...prev])}
+          onClose={() => setShowUpload(false)}
+        />
+      )}
     </div>
   );
 }

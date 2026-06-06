@@ -1237,6 +1237,223 @@
   }
 }
 
+/* ========== Upload Track ========== */
+
+.works-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-xl);
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+}
+
+.works-header h2 {
+  font-size: 2rem;
+  margin: 0;
+}
+
+.upload-track-btn {
+  background: linear-gradient(135deg, var(--music-pink), var(--music-purple));
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(255, 0, 110, 0.35);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.upload-track-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 28px rgba(255, 0, 110, 0.5);
+}
+
+/* No-tracks placeholder */
+.no-tracks {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-xl) 0;
+  color: var(--text-secondary);
+}
+
+.no-tracks-icon {
+  font-size: 3.5rem;
+  opacity: 0.5;
+}
+
+/* Track card audio player */
+.track-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.track-title {
+  font-size: 1rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.track-genre {
+  font-size: 0.8rem;
+  color: var(--music-cyan);
+  margin: 0;
+}
+
+.track-player {
+  width: 100%;
+  height: 32px;
+  accent-color: var(--music-pink);
+  margin-top: auto;
+}
+
+/* Upload Modal */
+.upload-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--spacing-md);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+.upload-modal {
+  background: linear-gradient(135deg, rgba(26, 10, 46, 0.98) 0%, rgba(40, 20, 60, 0.98) 100%);
+  border: 2px solid var(--music-pink);
+  border-radius: 16px;
+  padding: var(--spacing-xl);
+  width: 100%;
+  max-width: 480px;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(255, 0, 110, 0.3);
+}
+
+.upload-modal h2 {
+  margin-bottom: var(--spacing-lg);
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+.upload-close-btn {
+  position: absolute;
+  top: var(--spacing-md);
+  right: var(--spacing-md);
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.2rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: color 0.15s;
+}
+
+.upload-close-btn:hover {
+  color: var(--music-pink);
+}
+
+.upload-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.upload-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.upload-form input[type="text"] {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  color: var(--text-primary);
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.upload-form input[type="text"]:focus {
+  border-color: var(--music-pink);
+}
+
+.upload-dropzone {
+  border: 2px dashed rgba(0, 217, 255, 0.4);
+  border-radius: 12px;
+  padding: var(--spacing-lg);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  color: var(--text-secondary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.upload-dropzone:hover,
+.upload-dropzone.dragging {
+  border-color: var(--music-cyan);
+  background: rgba(0, 217, 255, 0.05);
+}
+
+.upload-dropzone.has-file {
+  border-color: var(--music-pink);
+  background: rgba(255, 0, 110, 0.05);
+}
+
+.upload-drop-icon,
+.upload-file-icon {
+  font-size: 2.5rem;
+}
+
+.upload-browse {
+  color: var(--music-cyan);
+  font-size: 0.85rem;
+  text-decoration: underline;
+}
+
+.upload-file-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  word-break: break-all;
+  margin: 0;
+}
+
+.upload-file-size {
+  font-size: 0.8rem;
+  margin: 0;
+}
+
+.upload-error {
+  color: #ff4d6d;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.upload-actions {
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: flex-end;
+  margin-top: var(--spacing-sm);
+}
+
 /* About Page Styles */
 .about-section {
   background: linear-gradient(135deg, rgba(40, 20, 60, 0.7) 0%, rgba(60, 30, 80, 0.3) 100%);
