@@ -5,7 +5,7 @@ import { useAuth } from '../AuthContext';
 import { fetchProjects, createProject, updateProject, deleteProject, joinProject } from '../lib/db';
 import './Pages.css';
 
-const EMPTY_FORM = { title: '', genre: '', instruments: '', ageRange: '', description: '' };
+const EMPTY_FORM = { title: '', genre: '', instruments: '', ageRange: '', location: '', description: '' };
 
 const parseAgeRange = (range) => {
   const s = String(range || '').trim();
@@ -60,6 +60,7 @@ function Collaboration() {
       genre:       project.genre,
       instruments: project.instruments,
       ageRange:    project.ageRange,
+      location:    project.location || '',
       description: project.description,
     });
     setFormError('');

@@ -140,6 +140,7 @@ export async function updateProject(projectId, fields) {
         instruments: fields.instruments,
         age_range:   fields.ageRange,
         description: fields.description,
+        location:    fields.location || '',
       })
       .eq('id', projectId);
 
