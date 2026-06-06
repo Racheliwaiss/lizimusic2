@@ -1,21 +1,21 @@
 import React, { useState, useRef } from 'react';
 import { useLanguage } from '../LanguageContext';
 
-function UploadTrack({ onUpload, onClose }) {
+// Pass `initialData` to open in edit mode (no file required, title/genre pre-filled).
+function UploadTrack({ onUpload, onClose, initialData }) {
   const { t } = useLanguage();
-  const [title, setTitle] = useState('');
-  const [genre, setGenre] = useState('');
-  const [file, setFile] = useState(null);
+  const isEdit = Boolean(initialData);
+
+  const [title, setTitle]     = useState(initialData?.title || '');
+  const [genre, setGenre]     = useState(initialData?.genre || '');
+  const [file, setFile]       = useState(null);
   const [dragging, setDragging] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError]     = useState('');
   const fileRef = useRef();
 
   const handleFile = (f) => {
     if (!f) return;
-    if (!f.type.startsWith('audio/')) {
-      setError(t('upload.errorNotAudio'));
-      return;
-    }
+    if (!f.type.startsWith('audio/')) { setError(t('upload.errorNotAudio')); return; }
     setError('');
     setFile(f);
   };
@@ -29,10 +29,23 @@ function UploadTrack({ onUpload, onClose }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!title.trim()) { setError(t('upload.errorNoTitle')); return; }
-    if (!file)         { setError(t('upload.errorNoFile'));  return; }
+    // In edit mode a new file is optional; in upload mode it's required.
+    if (!isEdit && !file) { setError(t('upload.errorNoFile')); return; }
 
-    const url = URL.createObjectURL(file);
-    onUpload({ id: Date.now(), title: title.trim(), genre: genre.trim(), url, fileName: file.name });
+    if (isEdit) {
+      // Pass back only updated metadata; file stays unchanged unless a new one was picked.
+      onUpload({
+        id:       initialData.id,
+        title:    title.trim(),
+        genre:    genre.trim(),
+        url:      file ? URL.createObjectURL(file) : initialData.url,
+        fileName: file ? file.name : initialData.fileName,
+        _isEdit:  true,
+      });
+    } else {
+      const url = URL.createObjectURL(file);
+      onUpload({ id: Date.now(), title: title.trim(), genre: genre.trim(), url, fileName: file.name });
+    }
     onClose();
   };
 
@@ -40,7 +53,7 @@ function UploadTrack({ onUpload, onClose }) {
     <div className="upload-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="upload-modal">
         <button className="upload-close-btn" onClick={onClose} aria-label="Close">✕</button>
-        <h2>🎵 {t('upload.title')}</h2>
+        <h2>🎵 {isEdit ? t('upload.editTitle') : t('upload.title')}</h2>
 
         <form onSubmit={handleSubmit} className="upload-form">
           <label>
@@ -83,6 +96,12 @@ function UploadTrack({ onUpload, onClose }) {
                 <p className="upload-file-name">{file.name}</p>
                 <p className="upload-file-size">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
               </>
+            ) : isEdit ? (
+              <>
+                <div className="upload-drop-icon">🎧</div>
+                <p className="upload-file-name">{initialData.fileName || t('upload.currentFile')}</p>
+                <span className="upload-browse">{t('upload.replaceFile')}</span>
+              </>
             ) : (
               <>
                 <div className="upload-drop-icon">🎧</div>
@@ -96,7 +115,9 @@ function UploadTrack({ onUpload, onClose }) {
 
           <div className="upload-actions">
             <button type="button" className="cancel-btn" onClick={onClose}>{t('upload.cancel')}</button>
-            <button type="submit" className="save-btn">{t('upload.submit')}</button>
+            <button type="submit" className="save-btn">
+              {isEdit ? t('upload.saveChanges') : t('upload.submit')}
+            </button>
           </div>
         </form>
       </div>

@@ -1,12 +1,17 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useLanguage } from '../LanguageContext';
-import artists from '../data/artists';
+import { fetchArtists } from '../lib/db';
 import './Pages.css';
 
 function Search() {
   const [query, setQuery] = useState('');
   const [followed, setFollowed] = useState(new Set());
+  const [allArtists, setAllArtists] = useState([]);
   const { t } = useLanguage();
+
+  useEffect(() => {
+    fetchArtists().then(setAllArtists);
+  }, []);
 
   const toggleFollow = (id) => {
     setFollowed((prev) => {
@@ -20,22 +25,20 @@ function Search() {
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return [];
-    return artists.filter((a) =>
+    return allArtists.filter((a) =>
       a.name.toLowerCase().includes(q) ||
       a.genre.toLowerCase().includes(q) ||
       a.instruments.toLowerCase().includes(q) ||
       a.style.toLowerCase().includes(q)
     );
-  }, [query]);
+  }, [query, allArtists]);
 
   return (
     <div className="page search-page">
       <section className="hero">
         <div className="hero-sound-bars">
-          <div className="bar"></div>
-          <div className="bar"></div>
-          <div className="bar"></div>
-          <div className="bar"></div>
+          <div className="bar"></div><div className="bar"></div>
+          <div className="bar"></div><div className="bar"></div>
           <div className="bar"></div>
         </div>
         <h1>🔍 {t('search.title')}</h1>
@@ -63,12 +66,13 @@ function Search() {
             <div className="results-list">
               {results.map((artist) => (
                 <div key={artist.id} className="result-item">
-                  <div className="result-avatar">🎤</div>
+                  <div className="result-avatar">{artist.avatar || '🎤'}</div>
                   <div className="result-info">
                     <h3>{artist.name}</h3>
                     <p className="result-type">{artist.genre} · {artist.style}</p>
                     <p className="result-instruments">🎸 {artist.instruments}</p>
-                    <span className="result-stat">{artist.followers} {t('search.followers')}</span>
+                    {artist.location && <p className="result-location">📍 {artist.location}</p>}
+                    <span className="result-stat">{(artist.followers || 0).toLocaleString()} {t('search.followers')}</span>
                   </div>
                   <button
                     className={`follow-btn${followed.has(artist.id) ? ' following' : ''}`}

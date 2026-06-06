@@ -165,6 +165,14 @@ const translations = {
       errorNoTitle: 'Please enter a track title.',
       errorNoFile: 'Please select an audio file.',
       errorNotAudio: 'Only audio files are supported.',
+      editTitle: 'Edit Track',
+      saveChanges: 'Save Changes',
+      currentFile: 'Current file',
+      replaceFile: 'Click to replace file',
+      confirmDelete: 'Delete this track?',
+      confirmDeleteMsg: 'This action cannot be undone.',
+      deleteConfirm: 'Yes, Delete',
+      deleteCancel: 'Cancel',
     },
 
     memorial: {
@@ -350,6 +358,14 @@ const translations = {
       errorNoTitle: 'נא להזין שם לשיר.',
       errorNoFile: 'נא לבחור קובץ אודיו.',
       errorNotAudio: 'נתמכים קבצי אודיו בלבד.',
+      editTitle: 'עריכת שיר',
+      saveChanges: 'שמור שינויים',
+      currentFile: 'קובץ נוכחי',
+      replaceFile: 'לחץ להחלפת קובץ',
+      confirmDelete: 'למחוק שיר זה?',
+      confirmDeleteMsg: 'לא ניתן לבטל פעולה זו.',
+      deleteConfirm: 'כן, מחק',
+      deleteCancel: 'ביטול',
     },
 
     memorial: {

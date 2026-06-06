@@ -1,8 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../LanguageContext';
 import { useAuth } from '../AuthContext';
-import allArtists from '../data/artists';
+import { fetchArtists } from '../lib/db';
 import './Pages.css';
 
 const parseAgeRange = (range) => {
@@ -52,6 +52,15 @@ function OpenStage() {
   const { t } = useLanguage();
   const { user } = useAuth();
   const [selectedGenre, setSelectedGenre] = useState('All');
+  const [allArtists, setAllArtists] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchArtists().then((data) => {
+      setAllArtists(data);
+      setLoading(false);
+    });
+  }, []);
 
   const userGenres      = useMemo(() => user?.user_metadata?.favoriteGenres?.toLowerCase().split(',').map(g => g.trim()).filter(Boolean) || [], [user]);
   const userInstruments = useMemo(() => user?.user_metadata?.instruments?.toLowerCase().split(',').map(i => i.trim()).filter(Boolean) || [], [user]);
@@ -64,22 +73,14 @@ function OpenStage() {
       ...artist,
       matchPct: user && hasPreferences ? matchScore(artist, userGenres, userInstruments, userStyle, userAgeRange) : null,
     }));
-  }, [user, hasPreferences, userGenres, userInstruments, userStyle, userAgeRange]);
+  }, [allArtists, user, hasPreferences, userGenres, userInstruments, userStyle, userAgeRange]);
 
   const filteredArtists = useMemo(() => {
     let filtered = artistsWithScore;
-
-    if (selectedGenre !== 'All') {
-      filtered = filtered.filter(a => a.genre === selectedGenre);
-    }
-
+    if (selectedGenre !== 'All') filtered = filtered.filter(a => a.genre === selectedGenre);
     if (!user || !hasPreferences) return filtered;
-
     filtered = filtered.filter(a => a.matchPct === null || a.matchPct > 0);
-
-    filtered = [...filtered].sort((a, b) => (b.matchPct ?? 0) - (a.matchPct ?? 0));
-
-    return filtered;
+    return [...filtered].sort((a, b) => (b.matchPct ?? 0) - (a.matchPct ?? 0));
   }, [selectedGenre, artistsWithScore, user, hasPreferences]);
 
   const genres = ['All', ...new Set(allArtists.map(a => a.genre))];
@@ -94,10 +95,8 @@ function OpenStage() {
     <div className="page open-stage-page">
       <section className="hero">
         <div className="hero-sound-bars">
-          <div className="bar"></div>
-          <div className="bar"></div>
-          <div className="bar"></div>
-          <div className="bar"></div>
+          <div className="bar"></div><div className="bar"></div>
+          <div className="bar"></div><div className="bar"></div>
           <div className="bar"></div>
         </div>
         <h1>🎤 {t('openStage.title')}</h1>
@@ -109,9 +108,7 @@ function OpenStage() {
           </>
         )}
         {user && (
-          <Link to="/profile" className="profile-action-btn">
-            {t('openStage.updateProfile')}
-          </Link>
+          <Link to="/profile" className="profile-action-btn">{t('openStage.updateProfile')}</Link>
         )}
       </section>
 
@@ -127,34 +124,41 @@ function OpenStage() {
         ))}
       </div>
 
-      <div className="artists-grid">
-        {filteredArtists.length === 0 ? (
-          <p className="no-results">No artists match this filter. <Link to="/profile">Update your profile</Link> to broaden results.</p>
-        ) : (
-          filteredArtists.map((artist) => (
-            <div key={artist.id} className="artist-card">
-              {artist.matchPct !== null && (
-                <div
-                  className="match-badge"
-                  style={{ background: matchColor(artist.matchPct) }}
-                  title="Match percentage based on your profile"
-                >
-                  {artist.matchPct}% match
-                </div>
-              )}
-              <div className="artist-avatar">{artist.avatar || '🎤'}</div>
-              <h3>{artist.name}</h3>
-              <p className="genre-tag">{artist.genre}</p>
-              <p className="instruments">🎸 {artist.instruments}</p>
-              <p className="style-tag">{artist.style}</p>
-              <p className="age-range">👥 Ages: {artist.ageRange}</p>
-              {artist.location && <p className="artist-location">📍 {artist.location}</p>}
-              <div className="followers">⭐ {artist.followers.toLocaleString()} {t('openStage.followers')}</div>
-              <button className="listen-btn">{t('openStage.listenNow')}</button>
-            </div>
-          ))
-        )}
-      </div>
+      {loading ? (
+        <div className="loading-state">Loading artists…</div>
+      ) : (
+        <div className="artists-grid">
+          {filteredArtists.length === 0 ? (
+            <p className="no-results">
+              No artists match this filter.{' '}
+              <Link to="/profile">Update your profile</Link> to broaden results.
+            </p>
+          ) : (
+            filteredArtists.map((artist) => (
+              <div key={artist.id} className="artist-card">
+                {artist.matchPct !== null && (
+                  <div
+                    className="match-badge"
+                    style={{ background: matchColor(artist.matchPct) }}
+                    title="Match percentage based on your profile"
+                  >
+                    {artist.matchPct}% match
+                  </div>
+                )}
+                <div className="artist-avatar">{artist.avatar || '🎤'}</div>
+                <h3>{artist.name}</h3>
+                <p className="genre-tag">{artist.genre}</p>
+                <p className="instruments">🎸 {artist.instruments}</p>
+                <p className="style-tag">{artist.style}</p>
+                {artist.ageRange && <p className="age-range">👥 Ages: {artist.ageRange}</p>}
+                {artist.location && <p className="artist-location">📍 {artist.location}</p>}
+                <div className="followers">⭐ {(artist.followers || 0).toLocaleString()} {t('openStage.followers')}</div>
+                <button className="listen-btn">{t('openStage.listenNow')}</button>
+              </div>
+            ))
+          )}
+        </div>
+      )}
     </div>
   );
 }

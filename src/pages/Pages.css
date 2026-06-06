@@ -960,6 +960,20 @@
   width: 100%;
 }
 
+.loading-state {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  padding: 3rem 0;
+  width: 100%;
+}
+
+.result-location {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 2px 0;
+}
+
 .project-card {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
@@ -972,6 +986,76 @@
 .project-card:hover {
   border-color: var(--accent);
   transform: translateY(-4px);
+}
+
+.project-card.owner-card {
+  border-color: rgba(139, 0, 255, 0.5);
+}
+
+.owner-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--music-pink), var(--music-purple));
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 20px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.project-owner-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  width: 100%;
+}
+
+.project-owner-actions .track-edit-btn {
+  flex: 1;
+}
+
+.collab-filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 8px 0 4px;
+}
+
+.collab-filter-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.filter-toggle-btn {
+  padding: 6px 16px;
+  background: rgba(0, 217, 255, 0.1);
+  border: 1px solid var(--music-cyan);
+  border-radius: 20px;
+  color: var(--music-cyan);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.filter-toggle-btn:hover,
+.filter-toggle-btn.active {
+  background: rgba(0, 217, 255, 0.25);
+}
+
+.no-results-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 2rem 0;
 }
 
 .project-thumbnail {
@@ -1312,6 +1396,173 @@
   height: 32px;
   accent-color: var(--music-pink);
   margin-top: auto;
+}
+
+.track-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  width: 100%;
+}
+
+.track-edit-btn {
+  flex: 1;
+  padding: 6px 10px;
+  background: rgba(0, 217, 255, 0.15);
+  border: 1px solid var(--music-cyan);
+  border-radius: 8px;
+  color: var(--music-cyan);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.track-edit-btn:hover {
+  background: rgba(0, 217, 255, 0.3);
+}
+
+.track-delete-btn {
+  padding: 6px 12px;
+  background: rgba(255, 60, 60, 0.15);
+  border: 1px solid rgba(255, 60, 60, 0.5);
+  border-radius: 8px;
+  color: #ff6b6b;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.track-delete-btn:hover {
+  background: rgba(255, 60, 60, 0.3);
+}
+
+/* Delete confirmation dialog */
+.delete-dialog {
+  background: var(--card-bg, #1a0a2e);
+  border: 2px solid rgba(255, 60, 60, 0.5);
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 380px;
+  width: 90%;
+  text-align: center;
+}
+
+.delete-dialog h3 {
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
+}
+
+.delete-track-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--music-cyan);
+  margin: 0.5rem 0;
+}
+
+.delete-warning {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 1.5rem;
+}
+
+.delete-confirm-btn {
+  padding: 10px 24px;
+  background: linear-gradient(135deg, #ff4444, #cc0000);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.delete-confirm-btn:hover {
+  opacity: 0.85;
+}
+
+/* My Projects section on Profile */
+.my-projects-section {
+  margin-top: 2rem;
+}
+
+.my-projects-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.my-project-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  background: linear-gradient(135deg, rgba(40, 20, 60, 0.8), rgba(60, 30, 80, 0.4));
+  border: 1px solid rgba(139, 0, 255, 0.3);
+  border-radius: 12px;
+  padding: 16px;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.my-project-card:hover {
+  border-color: var(--music-purple);
+  transform: translateX(4px);
+}
+
+.my-project-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.my-project-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.my-project-info h3 {
+  margin: 0 0 4px;
+  font-size: 1rem;
+  color: white;
+}
+
+.my-project-genre {
+  font-size: 0.8rem;
+  color: var(--music-cyan);
+  margin: 0 0 4px;
+}
+
+.my-project-instruments {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0 0 4px;
+}
+
+.my-project-desc {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.my-project-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.my-project-members {
+  font-size: 0.8rem;
+  color: var(--music-pink);
+  font-weight: 600;
+}
+
+.my-project-age {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.4);
 }
 
 /* Upload Modal */

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../LanguageContext';
 import { useAuth } from '../AuthContext';
 import UploadTrack from '../components/UploadTrack';
+import { fetchUserTracks, saveTrack, updateTrack, deleteLiziMusic, fetchUserProjects } from '../lib/db';
 import './Pages.css';
 
 function Profile() {
@@ -13,6 +14,9 @@ function Profile() {
   const [saveError, setSaveError] = useState('');
   const [tracks, setTracks] = useState([]);
   const [showUpload, setShowUpload] = useState(false);
+  const [editingTrack, setEditingTrack] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [myProjects, setMyProjects] = useState([]);
 
   const profileData = useMemo(() => {
     const metadata = user?.user_metadata || {};
@@ -51,10 +55,44 @@ function Profile() {
     if (!user) return;
     const metadata = user.user_metadata || {};
     const needsProfile = !metadata.about && !metadata.favoriteGenres && !metadata.instruments && !metadata.createGoals && !metadata.musicStyle && !metadata.connectAges && !metadata.lookingFor;
-    if (needsProfile) {
-      setIsEditing(true);
-    }
+    if (needsProfile) setIsEditing(true);
   }, [user]);
+
+  // Load tracks and user's projects from Supabase on mount
+  useEffect(() => {
+    if (!user?.id) return;
+    fetchUserTracks(user.id).then(setTracks);
+    fetchUserProjects(user.id).then(setMyProjects);
+  }, [user?.id]);
+
+  const refreshTracks = () => fetchUserTracks(user.id).then(setTracks);
+
+  const handleUpload = async (track) => {
+    if (track._isEdit) {
+      // Update metadata in DB, then refresh
+      await updateTrack(track.id, { title: track.title, genre: track.genre });
+      setTracks(prev => prev.map(t => t.id === track.id ? { ...t, title: track.title, genre: track.genre, url: track.url, fileName: track.fileName } : t));
+    } else {
+      // Save new track to DB
+      const { track: saved } = await saveTrack({
+        userId: user.id,
+        title: track.title,
+        genre: track.genre,
+        fileUrl: track.url,
+        fileName: track.fileName,
+      });
+      // Use saved DB row if available, otherwise use local object
+      setTracks(prev => [saved || track, ...prev]);
+    }
+    setEditingTrack(null);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget) return;
+    await deleteLiziMusic(deleteTarget.id);
+    setTracks(prev => prev.filter(t => t.id !== deleteTarget.id));
+    setDeleteTarget(null);
+  };
 
   // Redirect to login if not authenticated
   if (!isAuthenticated) {
@@ -306,18 +344,97 @@ function Profile() {
                 <div className="work-thumbnail">🎵</div>
                 <h3 className="track-title">{track.title}</h3>
                 {track.genre && <p className="track-genre">{track.genre}</p>}
-                <audio className="track-player" controls src={track.url} />
+                {track.url && <audio className="track-player" controls src={track.url} />}
+                <div className="track-actions">
+                  <button className="track-edit-btn" onClick={() => setEditingTrack(track)}>
+                    ✏️ {t('upload.editTitle')}
+                  </button>
+                  <button className="track-delete-btn" onClick={() => setDeleteTarget(track)}>
+                    🗑️
+                  </button>
+                </div>
               </div>
             ))}
           </div>
         )}
       </section>
 
+      {/* My Projects */}
+      <section className="profile-content my-projects-section">
+        <div className="works-header">
+          <h2>🎼 My Projects</h2>
+          <a href="/collaboration" className="upload-track-btn" style={{ textDecoration: 'none' }}>
+            + New Project
+          </a>
+        </div>
+
+        {myProjects.length === 0 ? (
+          <div className="no-tracks">
+            <div className="no-tracks-icon">🎼</div>
+            <p>No projects created yet.</p>
+            <a href="/collaboration" className="save-btn" style={{ textDecoration: 'none', display: 'inline-block' }}>
+              Create your first project
+            </a>
+          </div>
+        ) : (
+          <div className="my-projects-grid">
+            {myProjects.map((project) => (
+              <div key={project.id} className="my-project-card">
+                <div className="my-project-icon">🎼</div>
+                <div className="my-project-info">
+                  <h3>{project.title}</h3>
+                  <p className="my-project-genre">{project.genre}</p>
+                  {project.instruments && (
+                    <p className="my-project-instruments">🎸 {project.instruments}</p>
+                  )}
+                  {project.description && (
+                    <p className="my-project-desc">{project.description}</p>
+                  )}
+                </div>
+                <div className="my-project-meta">
+                  <span className="my-project-members">👥 {project.members} members</span>
+                  {project.ageRange && <span className="my-project-age">Ages {project.ageRange}</span>}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Upload new track */}
       {showUpload && (
         <UploadTrack
-          onUpload={(track) => setTracks((prev) => [track, ...prev])}
+          onUpload={handleUpload}
           onClose={() => setShowUpload(false)}
         />
+      )}
+
+      {/* Edit existing track */}
+      {editingTrack && (
+        <UploadTrack
+          initialData={editingTrack}
+          onUpload={handleUpload}
+          onClose={() => setEditingTrack(null)}
+        />
+      )}
+
+      {/* Delete confirmation dialog */}
+      {deleteTarget && (
+        <div className="upload-overlay" onClick={(e) => e.target === e.currentTarget && setDeleteTarget(null)}>
+          <div className="delete-dialog">
+            <h3>🗑️ {t('upload.confirmDelete')}</h3>
+            <p className="delete-track-name">"{deleteTarget.title}"</p>
+            <p className="delete-warning">{t('upload.confirmDeleteMsg')}</p>
+            <div className="upload-actions">
+              <button className="cancel-btn" onClick={() => setDeleteTarget(null)}>
+                {t('upload.deleteCancel')}
+              </button>
+              <button className="delete-confirm-btn" onClick={handleDeleteConfirm}>
+                {t('upload.deleteConfirm')}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
