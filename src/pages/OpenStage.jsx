@@ -5,81 +5,90 @@ import { useAuth } from '../AuthContext';
 import allArtists from '../data/artists';
 import './Pages.css';
 
+const parseAgeRange = (range) => {
+  const normalized = String(range || '').trim();
+  if (!normalized) return null;
+  const plusMatch = normalized.match(/^(\d+)\+$/);
+  if (plusMatch) return { min: Number(plusMatch[1]), max: Infinity };
+  const betweenMatch = normalized.match(/^(\d+)[^\d]+(\d+)$/);
+  if (betweenMatch) return { min: Number(betweenMatch[1]), max: Number(betweenMatch[2]) };
+  const single = Number(normalized.replace(/[^0-9]/g, ''));
+  if (!Number.isNaN(single)) return { min: single, max: single };
+  return null;
+};
+
+const rangeOverlap = (a, b) => {
+  if (!a || !b) return false;
+  return a.min <= b.max && b.min <= a.max;
+};
+
+function matchScore(artist, userGenres, userInstruments, userStyle, userAgeRange) {
+  let score = 0;
+  let maxScore = 0;
+
+  if (userGenres.length > 0) {
+    maxScore += 40;
+    if (userGenres.some(g => artist.genre.toLowerCase().includes(g) || g.includes(artist.genre.toLowerCase()))) score += 40;
+  }
+  if (userInstruments.length > 0) {
+    maxScore += 30;
+    const matched = userInstruments.filter(ui => artist.instruments.toLowerCase().includes(ui)).length;
+    score += Math.round((matched / userInstruments.length) * 30);
+  }
+  if (userStyle) {
+    maxScore += 20;
+    if (artist.style.toLowerCase().includes(userStyle) || userStyle.includes(artist.style.toLowerCase())) score += 20;
+  }
+  if (userAgeRange) {
+    maxScore += 10;
+    if (rangeOverlap(userAgeRange, parseAgeRange(artist.ageRange))) score += 10;
+  }
+
+  if (maxScore === 0) return null;
+  return Math.round((score / maxScore) * 100);
+}
+
 function OpenStage() {
   const { t } = useLanguage();
   const { user } = useAuth();
   const [selectedGenre, setSelectedGenre] = useState('All');
 
-  // Filter artists based on selected genre and user interests
+  const userGenres      = useMemo(() => user?.user_metadata?.favoriteGenres?.toLowerCase().split(',').map(g => g.trim()).filter(Boolean) || [], [user]);
+  const userInstruments = useMemo(() => user?.user_metadata?.instruments?.toLowerCase().split(',').map(i => i.trim()).filter(Boolean) || [], [user]);
+  const userStyle       = useMemo(() => user?.user_metadata?.musicStyle?.toLowerCase().trim() || '', [user]);
+  const userAgeRange    = useMemo(() => parseAgeRange(user?.user_metadata?.connectAges), [user]);
+  const hasPreferences  = userGenres.length > 0 || userInstruments.length > 0 || Boolean(userStyle) || Boolean(userAgeRange);
+
+  const artistsWithScore = useMemo(() => {
+    return allArtists.map(artist => ({
+      ...artist,
+      matchPct: user && hasPreferences ? matchScore(artist, userGenres, userInstruments, userStyle, userAgeRange) : null,
+    }));
+  }, [user, hasPreferences, userGenres, userInstruments, userStyle, userAgeRange]);
+
   const filteredArtists = useMemo(() => {
-    const parseAgeRange = (range) => {
-      const normalized = String(range || '').trim();
-      if (!normalized) return null;
-
-      const plusMatch = normalized.match(/^(\d+)\+$/);
-      if (plusMatch) return { min: Number(plusMatch[1]), max: Infinity };
-
-      const betweenMatch = normalized.match(/^(\d+)[^\d]+(\d+)$/);
-      if (betweenMatch) return { min: Number(betweenMatch[1]), max: Number(betweenMatch[2]) };
-
-      const single = Number(normalized.replace(/[^0-9]/g, ''));
-      if (!Number.isNaN(single)) return { min: single, max: single };
-      return null;
-    };
-
-    const rangeOverlap = (a, b) => {
-      if (!a || !b) return false;
-      return a.min <= b.max && b.min <= a.max;
-    };
-
-    let filtered = [...allArtists];
+    let filtered = artistsWithScore;
 
     if (selectedGenre !== 'All') {
-      filtered = filtered.filter(artist => artist.genre === selectedGenre);
+      filtered = filtered.filter(a => a.genre === selectedGenre);
     }
 
-    if (!user) return filtered;
+    if (!user || !hasPreferences) return filtered;
 
-    const userGenres = user?.user_metadata?.favoriteGenres?.toLowerCase().split(',').map(g => g.trim()).filter(Boolean) || [];
-    const userInstruments = user?.user_metadata?.instruments?.toLowerCase().split(',').map(i => i.trim()).filter(Boolean) || [];
-    const userStyle = user?.user_metadata?.musicStyle?.toLowerCase().trim() || '';
-    const userAgeRange = parseAgeRange(user?.user_metadata?.connectAges);
-    const hasPreferences = userGenres.length > 0 || userInstruments.length > 0 || Boolean(userStyle) || Boolean(userAgeRange);
+    filtered = filtered.filter(a => a.matchPct === null || a.matchPct > 0);
 
-    filtered = filtered.filter(artist => {
-      if (!hasPreferences) return true;
-
-      const genreMatch = userGenres.length === 0 || userGenres.some(g => artist.genre.toLowerCase().includes(g) || g.includes(artist.genre.toLowerCase()));
-      const instrumentMatch = userInstruments.length === 0 || userInstruments.some(ui => artist.instruments.toLowerCase().includes(ui));
-      const styleMatch = !userStyle || artist.style.toLowerCase().includes(userStyle);
-      const ageMatch = !userAgeRange || rangeOverlap(userAgeRange, parseAgeRange(artist.ageRange));
-
-      return genreMatch && instrumentMatch && styleMatch && ageMatch;
-    });
-
-    filtered.sort((a, b) => {
-      let scoreA = 0;
-      let scoreB = 0;
-
-      if (userGenres.some(g => a.genre.toLowerCase().includes(g) || g.includes(a.genre.toLowerCase()))) scoreA += 3;
-      if (userGenres.some(g => b.genre.toLowerCase().includes(g) || g.includes(b.genre.toLowerCase()))) scoreB += 3;
-
-      if (userInstruments.some(ui => a.instruments.toLowerCase().includes(ui))) scoreA += 2;
-      if (userInstruments.some(ui => b.instruments.toLowerCase().includes(ui))) scoreB += 2;
-
-      if (userStyle && a.style.toLowerCase().includes(userStyle)) scoreA += 2;
-      if (userStyle && b.style.toLowerCase().includes(userStyle)) scoreB += 2;
-
-      if (userAgeRange && rangeOverlap(userAgeRange, parseAgeRange(a.ageRange))) scoreA += 1;
-      if (userAgeRange && rangeOverlap(userAgeRange, parseAgeRange(b.ageRange))) scoreB += 1;
-
-      return scoreB - scoreA;
-    });
+    filtered = [...filtered].sort((a, b) => (b.matchPct ?? 0) - (a.matchPct ?? 0));
 
     return filtered;
-  }, [selectedGenre, user]);
+  }, [selectedGenre, artistsWithScore, user, hasPreferences]);
 
   const genres = ['All', ...new Set(allArtists.map(a => a.genre))];
+
+  const matchColor = (pct) => {
+    if (pct >= 80) return '#00e676';
+    if (pct >= 50) return '#ffb300';
+    return '#ff7043';
+  };
 
   return (
     <div className="page open-stage-page">
@@ -93,14 +102,16 @@ function OpenStage() {
         </div>
         <h1>🎤 {t('openStage.title')}</h1>
         <p className="subtitle">{t('openStage.subtitle')}</p>
-        {user && (
+        {user && hasPreferences && (
           <>
-            <p className="filter-hint">Curated for your musical interests</p>
+            <p className="filter-hint">Curated for your musical interests · {filteredArtists.length} artists found</p>
             <p className="suggested-label">{t('openStage.suggestedForYou')}</p>
-            <Link to="/profile" className="profile-action-btn">
-              {t('openStage.updateProfile')}
-            </Link>
           </>
+        )}
+        {user && (
+          <Link to="/profile" className="profile-action-btn">
+            {t('openStage.updateProfile')}
+          </Link>
         )}
       </section>
 
@@ -117,18 +128,32 @@ function OpenStage() {
       </div>
 
       <div className="artists-grid">
-        {filteredArtists.map((artist) => (
-          <div key={artist.id} className="artist-card">
-            <div className="artist-avatar">🎤</div>
-            <h3>{artist.name}</h3>
-            <p className="genre-tag">{artist.genre}</p>
-            <p className="instruments">🎸 {artist.instruments}</p>
-            <p className="style-tag">{artist.style}</p>
-            <p className="age-range">👥 Ages: {artist.ageRange}</p>
-            <div className="followers">⭐ {artist.followers} {t('openStage.followers')}</div>
-            <button className="listen-btn">{t('openStage.listenNow')}</button>
-          </div>
-        ))}
+        {filteredArtists.length === 0 ? (
+          <p className="no-results">No artists match this filter. <Link to="/profile">Update your profile</Link> to broaden results.</p>
+        ) : (
+          filteredArtists.map((artist) => (
+            <div key={artist.id} className="artist-card">
+              {artist.matchPct !== null && (
+                <div
+                  className="match-badge"
+                  style={{ background: matchColor(artist.matchPct) }}
+                  title="Match percentage based on your profile"
+                >
+                  {artist.matchPct}% match
+                </div>
+              )}
+              <div className="artist-avatar">{artist.avatar || '🎤'}</div>
+              <h3>{artist.name}</h3>
+              <p className="genre-tag">{artist.genre}</p>
+              <p className="instruments">🎸 {artist.instruments}</p>
+              <p className="style-tag">{artist.style}</p>
+              <p className="age-range">👥 Ages: {artist.ageRange}</p>
+              {artist.location && <p className="artist-location">📍 {artist.location}</p>}
+              <div className="followers">⭐ {artist.followers.toLocaleString()} {t('openStage.followers')}</div>
+              <button className="listen-btn">{t('openStage.listenNow')}</button>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

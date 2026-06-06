@@ -5,7 +5,17 @@ import './Pages.css';
 
 function Search() {
   const [query, setQuery] = useState('');
+  const [followed, setFollowed] = useState(new Set());
   const { t } = useLanguage();
+
+  const toggleFollow = (id) => {
+    setFollowed((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -60,7 +70,12 @@ function Search() {
                     <p className="result-instruments">🎸 {artist.instruments}</p>
                     <span className="result-stat">{artist.followers} {t('search.followers')}</span>
                   </div>
-                  <button className="follow-btn">{t('search.follow')}</button>
+                  <button
+                    className={`follow-btn${followed.has(artist.id) ? ' following' : ''}`}
+                    onClick={() => toggleFollow(artist.id)}
+                  >
+                    {followed.has(artist.id) ? t('search.following') : t('search.follow')}
+                  </button>
                 </div>
               ))}
             </div>

@@ -1933,6 +1933,17 @@
   box-shadow: 0 6px 15px rgba(255, 0, 110, 0.4);
 }
 
+.follow-btn.following {
+  background: transparent;
+  border: 2px solid var(--music-purple);
+  color: var(--music-purple);
+}
+
+.follow-btn.following:hover {
+  background: rgba(139, 0, 255, 0.1);
+  box-shadow: none;
+}
+
 /* Collaboration Page */
 .collaboration-page h1 {
   font-size: 2.5rem;
@@ -2113,6 +2124,25 @@
   background: radial-gradient(circle, rgba(0, 217, 255, 0.1), transparent 70%);
   opacity: 0;
   transition: opacity 0.3s ease;
+}
+
+.match-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #000;
+  letter-spacing: 0.03em;
+  z-index: 2;
+}
+
+.artist-location {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 2px 0;
 }
 
 .artist-card:hover {

@@ -117,6 +117,7 @@ const translations = {
       followers: 'followers',
       plays: 'plays',
       follow: 'Follow',
+      following: 'Following ✓',
     },
 
     // Open Stage Page
@@ -301,6 +302,7 @@ const translations = {
       followers: 'עוקבים',
       plays: 'השמעות',
       follow: 'עקוב',
+      following: 'עוקב ✓',
     },
 
     // Open Stage Page
