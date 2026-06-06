@@ -37,6 +37,7 @@ const normalizeProject = (row) => ({
   description: row.description || '',
   members:     row.members || 1,
   createdBy:   row.created_by || null,
+  location:    row.location || '',
 });
 
 export async function fetchArtists() {
@@ -94,6 +95,7 @@ export async function createProject(fields, userId) {
         instruments: fields.instruments,
         age_range:   fields.ageRange,
         description: fields.description || '',
+        location:    fields.location || '',
         members:     1,
         created_by:  userId || null,
       })
