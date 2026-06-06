@@ -4,11 +4,17 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 // Robust mock auth implementation for development when API keys are not configured
+const _listeners = [];
+
+const _notify = (event, session) => {
+  _listeners.forEach((cb) => cb(event, session));
+};
+
 const mockAuth = {
   getSession: async () => {
-    const user = localStorage.getItem('supabase_user');
+    const raw = localStorage.getItem('supabase_user');
     return {
-      data: { session: user ? { user: JSON.parse(user) } : null },
+      data: { session: raw ? { user: JSON.parse(raw) } : null },
       error: null,
     };
   },
@@ -32,6 +38,7 @@ const mockAuth = {
       created_at: new Date().toISOString(),
     };
     localStorage.setItem('supabase_user', JSON.stringify(user));
+    _notify('SIGNED_IN', { user });
     return { data: { user }, error: null };
   },
 
@@ -50,11 +57,13 @@ const mockAuth = {
       created_at: new Date().toISOString(),
     };
     localStorage.setItem('supabase_user', JSON.stringify(user));
+    _notify('SIGNED_IN', { user });
     return { data: { user }, error: null };
   },
 
   signOut: async () => {
     localStorage.removeItem('supabase_user');
+    _notify('SIGNED_OUT', null);
     return { error: null };
   },
 
@@ -65,17 +74,24 @@ const mockAuth = {
       user_metadata: { ...user.user_metadata, ...updates.data },
     };
     localStorage.setItem('supabase_user', JSON.stringify(updatedUser));
+    _notify('USER_UPDATED', { user: updatedUser });
     return { data: { user: updatedUser }, error: null };
   },
 
   onAuthStateChange: (callback) => {
-    const user = localStorage.getItem('supabase_user');
-    callback('INITIAL_SESSION', user ? { session: { user: JSON.parse(user) } } : { session: null });
+    _listeners.push(callback);
+    // Fire immediately with current session (matches real Supabase behaviour)
+    const raw = localStorage.getItem('supabase_user');
+    const session = raw ? { user: JSON.parse(raw) } : null;
+    Promise.resolve().then(() => callback('INITIAL_SESSION', session));
 
     return {
       data: {
         subscription: {
-          unsubscribe: () => {},
+          unsubscribe: () => {
+            const idx = _listeners.indexOf(callback);
+            if (idx !== -1) _listeners.splice(idx, 1);
+          },
         },
       },
     };

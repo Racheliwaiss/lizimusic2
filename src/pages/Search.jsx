@@ -1,16 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useLanguage } from '../LanguageContext';
+import artists from '../data/artists';
 import './Pages.css';
 
 function Search() {
   const [query, setQuery] = useState('');
   const { t } = useLanguage();
 
-  const results = [
-    { id: 1, title: 'Artist Name', type: 'Artist', followers: 2400 },
-    { id: 2, title: 'Song Title', type: 'Track', plays: 5200 },
-    { id: 3, title: 'Producer Name', type: 'Artist', followers: 1800 },
-  ];
+  const results = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return [];
+    return artists.filter((a) =>
+      a.name.toLowerCase().includes(q) ||
+      a.genre.toLowerCase().includes(q) ||
+      a.instruments.toLowerCase().includes(q) ||
+      a.style.toLowerCase().includes(q)
+    );
+  }, [query]);
 
   return (
     <div className="page search-page">
@@ -24,36 +30,41 @@ function Search() {
         </div>
         <h1>🔍 {t('search.title')}</h1>
       </section>
-      
+
       <div className="search-bar">
-        <input 
-          type="text" 
+        <input
+          type="text"
           placeholder={t('search.placeholder')}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className="search-input"
+          autoFocus
         />
         <button className="search-button">🔍</button>
       </div>
 
-      {query && (
+      {query.trim() && (
         <div className="search-results">
-          <h2>{t('search.resultsFor')} "{query}"</h2>
-          <div className="results-list">
-            {results.map((result) => (
-              <div key={result.id} className="result-item">
-                <div className="result-avatar">👤</div>
-                <div className="result-info">
-                  <h3>{result.title}</h3>
-                  <p className="result-type">{result.type}</p>
-                  <span className="result-stat">
-                    {result.followers ? `${result.followers} ${t('search.followers')}` : `${result.plays} ${t('search.plays')}`}
-                  </span>
+          <h2>{t('search.resultsFor')} "{query.trim()}"</h2>
+
+          {results.length === 0 ? (
+            <p className="no-results">No artists found for "{query.trim()}".</p>
+          ) : (
+            <div className="results-list">
+              {results.map((artist) => (
+                <div key={artist.id} className="result-item">
+                  <div className="result-avatar">🎤</div>
+                  <div className="result-info">
+                    <h3>{artist.name}</h3>
+                    <p className="result-type">{artist.genre} · {artist.style}</p>
+                    <p className="result-instruments">🎸 {artist.instruments}</p>
+                    <span className="result-stat">{artist.followers} {t('search.followers')}</span>
+                  </div>
+                  <button className="follow-btn">{t('search.follow')}</button>
                 </div>
-                <button className="follow-btn">{t('search.follow')}</button>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>

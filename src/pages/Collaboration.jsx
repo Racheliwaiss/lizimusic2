@@ -55,16 +55,12 @@ function Collaboration() {
       ageRange: ageRange.trim(),
       members: 1,
       description: description.trim() || 'A fresh collaboration idea waiting for artists.',
+      createdBy: user?.id,
     };
 
     setProjects([newProject, ...projects]);
-    setNewProjectData({
-      title: '',
-      genre: '',
-      instruments: '',
-      ageRange: '',
-      description: '',
-    });
+    setNewProjectData({ title: '', genre: '', instruments: '', ageRange: '', description: '' });
+    setNewProjectOpen(false);
     setSuccessMessage('Project added to the collaboration board.');
   };
 
@@ -120,10 +116,10 @@ function Collaboration() {
     }
 
     return projects.filter(project => {
+      if (project.createdBy === user?.id) return true;
       const genreMatch = userGenres.length === 0 || userGenres.some(g => project.genre.toLowerCase().includes(g) || g.includes(project.genre.toLowerCase()));
       const instrumentMatch = userInstruments.length === 0 || userInstruments.some(ui => project.instruments.toLowerCase().includes(ui));
       const ageMatch = !userAgeRange || rangeOverlap(userAgeRange, parseAgeRange(project.ageRange));
-
       return genreMatch && instrumentMatch && ageMatch;
     });
   }, [user, projects]);
@@ -155,11 +151,12 @@ function Collaboration() {
             {newProjectOpen ? t('collaboration.cancelNewProject') : t('collaboration.newProject')}
           </button>
 
+          {successMessage && <div className="form-success">{successMessage}</div>}
+
           {newProjectOpen && (
             <section className="new-project-form">
               <h2>{t('collaboration.newProjectFormTitle')}</h2>
               {createError && <div className="form-error">{createError}</div>}
-              {successMessage && <div className="form-success">{successMessage}</div>}
               <form onSubmit={handleCreateProject}>
                 <div className="form-row">
                   <label>
