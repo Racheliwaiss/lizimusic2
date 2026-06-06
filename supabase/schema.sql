@@ -84,6 +84,7 @@ create table if not exists public.projects (
   instruments text        not null default '',
   age_range   text        not null default '',
   description text        not null default '',
+  location    text        not null default '',
   members     integer     not null default 1,
   created_by  uuid        references auth.users(id) on delete set null,
   created_at  timestamptz not null default now()

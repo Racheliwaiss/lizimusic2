@@ -2390,7 +2390,8 @@
   z-index: 2;
 }
 
-.artist-location {
+.artist-location,
+.project-location {
   font-size: 0.8rem;
   color: rgba(255, 255, 255, 0.5);
   margin: 2px 0;

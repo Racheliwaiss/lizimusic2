@@ -92,6 +92,7 @@ function Collaboration() {
       genre:       genre.trim(),
       instruments: instruments.trim(),
       ageRange:    ageRange.trim(),
+      location:    formData.location.trim(),
       description: description.trim() || 'A fresh collaboration idea waiting for artists.',
     };
 
@@ -209,6 +210,12 @@ function Collaboration() {
                 </div>
                 <div className="form-row">
                   <label className="full-width">
+                    📍 Location
+                    <input type="text" className="form-input" value={formData.location} onChange={handleFieldChange('location')} placeholder="e.g. Tel Aviv, Remote, Online…" />
+                  </label>
+                </div>
+                <div className="form-row">
+                  <label className="full-width">
                     {t('collaboration.projectDescription')}
                     <textarea className="form-input" value={formData.description} onChange={handleFieldChange('description')} placeholder={t('collaboration.projectDescription')} />
                   </label>
@@ -257,7 +264,8 @@ function Collaboration() {
                 <h3>{project.title}</h3>
                 <p className="genre">{project.genre}</p>
                 <p className="instruments">🎸 {project.instruments}</p>
-                {project.ageRange && <p className="age-range">👥 Ages: {project.ageRange}</p>}
+                {project.ageRange  && <p className="age-range">👥 Ages: {project.ageRange}</p>}
+                {project.location  && <p className="project-location">📍 {project.location}</p>}
                 <p className="description">{project.description}</p>
                 <div className="members">
                   <span>{project.members} {t('collaboration.members')}</span>

@@ -387,6 +387,9 @@ function Profile() {
                   {project.instruments && (
                     <p className="my-project-instruments">🎸 {project.instruments}</p>
                   )}
+                  {project.location && (
+                    <p className="my-project-instruments">📍 {project.location}</p>
+                  )}
                   {project.description && (
                     <p className="my-project-desc">{project.description}</p>
                   )}
