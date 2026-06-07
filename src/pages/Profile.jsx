@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../LanguageContext';
 import { useAuth } from '../AuthContext';
 import UploadTrack from '../components/UploadTrack';
-import { fetchUserTracks, saveTrack, updateTrack, deleteLiziMusic, fetchUserProjects } from '../lib/db';
+import AvatarUpload from '../components/AvatarUpload';
+import { fetchUserTracks, saveTrack, updateTrack, deleteLiziMusic, fetchUserProjects, uploadAvatar, uploadTrackFile } from '../lib/db';
 import './Pages.css';
 
 function Profile() {
@@ -17,6 +18,7 @@ function Profile() {
   const [editingTrack, setEditingTrack] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [myProjects, setMyProjects] = useState([]);
+  const [avatarUrl, setAvatarUrl] = useState(() => user?.user_metadata?.avatar_url || null);
 
   const profileData = useMemo(() => {
     const metadata = user?.user_metadata || {};
@@ -67,25 +69,45 @@ function Profile() {
 
   const refreshTracks = () => fetchUserTracks(user.id).then(setTracks);
 
+  const handleAvatarUpload = async (file) => {
+    const { url, error } = await uploadAvatar(user.id, file);
+    if (url) {
+      setAvatarUrl(url);
+      await updateProfile({ avatar_url: url });
+    }
+    return { url, error };
+  };
+
   const handleUpload = async (track) => {
     if (track._isEdit) {
-      // Update metadata in DB, then refresh
-      await updateTrack(track.id, { title: track.title, genre: track.genre });
-      setTracks(prev => prev.map(t => t.id === track.id ? { ...t, title: track.title, genre: track.genre, url: track.url, fileName: track.fileName } : t));
+      // Persist metadata (+ new file URL if a new file was uploaded)
+      await updateTrack(track.id, {
+        title:    track.title,
+        genre:    track.genre,
+        fileUrl:  track.url      || undefined,
+        fileName: track.fileName || undefined,
+      });
+      setTracks(prev =>
+        prev.map(t => t.id === track.id
+          ? { ...t, title: track.title, genre: track.genre, url: track.url, fileName: track.fileName }
+          : t
+        )
+      );
     } else {
-      // Save new track to DB
+      // Persist new track row with storage URL
       const { track: saved } = await saveTrack({
-        userId: user.id,
-        title: track.title,
-        genre: track.genre,
-        fileUrl: track.url,
+        userId:   user.id,
+        title:    track.title,
+        genre:    track.genre,
+        fileUrl:  track.url,
         fileName: track.fileName,
       });
-      // Use saved DB row if available, otherwise use local object
       setTracks(prev => [saved || track, ...prev]);
     }
     setEditingTrack(null);
   };
+
+  const trackUploadFn = (file) => uploadTrackFile(user.id, file);
 
   const handleDeleteConfirm = async () => {
     if (!deleteTarget) return;
@@ -163,7 +185,10 @@ function Profile() {
         </div>
         <div className="profile-card">
           <div className="profile-info">
-            <div className="profile-avatar">🎵</div>
+            <AvatarUpload
+              currentUrl={avatarUrl}
+              onUpload={handleAvatarUpload}
+            />
             <h1>{profileData.name || t('profile.artistName')}</h1>
             {isEditing ? (
               <form className="edit-form" onSubmit={handleSave}>
@@ -409,6 +434,7 @@ function Profile() {
         <UploadTrack
           onUpload={handleUpload}
           onClose={() => setShowUpload(false)}
+          uploadFn={trackUploadFn}
         />
       )}
 
@@ -418,6 +444,7 @@ function Profile() {
           initialData={editingTrack}
           onUpload={handleUpload}
           onClose={() => setEditingTrack(null)}
+          uploadFn={trackUploadFn}
         />
       )}
 

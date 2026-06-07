@@ -30,9 +30,10 @@ function Collaboration() {
   const [editingProject, setEditingProject] = useState(null);
   const [formData, setFormData]             = useState(EMPTY_FORM);
   const [deleteTarget, setDeleteTarget]     = useState(null);
+  const [viewProject, setViewProject]       = useState(null);  // detail modal
   const [formError, setFormError]           = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  const [showAll, setShowAll]               = useState(false); // bypass preference filter
+  const [showAll, setShowAll]               = useState(false);
 
   useEffect(() => {
     fetchProjects().then((data) => { setProjects(data); setLoading(false); });
@@ -128,7 +129,10 @@ function Collaboration() {
   const handleJoin = async (projectId) => {
     if (!user) { navigate('/login'); return; }
     setProjects(prev => prev.map(p => p.id === projectId ? { ...p, members: p.members + 1 } : p));
+    // keep the detail modal member count in sync
+    setViewProject(prev => prev?.id === projectId ? { ...prev, members: (prev.members || 1) + 1 } : prev);
     setSuccessMessage('You joined the project!');
+    setViewProject(null);
     await joinProject(projectId);
   };
 
@@ -258,27 +262,37 @@ function Collaboration() {
         <div className="projects-grid">
           {matchedProjects.length > 0 ? (
             matchedProjects.map((project) => (
-              <div key={project.id} className={`project-card ${isOwner(project) ? 'owner-card' : ''}`}>
+              <div
+                key={project.id}
+                className={`project-card ${isOwner(project) ? 'owner-card' : 'clickable-card'}`}
+                onClick={() => !isOwner(project) && setViewProject(project)}
+                role={!isOwner(project) ? 'button' : undefined}
+                tabIndex={!isOwner(project) ? 0 : undefined}
+                onKeyDown={(e) => !isOwner(project) && e.key === 'Enter' && setViewProject(project)}
+              >
                 {isOwner(project) && <div className="owner-badge">Your project</div>}
                 <div className="project-thumbnail">🎼</div>
                 <h3>{project.title}</h3>
                 <p className="genre">{project.genre}</p>
                 <p className="instruments">🎸 {project.instruments}</p>
-                {project.ageRange  && <p className="age-range">👥 Ages: {project.ageRange}</p>}
-                {project.location  && <p className="project-location">📍 {project.location}</p>}
+                {project.ageRange && <p className="age-range">👥 Ages: {project.ageRange}</p>}
+                {project.location && <p className="project-location">📍 {project.location}</p>}
                 <p className="description">{project.description}</p>
                 <div className="members">
-                  <span>{project.members} {t('collaboration.members')}</span>
+                  <span>👤 {project.members} {t('collaboration.members')}</span>
                 </div>
 
                 {isOwner(project) ? (
                   <div className="project-owner-actions">
-                    <button className="track-edit-btn" onClick={() => openEditForm(project)}>✏️ Edit</button>
-                    <button className="track-delete-btn" onClick={() => setDeleteTarget(project)}>🗑️</button>
+                    <button className="track-edit-btn" onClick={(e) => { e.stopPropagation(); openEditForm(project); }}>✏️ Edit</button>
+                    <button className="track-delete-btn" onClick={(e) => { e.stopPropagation(); setDeleteTarget(project); }}>🗑️</button>
                   </div>
                 ) : (
-                  <button className="join-btn" onClick={() => handleJoin(project.id)}>
-                    {t('collaboration.joinProject')}
+                  <button
+                    className="join-btn"
+                    onClick={(e) => { e.stopPropagation(); setViewProject(project); }}
+                  >
+                    {t('collaboration.joinProject')} →
                   </button>
                 )}
               </div>
@@ -301,6 +315,59 @@ function Collaboration() {
         <p>{t('collaboration.noCollaborations')}</p>
       </section>
 
+      {/* ── Project detail modal ─────────────────────────── */}
+      {viewProject && (
+        <div className="upload-overlay" onClick={(e) => e.target === e.currentTarget && setViewProject(null)}>
+          <div className="project-detail-modal">
+            <button className="upload-close-btn" onClick={() => setViewProject(null)} aria-label="Close">✕</button>
+
+            <div className="project-detail-icon">🎼</div>
+            <h2 className="project-detail-title">{viewProject.title}</h2>
+
+            <div className="project-detail-tags">
+              {viewProject.genre     && <span className="detail-tag genre-tag-chip">{viewProject.genre}</span>}
+              {viewProject.ageRange  && <span className="detail-tag age-tag-chip">👥 Ages {viewProject.ageRange}</span>}
+              {viewProject.location  && <span className="detail-tag loc-tag-chip">📍 {viewProject.location}</span>}
+            </div>
+
+            <div className="project-detail-rows">
+              {viewProject.instruments && (
+                <div className="detail-row">
+                  <span className="detail-label">🎸 Instruments</span>
+                  <span className="detail-value">{viewProject.instruments}</span>
+                </div>
+              )}
+              <div className="detail-row">
+                <span className="detail-label">👤 Members</span>
+                <span className="detail-value">{viewProject.members} joined</span>
+              </div>
+              {viewProject.description && (
+                <div className="detail-row detail-description">
+                  <span className="detail-label">📝 About</span>
+                  <span className="detail-value">{viewProject.description}</span>
+                </div>
+              )}
+            </div>
+
+            <div className="project-detail-actions">
+              <button className="cancel-btn" onClick={() => setViewProject(null)}>
+                Maybe later
+              </button>
+              {user ? (
+                <button className="join-btn join-btn-large" onClick={() => handleJoin(viewProject.id)}>
+                  ✅ {t('collaboration.joinProject')}
+                </button>
+              ) : (
+                <button className="join-btn join-btn-large" onClick={() => navigate('/login')}>
+                  Login to Join
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Delete confirmation ───────────────────────────── */}
       {deleteTarget && (
         <div className="upload-overlay" onClick={(e) => e.target === e.currentTarget && setDeleteTarget(null)}>
           <div className="delete-dialog">

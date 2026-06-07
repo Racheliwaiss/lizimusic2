@@ -165,6 +165,80 @@ export async function deleteProject(projectId) {
   }
 }
 
+// ── Track file upload ─────────────────────────────────────────
+
+const ALLOWED_AUDIO_TYPES = [
+  'audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/ogg',
+  'audio/aac', 'audio/flac', 'audio/x-flac', 'audio/mp4',
+  'audio/webm', 'audio/x-wav',
+];
+const MAX_TRACK_MB = 50;
+
+export async function uploadTrackFile(userId, file) {
+  if (!file.type.startsWith('audio/') && !ALLOWED_AUDIO_TYPES.includes(file.type)) {
+    return { url: null, error: 'Only audio files (MP3, WAV, OGG, AAC, FLAC) are supported.' };
+  }
+  if (file.size > MAX_TRACK_MB * 1024 * 1024) {
+    return { url: null, error: `File must be under ${MAX_TRACK_MB} MB.` };
+  }
+
+  if (!supabase.storage) {
+    return { url: null, error: 'Storage is not available in offline mode.' };
+  }
+
+  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+  const path     = `${userId}/${Date.now()}_${safeName}`;
+
+  try {
+    const { error: uploadError } = await supabase.storage
+      .from('tracks')
+      .upload(path, file, { upsert: false, contentType: file.type });
+
+    if (uploadError) throw uploadError;
+
+    const { data } = supabase.storage.from('tracks').getPublicUrl(path);
+    return { url: data.publicUrl, error: null };
+  } catch (err) {
+    return { url: null, error: err.message || 'Upload failed.' };
+  }
+}
+
+// ── Avatar upload ─────────────────────────────────────────────
+
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+const MAX_AVATAR_MB = 2;
+
+export async function uploadAvatar(userId, file) {
+  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+    return { url: null, error: 'Only JPG, PNG, WEBP, or GIF images are supported.' };
+  }
+  if (file.size > MAX_AVATAR_MB * 1024 * 1024) {
+    return { url: null, error: `Image must be under ${MAX_AVATAR_MB} MB.` };
+  }
+
+  if (!supabase.storage) {
+    return { url: null, error: 'Storage is not available in offline mode.' };
+  }
+
+  const ext  = file.name.split('.').pop().toLowerCase() || 'jpg';
+  const path = `${userId}/avatar.${ext}`;
+
+  try {
+    const { error: uploadError } = await supabase.storage
+      .from('avatars')
+      .upload(path, file, { upsert: true, contentType: file.type });
+
+    if (uploadError) throw uploadError;
+
+    const { data } = supabase.storage.from('avatars').getPublicUrl(path);
+    // Bust the browser cache so the new image shows immediately
+    const bust = `?t=${Date.now()}`;
+    return { url: data.publicUrl + bust, error: null };
+  } catch (err) {
+    return { url: null, error: err.message || 'Upload failed.' };
+  }
+}
+
 // ── Lizi Music table (tracks) ────────────────────────────────
 
 export async function fetchUserTracks(userId) {
@@ -206,11 +280,15 @@ export async function saveTrack({ userId, title, genre, fileUrl, fileName }) {
   }
 }
 
-export async function updateTrack(trackId, { title, genre }) {
+export async function updateTrack(trackId, { title, genre, fileUrl, fileName }) {
   try {
+    const payload = { title, genre };
+    if (fileUrl)   payload.file_url  = fileUrl;
+    if (fileName)  payload.file_name = fileName;
+
     const { error } = await supabase
       .from('Lizi Music')
-      .update({ title, genre })
+      .update(payload)
       .eq('id', trackId);
 
     if (error) throw error;
