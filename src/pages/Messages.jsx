@@ -7,10 +7,16 @@ function Messages() {
   const [selectedConv, setSelectedConv] = useState(null);
 
   const conversations = [
-    { id: 1, name: 'Alex Producer', message: 'Hey, interested in collaborating?', time: '2 min', phone: '+1234567890' },
-    { id: 2, name: 'Sarah Singer', message: 'I loved your last track!', time: '1 hour', phone: '+1987654321' },
-    { id: 3, name: 'Mike Drummer', message: 'Let me know about that project...', time: '3 hours', phone: '+1555666777' },
+    { id: 1, name: 'Alex Producer', message: 'Hey, interested in collaborating?', time: '2 min', phone: '+1234567890', email: 'alex@example.com' },
+    { id: 2, name: 'Sarah Singer', message: 'I loved your last track!', time: '1 hour', phone: '+1987654321', email: 'sarah@example.com' },
+    { id: 3, name: 'Mike Drummer', message: 'Let me know about that project...', time: '3 hours', phone: '+1555666777', email: 'mike@example.com' },
   ];
+
+  const openEmail = (email, name) => {
+    const subject = encodeURIComponent(`Connecting on LIZI`);
+    const body    = encodeURIComponent(`Hi ${name},\n\nI'd like to connect with you on LIZI!`);
+    window.open(`mailto:${email}?subject=${subject}&body=${body}`);
+  };
 
   const openWhatsApp = (phone, name) => {
     const message = `Hi ${name}, I'd like to connect with you on LIZI!`;
@@ -75,7 +81,10 @@ function Messages() {
                   >
                     💬 Chat on WhatsApp
                   </button>
-                  <button className="email-btn">
+                  <button
+                    className="email-btn"
+                    onClick={() => openEmail(selectedConv.email, selectedConv.name)}
+                  >
                     📧 Send Email
                   </button>
                 </div>

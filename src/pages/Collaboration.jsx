@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../LanguageContext';
 import { useAuth } from '../AuthContext';
-import { fetchProjects, createProject, updateProject, deleteProject, joinProject } from '../lib/db';
+import { fetchProjects, createProject, updateProject, deleteProject, joinProject, fetchProjectMembers } from '../lib/db';
 import './Pages.css';
 
 const EMPTY_FORM = { title: '', genre: '', instruments: '', ageRange: '', location: '', description: '' };
@@ -31,6 +31,8 @@ function Collaboration() {
   const [formData, setFormData]             = useState(EMPTY_FORM);
   const [deleteTarget, setDeleteTarget]     = useState(null);
   const [viewProject, setViewProject]       = useState(null);  // detail modal
+  const [viewMembers, setViewMembers]       = useState([]);    // members of viewed project
+  const [membersLoading, setMembersLoading] = useState(false);
   const [formError, setFormError]           = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [showAll, setShowAll]               = useState(false);
@@ -42,8 +44,8 @@ function Collaboration() {
   // Auto-clear success message after 3 s
   useEffect(() => {
     if (!successMessage) return;
-    const t = setTimeout(() => setSuccessMessage(''), 3000);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setSuccessMessage(''), 3000);
+    return () => clearTimeout(timer);
   }, [successMessage]);
 
   // ── Form helpers ──────────────────────────────────────────
@@ -83,8 +85,8 @@ function Collaboration() {
     e.preventDefault();
     setFormError('');
     const { title, genre, instruments, ageRange, description } = formData;
-    if (!title.trim() || !genre.trim() || !instruments.trim() || !ageRange.trim()) {
-      setFormError('Please fill in title, genre, instruments, and age range.');
+    if (!title.trim() || !genre.trim() || !instruments.trim()) {
+      setFormError('Please fill in title, genre, and instruments.');
       return;
     }
 
@@ -103,11 +105,14 @@ function Collaboration() {
       setProjects(prev => prev.map(p => p.id === editingProject.id ? { ...p, ...fields } : p));
       setSuccessMessage('Project updated.');
     } else {
-      const { project, error } = await createProject(fields, user?.id);
+      const { project, error: createErr } = await createProject(fields, user?.id);
+      if (createErr && !project) {
+        // Supabase table not set up yet — add locally so the UI still works
+        console.warn('createProject Supabase error (local fallback):', createErr);
+      }
       const saved = project
         ? { ...project, createdBy: user?.id }
         : { id: Date.now(), ...fields, members: 1, createdBy: user?.id };
-      // If Supabase errored but we have no project row, just add locally
       setProjects(prev => [saved, ...prev]);
       setSuccessMessage('Project added to the collaboration board.');
     }
@@ -125,15 +130,39 @@ function Collaboration() {
     setSuccessMessage('Project deleted.');
   };
 
+  // ── Open detail modal + fetch members ────────────────────
+  const openDetailModal = (project) => {
+    setViewProject(project);
+    setViewMembers([]);
+    setMembersLoading(true);
+    fetchProjectMembers(project.id).then(members => {
+      setViewMembers(members);
+      setMembersLoading(false);
+    });
+  };
+
   // ── JOIN ──────────────────────────────────────────────────
   const handleJoin = async (projectId) => {
     if (!user) { navigate('/login'); return; }
+
+    // Build the profile snapshot to store with membership
+    const profile = {
+      name:        user.user_metadata?.name || user.email?.split('@')[0] || 'Artist',
+      instruments: user.user_metadata?.instruments || '',
+      genre:       user.user_metadata?.favoriteGenres || '',
+      location:    user.user_metadata?.location || '',
+      avatar:      user.user_metadata?.avatar_url ? '📷' : '🎤',
+    };
+
+    // Optimistic UI update
     setProjects(prev => prev.map(p => p.id === projectId ? { ...p, members: p.members + 1 } : p));
-    // keep the detail modal member count in sync
     setViewProject(prev => prev?.id === projectId ? { ...prev, members: (prev.members || 1) + 1 } : prev);
+    // Add the joining user to the local members list immediately
+    setViewMembers(prev => [...prev, { ...profile, userId: user.id, joinedAt: new Date().toISOString() }]);
+
     setSuccessMessage('You joined the project!');
     setViewProject(null);
-    await joinProject(projectId);
+    await joinProject(projectId, user.id, profile);
   };
 
   // ── Filter ────────────────────────────────────────────────
@@ -265,10 +294,10 @@ function Collaboration() {
               <div
                 key={project.id}
                 className={`project-card ${isOwner(project) ? 'owner-card' : 'clickable-card'}`}
-                onClick={() => !isOwner(project) && setViewProject(project)}
+                onClick={() => !isOwner(project) && openDetailModal(project)}
                 role={!isOwner(project) ? 'button' : undefined}
                 tabIndex={!isOwner(project) ? 0 : undefined}
-                onKeyDown={(e) => !isOwner(project) && e.key === 'Enter' && setViewProject(project)}
+                onKeyDown={(e) => !isOwner(project) && e.key === 'Enter' && openDetailModal(project)}
               >
                 {isOwner(project) && <div className="owner-badge">Your project</div>}
                 <div className="project-thumbnail">🎼</div>
@@ -290,7 +319,7 @@ function Collaboration() {
                 ) : (
                   <button
                     className="join-btn"
-                    onClick={(e) => { e.stopPropagation(); setViewProject(project); }}
+                    onClick={(e) => { e.stopPropagation(); openDetailModal(project); }}
                   >
                     {t('collaboration.joinProject')} →
                   </button>
@@ -325,9 +354,9 @@ function Collaboration() {
             <h2 className="project-detail-title">{viewProject.title}</h2>
 
             <div className="project-detail-tags">
-              {viewProject.genre     && <span className="detail-tag genre-tag-chip">{viewProject.genre}</span>}
-              {viewProject.ageRange  && <span className="detail-tag age-tag-chip">👥 Ages {viewProject.ageRange}</span>}
-              {viewProject.location  && <span className="detail-tag loc-tag-chip">📍 {viewProject.location}</span>}
+              {viewProject.genre    && <span className="detail-tag genre-tag-chip">{viewProject.genre}</span>}
+              {viewProject.ageRange && <span className="detail-tag age-tag-chip">👥 Ages {viewProject.ageRange}</span>}
+              {viewProject.location && <span className="detail-tag loc-tag-chip">📍 {viewProject.location}</span>}
             </div>
 
             <div className="project-detail-rows">
@@ -337,14 +366,47 @@ function Collaboration() {
                   <span className="detail-value">{viewProject.instruments}</span>
                 </div>
               )}
-              <div className="detail-row">
-                <span className="detail-label">👤 Members</span>
-                <span className="detail-value">{viewProject.members} joined</span>
-              </div>
               {viewProject.description && (
                 <div className="detail-row detail-description">
                   <span className="detail-label">📝 About</span>
                   <span className="detail-value">{viewProject.description}</span>
+                </div>
+              )}
+            </div>
+
+            {/* ── Members list ─────────────────────────────── */}
+            <div className="project-members-section">
+              <h4 className="project-members-title">
+                👥 Members ({viewProject.members || 0})
+              </h4>
+
+              {membersLoading ? (
+                <p className="members-loading">Loading members…</p>
+              ) : viewMembers.length === 0 ? (
+                <p className="members-empty">No members yet — be the first to join!</p>
+              ) : (
+                <div className="members-list">
+                  {viewMembers.map((member, i) => (
+                    <div key={member.userId || i} className="member-card">
+                      <div className="member-avatar">{member.avatar || '🎤'}</div>
+                      <div className="member-info">
+                        <p className="member-name">{member.name}</p>
+                        {member.instruments && <p className="member-instruments">🎸 {member.instruments}</p>}
+                        {member.genre       && <p className="member-genre">{member.genre}</p>}
+                        {member.location    && <p className="member-location">📍 {member.location}</p>}
+                      </div>
+                      <button
+                        className="member-connect-btn"
+                        onClick={() => {
+                          const msg = encodeURIComponent(`Hi ${member.name}, I found you on LIZI! Let's collaborate on "${viewProject.title}" 🎵`);
+                          window.open(`https://wa.me/?text=${msg}`, '_blank');
+                        }}
+                        title="Connect via WhatsApp"
+                      >
+                        💬
+                      </button>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>

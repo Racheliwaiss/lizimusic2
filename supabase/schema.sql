@@ -3,6 +3,47 @@
 -- Run this in Supabase SQL Editor (Dashboard → SQL Editor → New query)
 -- ============================================================
 
+-- ── Storage buckets + policies ───────────────────────────────
+-- Run this block ONCE to set up the avatars and tracks buckets.
+
+insert into storage.buckets (id, name, public)
+values ('avatars', 'avatars', true)
+on conflict (id) do update set public = true;
+
+insert into storage.buckets (id, name, public)
+values ('tracks', 'tracks', true)
+on conflict (id) do update set public = true;
+
+-- Allow authenticated users to upload/update/delete their own avatars
+create policy "Authenticated users can upload avatars"
+  on storage.objects for insert
+  with check (bucket_id = 'avatars' and auth.role() = 'authenticated');
+
+create policy "Authenticated users can update their avatar"
+  on storage.objects for update
+  using (bucket_id = 'avatars' and auth.uid()::text = (storage.foldername(name))[1]);
+
+create policy "Authenticated users can delete their avatar"
+  on storage.objects for delete
+  using (bucket_id = 'avatars' and auth.uid()::text = (storage.foldername(name))[1]);
+
+create policy "Anyone can view avatars"
+  on storage.objects for select
+  using (bucket_id = 'avatars');
+
+-- Allow authenticated users to upload/delete their own tracks
+create policy "Authenticated users can upload tracks"
+  on storage.objects for insert
+  with check (bucket_id = 'tracks' and auth.role() = 'authenticated');
+
+create policy "Authenticated users can delete their tracks"
+  on storage.objects for delete
+  using (bucket_id = 'tracks' and auth.uid()::text = (storage.foldername(name))[1]);
+
+create policy "Anyone can view tracks"
+  on storage.objects for select
+  using (bucket_id = 'tracks');
+
 -- ── artists ─────────────────────────────────────────────────
 create table if not exists public.artists (
   id          serial primary key,
@@ -58,6 +99,20 @@ drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
+
+-- ── project_members ──────────────────────────────────────────
+create table if not exists public.project_members (
+  id         serial primary key,
+  project_id integer     not null references public.projects(id) on delete cascade,
+  user_id    uuid        not null references auth.users(id) on delete cascade,
+  joined_at  timestamptz not null default now(),
+  unique(project_id, user_id)
+);
+
+alter table public.project_members enable row level security;
+create policy "Members are public"         on public.project_members for select using (true);
+create policy "Auth users can join"        on public.project_members for insert with check (auth.uid() = user_id);
+create policy "Members can leave"          on public.project_members for delete using (auth.uid() = user_id);
 
 -- ── Lizi Music (tracks) ──────────────────────────────────────
 create table if not exists public."Lizi Music" (

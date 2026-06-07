@@ -123,7 +123,7 @@ function UploadTrack({ onUpload, onClose, initialData, uploadFn }) {
             {uploading ? (
               <>
                 <div className="upload-spinner" />
-                <p className="upload-progress-text">Uploading to cloud…</p>
+                <p className="upload-progress-text">{t('upload.uploading')}</p>
                 {file && <p className="upload-file-size">{(file.size / 1024 / 1024).toFixed(2)} MB</p>}
               </>
             ) : file ? (
@@ -155,7 +155,7 @@ function UploadTrack({ onUpload, onClose, initialData, uploadFn }) {
             </button>
             <button type="submit" className="save-btn" disabled={uploading}>
               {uploading
-                ? 'Uploading…'
+                ? t('upload.uploading')
                 : isEdit
                   ? t('upload.saveChanges')
                   : t('upload.submit')}

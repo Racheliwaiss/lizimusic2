@@ -1,13 +1,18 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 
 const ALLOWED = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-const MAX_MB  = 2;
+const MAX_MB  = 5;
 
 function AvatarUpload({ currentUrl, onUpload }) {
   const inputRef              = useRef();
   const [preview, setPreview] = useState(currentUrl || null);
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState('');
+
+  // Sync preview when parent passes a new currentUrl (e.g. user data loads after sign-in)
+  useEffect(() => {
+    if (currentUrl && !loading) setPreview(currentUrl);
+  }, [currentUrl, loading]);
 
   const handleClick = () => {
     if (!loading) inputRef.current.click();
@@ -16,6 +21,7 @@ function AvatarUpload({ currentUrl, onUpload }) {
   const handleChange = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    e.target.value = ''; // reset immediately so same file can be re-picked after error
 
     setError('');
 
@@ -28,7 +34,7 @@ function AvatarUpload({ currentUrl, onUpload }) {
       return;
     }
 
-    // Optimistic local preview
+    // Optimistic local preview while uploading
     const objectUrl = URL.createObjectURL(file);
     setPreview(objectUrl);
     setLoading(true);
@@ -36,17 +42,14 @@ function AvatarUpload({ currentUrl, onUpload }) {
     const { url, error: uploadErr } = await onUpload(file);
 
     setLoading(false);
+    URL.revokeObjectURL(objectUrl);
 
     if (uploadErr) {
-      setPreview(currentUrl || null);   // revert preview
+      setPreview(currentUrl || null); // revert to last saved avatar
       setError(uploadErr);
     } else if (url) {
       setPreview(url);
-      URL.revokeObjectURL(objectUrl);
     }
-
-    // Reset input so the same file can be re-selected after an error
-    e.target.value = '';
   };
 
   return (
@@ -57,6 +60,7 @@ function AvatarUpload({ currentUrl, onUpload }) {
         onClick={handleClick}
         title="Click to change profile photo"
         aria-label="Upload profile photo"
+        disabled={loading}
       >
         {preview ? (
           <img
@@ -86,9 +90,13 @@ function AvatarUpload({ currentUrl, onUpload }) {
         accept="image/jpeg,image/png,image/webp,image/gif"
         style={{ display: 'none' }}
         onChange={handleChange}
+        disabled={loading}
       />
 
       {error && <p className="avatar-error">{error}</p>}
+      {!error && !loading && (
+        <p className="avatar-hint">Click to upload · JPG PNG WEBP · max {MAX_MB} MB</p>
+      )}
     </div>
   );
 }

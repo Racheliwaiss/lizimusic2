@@ -18,7 +18,7 @@ function Profile() {
   const [editingTrack, setEditingTrack] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [myProjects, setMyProjects] = useState([]);
-  const [avatarUrl, setAvatarUrl] = useState(() => user?.user_metadata?.avatar_url || null);
+  const [avatarUrl, setAvatarUrl] = useState(user?.user_metadata?.avatar_url || null);
 
   const profileData = useMemo(() => {
     const metadata = user?.user_metadata || {};
@@ -59,6 +59,12 @@ function Profile() {
     const needsProfile = !metadata.about && !metadata.favoriteGenres && !metadata.instruments && !metadata.createGoals && !metadata.musicStyle && !metadata.connectAges && !metadata.lookingFor;
     if (needsProfile) setIsEditing(true);
   }, [user]);
+
+  // Sync avatar URL whenever the user object updates (e.g. after updateProfile)
+  useEffect(() => {
+    const url = user?.user_metadata?.avatar_url;
+    if (url) setAvatarUrl(url);
+  }, [user?.user_metadata?.avatar_url]);
 
   // Load tracks and user's projects from Supabase on mount
   useEffect(() => {
@@ -311,15 +317,15 @@ function Profile() {
 
             <div className="stats">
               <div className="stat">
-                <strong>{user.followers || 0}</strong>
+                <strong>{user?.user_metadata?.followers || 0}</strong>
                 <span>{t('profile.followers')}</span>
               </div>
               <div className="stat">
-                <strong>{user.following || 0}</strong>
+                <strong>{user?.user_metadata?.following || 0}</strong>
                 <span>{t('profile.following')}</span>
               </div>
               <div className="stat">
-                <strong>{user.collaborations || 0}</strong>
+                <strong>{myProjects.length}</strong>
                 <span>{t('profile.collaborations')}</span>
               </div>
             </div>

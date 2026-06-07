@@ -70,6 +70,16 @@ export async function fetchUserProjects(userId) {
   }
 }
 
+const LOCAL_PROJECTS_KEY = 'lizi_local_projects';
+
+function getLocalProjects() {
+  try { return JSON.parse(localStorage.getItem(LOCAL_PROJECTS_KEY) || '[]'); }
+  catch { return []; }
+}
+function saveLocalProjects(list) {
+  try { localStorage.setItem(LOCAL_PROJECTS_KEY, JSON.stringify(list)); } catch {}
+}
+
 export async function fetchProjects() {
   try {
     const { data, error } = await supabase
@@ -78,24 +88,48 @@ export async function fetchProjects() {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    if (data && data.length > 0) return data.map(normalizeProject);
+    if (data && data.length > 0) {
+      // Merge any locally-created projects that aren't in Supabase yet
+      const local = getLocalProjects();
+      const supabaseIds = new Set(data.map(r => String(r.id)));
+      const onlyLocal = local.filter(p => !supabaseIds.has(String(p.id)));
+      return [...onlyLocal, ...data.map(normalizeProject)];
+    }
   } catch {
-    // fall through
+    // fall through to local + fallback
   }
-  return fallbackProjects;
+
+  // Supabase unavailable — merge local with dummy seed
+  const local = getLocalProjects();
+  const localIds = new Set(local.map(p => String(p.id)));
+  const seed = fallbackProjects.filter(p => !localIds.has(String(p.id)));
+  return [...local, ...seed];
 }
 
 export async function createProject(fields, userId) {
+  const newProject = {
+    id:          Date.now(),          // temporary; replaced by Supabase id on success
+    title:       fields.title,
+    genre:       fields.genre,
+    instruments: fields.instruments,
+    ageRange:    fields.ageRange || '',
+    description: fields.description || 'A fresh collaboration idea waiting for artists.',
+    location:    fields.location || '',
+    members:     1,
+    createdBy:   userId || null,
+  };
+
+  // ── Try Supabase first ────────────────────────────────────
   try {
     const { data, error } = await supabase
       .from('projects')
       .insert({
-        title:       fields.title,
-        genre:       fields.genre,
-        instruments: fields.instruments,
-        age_range:   fields.ageRange,
-        description: fields.description || '',
-        location:    fields.location || '',
+        title:       newProject.title,
+        genre:       newProject.genre,
+        instruments: newProject.instruments,
+        age_range:   newProject.ageRange,
+        description: newProject.description,
+        location:    newProject.location,
         members:     1,
         created_by:  userId || null,
       })
@@ -104,33 +138,119 @@ export async function createProject(fields, userId) {
 
     if (error) throw error;
     return { project: normalizeProject(data), error: null };
-  } catch (err) {
-    return { project: null, error: err.message };
+  } catch {
+    // Supabase failed — persist locally so it survives page refresh
   }
+
+  // ── Local fallback ────────────────────────────────────────
+  const local = getLocalProjects();
+  local.unshift(newProject);
+  saveLocalProjects(local);
+  return { project: newProject, error: null };
 }
 
-export async function joinProject(projectId) {
-  // Use a raw SQL expression to avoid the fetch-then-update race condition
+// ── project_members localStorage helpers ─────────────────────
+const LOCAL_MEMBERS_KEY = 'lizi_project_members';
+
+function getAllLocalMembers() {
+  try { return JSON.parse(localStorage.getItem(LOCAL_MEMBERS_KEY) || '{}'); } catch { return {}; }
+}
+function saveAllLocalMembers(obj) {
+  try { localStorage.setItem(LOCAL_MEMBERS_KEY, JSON.stringify(obj)); } catch {}
+}
+function getLocalMembers(projectId) {
+  return getAllLocalMembers()[String(projectId)] || [];
+}
+function addLocalMember(projectId, member) {
+  const all = getAllLocalMembers();
+  const key = String(projectId);
+  const list = all[key] || [];
+  if (!list.find(m => m.userId === member.userId)) list.push(member);
+  all[key] = list;
+  saveAllLocalMembers(all);
+}
+
+export async function joinProject(projectId, userId, profile = {}) {
+  // Record the member so we can show them in the detail view
+  const member = {
+    userId:      userId || 'guest',
+    name:        profile.name        || 'Anonymous Artist',
+    instruments: profile.instruments || '',
+    genre:       profile.genre       || '',
+    location:    profile.location    || '',
+    avatar:      profile.avatar      || '🎤',
+    joinedAt:    new Date().toISOString(),
+  };
+  addLocalMember(projectId, member);
+
+  // Try Supabase project_members table
+  if (userId) {
+    try {
+      await supabase
+        .from('project_members')
+        .upsert({ project_id: projectId, user_id: userId }, { onConflict: 'project_id,user_id' });
+    } catch { /* table may not exist yet */ }
+  }
+
+  // Increment members count
   try {
     const { error } = await supabase.rpc('increment_project_members', { project_id: projectId });
     if (!error) return { error: null };
-    // RPC not available — fall back to read-then-write
   } catch { /* fall through */ }
 
   try {
     const { data: current, error: fetchErr } = await supabase
       .from('projects').select('members').eq('id', projectId).single();
-    if (fetchErr) throw fetchErr;
-    const { error: updateErr } = await supabase
-      .from('projects').update({ members: (current.members || 1) + 1 }).eq('id', projectId);
-    if (updateErr) throw updateErr;
-    return { error: null };
-  } catch (err) {
-    return { error: err.message };
-  }
+    if (!fetchErr) {
+      await supabase
+        .from('projects').update({ members: (current.members || 1) + 1 }).eq('id', projectId);
+    }
+  } catch { /* local fallback — count already updated in UI */ }
+
+  // Also increment in localStorage for local projects
+  const local = getLocalProjects();
+  const idx = local.findIndex(p => String(p.id) === String(projectId));
+  if (idx !== -1) { local[idx].members = (local[idx].members || 1) + 1; saveLocalProjects(local); }
+
+  return { error: null };
+}
+
+export async function fetchProjectMembers(projectId) {
+  // Try Supabase: project_members joined with profiles
+  try {
+    const { data, error } = await supabase
+      .from('project_members')
+      .select(`user_id, joined_at, profiles:user_id (name, instruments, genre, style, location, avatar, bio)`)
+      .eq('project_id', projectId)
+      .order('joined_at', { ascending: true });
+
+    if (!error && data && data.length > 0) {
+      return data.map(row => ({
+        userId:      row.user_id,
+        joinedAt:    row.joined_at,
+        name:        row.profiles?.name        || 'Anonymous Artist',
+        instruments: row.profiles?.instruments || '',
+        genre:       row.profiles?.genre       || '',
+        location:    row.profiles?.location    || '',
+        avatar:      row.profiles?.avatar      || '🎤',
+        bio:         row.profiles?.bio         || '',
+      }));
+    }
+  } catch { /* fall through */ }
+
+  // Fallback: localStorage members
+  return getLocalMembers(projectId);
 }
 
 export async function updateProject(projectId, fields) {
+  // Update in localStorage if it's a local project
+  const local = getLocalProjects();
+  const localIdx = local.findIndex(p => String(p.id) === String(projectId));
+  if (localIdx !== -1) {
+    local[localIdx] = { ...local[localIdx], ...fields };
+    saveLocalProjects(local);
+  }
+
   try {
     const { error } = await supabase
       .from('projects')
@@ -145,13 +265,17 @@ export async function updateProject(projectId, fields) {
       .eq('id', projectId);
 
     if (error) throw error;
-    return { error: null };
-  } catch (err) {
-    return { error: err.message };
+  } catch {
+    // Supabase failed — localStorage was already updated above
   }
+  return { error: null };
 }
 
 export async function deleteProject(projectId) {
+  // Remove from localStorage if it's a local project
+  const local = getLocalProjects();
+  saveLocalProjects(local.filter(p => String(p.id) !== String(projectId)));
+
   try {
     const { error } = await supabase
       .from('projects')
@@ -159,10 +283,10 @@ export async function deleteProject(projectId) {
       .eq('id', projectId);
 
     if (error) throw error;
-    return { error: null };
-  } catch (err) {
-    return { error: err.message };
+  } catch {
+    // Supabase failed — localStorage was already cleaned up above
   }
+  return { error: null };
 }
 
 // ── Track file upload ─────────────────────────────────────────
@@ -206,7 +330,30 @@ export async function uploadTrackFile(userId, file) {
 // ── Avatar upload ─────────────────────────────────────────────
 
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-const MAX_AVATAR_MB = 2;
+const MAX_AVATAR_MB = 5;
+
+// Resize + compress image to a base64 JPEG using canvas.
+// This runs entirely in the browser — no Storage bucket needed.
+function compressToBase64(file, maxPx = 150, quality = 0.8) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      const scale = Math.min(1, maxPx / Math.max(img.width, img.height));
+      const canvas = document.createElement('canvas');
+      canvas.width  = Math.round(img.width  * scale);
+      canvas.height = Math.round(img.height * scale);
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error('Could not read the image file.'));
+    };
+    img.src = objectUrl;
+  });
+}
 
 export async function uploadAvatar(userId, file) {
   if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
@@ -216,26 +363,31 @@ export async function uploadAvatar(userId, file) {
     return { url: null, error: `Image must be under ${MAX_AVATAR_MB} MB.` };
   }
 
-  if (!supabase.storage) {
-    return { url: null, error: 'Storage is not available in offline mode.' };
+  // ── 1. Try Supabase Storage (works when the bucket is set up) ──
+  if (supabase.storage) {
+    const BUCKET = 'avatars';
+    const ext    = file.name.split('.').pop().toLowerCase() || 'jpg';
+    const path   = `${userId}/avatar.${ext}`;
+    try {
+      await supabase.storage.createBucket(BUCKET, { public: true }).catch(() => {});
+      const { error: uploadError } = await supabase.storage
+        .from(BUCKET)
+        .upload(path, file, { upsert: true, contentType: file.type });
+      if (!uploadError) {
+        const { data } = supabase.storage.from(BUCKET).getPublicUrl(path);
+        return { url: `${data.publicUrl}?t=${Date.now()}`, error: null };
+      }
+    } catch {
+      // Storage failed — fall through to base64 fallback
+    }
   }
 
-  const ext  = file.name.split('.').pop().toLowerCase() || 'jpg';
-  const path = `${userId}/avatar.${ext}`;
-
+  // ── 2. Fallback: compress to base64 and save in user_metadata ──
   try {
-    const { error: uploadError } = await supabase.storage
-      .from('avatars')
-      .upload(path, file, { upsert: true, contentType: file.type });
-
-    if (uploadError) throw uploadError;
-
-    const { data } = supabase.storage.from('avatars').getPublicUrl(path);
-    // Bust the browser cache so the new image shows immediately
-    const bust = `?t=${Date.now()}`;
-    return { url: data.publicUrl + bust, error: null };
+    const base64 = await compressToBase64(file, 150, 0.82);
+    return { url: base64, error: null };
   } catch (err) {
-    return { url: null, error: err.message || 'Upload failed.' };
+    return { url: null, error: err.message || 'Failed to process image.' };
   }
 }
 
@@ -280,11 +432,12 @@ export async function saveTrack({ userId, title, genre, fileUrl, fileName }) {
   }
 }
 
-export async function updateTrack(trackId, { title, genre, fileUrl, fileName }) {
+export async function updateTrack(trackId, { title, genre, fileUrl, fileName, is_completed }) {
   try {
     const payload = { title, genre };
-    if (fileUrl)   payload.file_url  = fileUrl;
-    if (fileName)  payload.file_name = fileName;
+    if (fileUrl)                payload.file_url      = fileUrl;
+    if (fileName)               payload.file_name     = fileName;
+    if (is_completed !== undefined) payload.is_completed = is_completed;
 
     const { error } = await supabase
       .from('Lizi Music')
