@@ -303,11 +303,11 @@ function Collaboration() {
             matchedProjects.map((project) => (
               <div
                 key={project.id}
-                className={`project-card ${isOwner(project) ? 'owner-card' : 'clickable-card'}`}
-                onClick={() => !isOwner(project) && openDetailModal(project)}
-                role={!isOwner(project) ? 'button' : undefined}
-                tabIndex={!isOwner(project) ? 0 : undefined}
-                onKeyDown={(e) => !isOwner(project) && e.key === 'Enter' && openDetailModal(project)}
+                className={`project-card clickable-card ${isOwner(project) ? 'owner-card' : ''}`}
+                onClick={() => openDetailModal(project)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === 'Enter' && openDetailModal(project)}
               >
                 {isOwner(project) && <div className="owner-badge">Your project</div>}
                 <div className="project-thumbnail">🎼</div>
@@ -329,7 +329,7 @@ function Collaboration() {
                 ) : (
                   <button
                     className="join-btn"
-                    onClick={(e) => { e.stopPropagation(); openDetailModal(project); }}
+                    onClick={(e) => e.stopPropagation()}
                   >
                     {t('collaboration.joinProject')} →
                   </button>
@@ -422,17 +422,38 @@ function Collaboration() {
             </div>
 
             <div className="project-detail-actions">
-              <button className="cancel-btn" onClick={() => setViewProject(null)}>
-                Maybe later
-              </button>
-              {user ? (
-                <button className="join-btn join-btn-large" onClick={() => handleJoin(viewProject.id)}>
-                  ✅ {t('collaboration.joinProject')}
-                </button>
+              {isOwner(viewProject) ? (
+                <>
+                  <button className="cancel-btn" onClick={() => setViewProject(null)}>Close</button>
+                  <button
+                    className="track-edit-btn"
+                    style={{ flex: 1, padding: '10px 16px' }}
+                    onClick={() => { setViewProject(null); openEditForm(viewProject); }}
+                  >
+                    ✏️ Edit Project
+                  </button>
+                  <button
+                    className="track-delete-btn"
+                    style={{ padding: '10px 14px' }}
+                    onClick={() => { setViewProject(null); setDeleteTarget(viewProject); }}
+                  >
+                    🗑️
+                  </button>
+                </>
+              ) : user ? (
+                <>
+                  <button className="cancel-btn" onClick={() => setViewProject(null)}>Maybe later</button>
+                  <button className="join-btn join-btn-large" onClick={() => handleJoin(viewProject.id)}>
+                    ✅ {t('collaboration.joinProject')}
+                  </button>
+                </>
               ) : (
-                <button className="join-btn join-btn-large" onClick={() => navigate('/login')}>
-                  Login to Join
-                </button>
+                <>
+                  <button className="cancel-btn" onClick={() => setViewProject(null)}>Cancel</button>
+                  <button className="join-btn join-btn-large" onClick={() => navigate('/login')}>
+                    Login to Join
+                  </button>
+                </>
               )}
             </div>
           </div>
