@@ -107,14 +107,24 @@ function Collaboration() {
     } else {
       const { project, error: createErr } = await createProject(fields, user?.id);
       if (createErr && !project) {
-        // Supabase table not set up yet — add locally so the UI still works
         console.warn('createProject Supabase error (local fallback):', createErr);
       }
       const saved = project
         ? { ...project, createdBy: user?.id }
         : { id: Date.now(), ...fields, members: 1, createdBy: user?.id };
       setProjects(prev => [saved, ...prev]);
-      setSuccessMessage('Project added to the collaboration board.');
+
+      // Auto-register the creator as the first member so they appear in the members list
+      const creatorProfile = {
+        name:        user?.user_metadata?.name || user?.email?.split('@')[0] || 'Creator',
+        instruments: user?.user_metadata?.instruments || '',
+        genre:       user?.user_metadata?.favoriteGenres || '',
+        location:    user?.user_metadata?.location || '',
+        avatar:      '👑',
+      };
+      await joinProject(saved.id, user?.id, creatorProfile);
+
+      setSuccessMessage('Project created! You are now connected as the first member.');
     }
 
     closeForm();
