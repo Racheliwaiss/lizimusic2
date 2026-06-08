@@ -4307,6 +4307,219 @@
   box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
 }
 
+/* ══════════════════════════════════════════
+   Light mode — Collaboration page overrides
+   ══════════════════════════════════════════ */
+
+/* Controls bar */
+[data-theme="light"] .collab-controls-bar {
+  border-bottom-color: rgba(138, 43, 226, 0.2);
+}
+
+/* Genre filter dropdown */
+[data-theme="light"] .genre-filter-dropdown {
+  background-color: #ffffff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238A2BE2' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  border-color: var(--music-purple);
+  color: #131313;
+}
+[data-theme="light"] .genre-filter-dropdown option {
+  background: #ffffff;
+  color: #131313;
+}
+
+/* Studio form */
+[data-theme="light"] .collab-studio-form {
+  background: rgba(245, 230, 255, 0.85);
+  border-color: rgba(138, 43, 226, 0.3);
+}
+[data-theme="light"] .studio-form-header {
+  border-bottom-color: rgba(138, 43, 226, 0.15);
+}
+[data-theme="light"] .studio-field-label {
+  color: #555;
+}
+[data-theme="light"] .studio-input {
+  background: #ffffff;
+  border-color: rgba(138, 43, 226, 0.4);
+  color: #131313;
+}
+[data-theme="light"] .studio-input::placeholder { color: rgba(0,0,0,0.35); }
+[data-theme="light"] .studio-input:focus {
+  background: #fdf4ff;
+  border-color: var(--music-pink);
+  box-shadow: 0 0 0 2px rgba(255, 0, 110, 0.12);
+}
+[data-theme="light"] .studio-select option {
+  background: #ffffff;
+  color: #131313;
+}
+
+/* Album cards */
+[data-theme="light"] .collab-album-card {
+  background: #ffffff;
+  border-color: rgba(138, 43, 226, 0.2);
+  box-shadow: 0 2px 12px rgba(138, 43, 226, 0.08);
+}
+[data-theme="light"] .collab-album-card:hover {
+  box-shadow: 0 10px 32px rgba(0,0,0,0.14),
+              0 0 20px color-mix(in srgb, var(--card-color, #8A2BE2) 20%, transparent);
+}
+[data-theme="light"] .album-chip {
+  background: rgba(138, 43, 226, 0.07);
+  border-color: rgba(138, 43, 226, 0.18);
+  color: #333;
+}
+
+/* Kebab menu */
+[data-theme="light"] .kebab-btn {
+  background: rgba(0,0,0,0.05);
+  border-color: rgba(0,0,0,0.12);
+}
+[data-theme="light"] .kebab-btn:hover {
+  background: rgba(0,0,0,0.1);
+}
+[data-theme="light"] .kebab-item:hover {
+  background: rgba(138, 43, 226, 0.07);
+}
+[data-theme="light"] .kebab-divider {
+  background: rgba(0,0,0,0.08);
+}
+
+/* Project detail modal */
+[data-theme="light"] .project-detail-modal {
+  background: linear-gradient(160deg, #fdf4ff, #fff0f8);
+  border-color: rgba(138, 43, 226, 0.3);
+}
+[data-theme="light"] .detail-row {
+  border-bottom-color: rgba(0,0,0,0.06);
+}
+[data-theme="light"] .detail-label { color: #555; }
+[data-theme="light"] .detail-value { color: #131313; }
+
+/* Modal tabs */
+[data-theme="light"] .modal-tabs {
+  border-bottom-color: rgba(0,0,0,0.1);
+}
+[data-theme="light"] .modal-tab {
+  color: rgba(0,0,0,0.4);
+}
+[data-theme="light"] .modal-tab:hover { color: rgba(0,0,0,0.75); }
+[data-theme="light"] .modal-tab.active { color: #131313; }
+[data-theme="light"] .tab-badge {
+  background: rgba(0,0,0,0.08);
+  color: #333;
+}
+
+/* Member profile cards */
+[data-theme="light"] .member-profile-card {
+  background: #f9f0ff;
+  border-color: rgba(138, 43, 226, 0.18);
+}
+[data-theme="light"] .mpc-joined,
+[data-theme="light"] .mpc-sub    { color: rgba(0,0,0,0.45); }
+[data-theme="light"] .mpc-chip-inst {
+  background: rgba(0,0,0,0.05);
+  border-color: rgba(0,0,0,0.1);
+  color: #444;
+}
+[data-theme="light"] .mpc-bio   { color: rgba(0,0,0,0.6); }
+[data-theme="light"] .mpc-looking { color: rgba(0,0,0,0.4); }
+[data-theme="light"] .mpc-location { color: rgba(0,0,0,0.5); }
+
+/* Project track list */
+[data-theme="light"] .project-track-row {
+  background: rgba(138, 43, 226, 0.06);
+}
+[data-theme="light"] .project-track-row:hover {
+  background: rgba(138, 43, 226, 0.1);
+}
+[data-theme="light"] .project-track-num   { color: rgba(0,0,0,0.3); }
+[data-theme="light"] .project-track-title { color: #131313; }
+[data-theme="light"] .project-track-meta  { color: rgba(0,0,0,0.5); }
+
+/* Share picker */
+[data-theme="light"] .share-picker {
+  background: rgba(138, 43, 226, 0.05);
+  border-color: rgba(138, 43, 226, 0.15);
+}
+[data-theme="light"] .share-picker-item {
+  background: #fff;
+  color: #131313;
+}
+[data-theme="light"] .share-picker-item:hover {
+  background: rgba(255, 0, 110, 0.07);
+  border-color: rgba(255, 0, 110, 0.25);
+}
+[data-theme="light"] .share-picker-genre {
+  background: rgba(0,0,0,0.06);
+  color: #555;
+}
+
+/* Chat bubbles */
+[data-theme="light"] .chat-bubble-them {
+  background: rgba(138, 43, 226, 0.08);
+  color: #131313;
+}
+[data-theme="light"] .chat-sender { color: rgba(0,0,0,0.5); }
+[data-theme="light"] .chat-time   { color: rgba(0,0,0,0.35); }
+[data-theme="light"] .chat-input {
+  background: rgba(0,0,0,0.05);
+  border-color: rgba(138, 43, 226, 0.3);
+  color: #131313;
+}
+[data-theme="light"] .chat-input::placeholder { color: rgba(0,0,0,0.35); }
+
+/* Members loading / empty */
+[data-theme="light"] .members-loading,
+[data-theme="light"] .members-empty { color: rgba(0,0,0,0.4); }
+
+/* Active collaborations section */
+[data-theme="light"] .collab-active-section {
+  background: rgba(0, 217, 255, 0.06);
+  border-color: rgba(0, 217, 255, 0.25);
+}
+
+/* Collab toggle button */
+[data-theme="light"] .collab-toggle-btn {
+  background: rgba(0, 217, 255, 0.08);
+  border-color: var(--music-cyan);
+  color: #0088aa;
+}
+
+/* Profile link */
+[data-theme="light"] .collab-profile-link { color: var(--music-purple); }
+
+/* Login prompt */
+[data-theme="light"] .collab-login-prompt { color: #333; }
+
+/* Search page project cards */
+[data-theme="light"] .project-studio-card {
+  background: #ffffff;
+  border-color: rgba(138, 43, 226, 0.15);
+}
+[data-theme="light"] .project-studio-card:hover {
+  box-shadow: 0 12px 36px rgba(0,0,0,0.12);
+}
+[data-theme="light"] .project-tag {
+  background: rgba(138, 43, 226, 0.07);
+  border-color: rgba(138, 43, 226, 0.18);
+  color: #333;
+}
+[data-theme="light"] .project-studio-title { color: #131313; -webkit-text-fill-color: #131313; }
+[data-theme="light"] .project-studio-desc  { color: rgba(0,0,0,0.6); }
+[data-theme="light"] .project-studio-members { color: rgba(0,0,0,0.55); }
+[data-theme="light"] .project-studio-view-btn {
+  color: var(--music-purple);
+  border-color: var(--music-purple);
+}
+[data-theme="light"] .project-studio-view-btn:hover {
+  background: var(--music-purple);
+  color: #fff;
+}
+
 /* Memorial Page */
 .memorial-page {
   max-width: 900px;
