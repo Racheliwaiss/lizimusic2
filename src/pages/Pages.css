@@ -1591,8 +1591,81 @@
   text-align: center;
 }
 
-.collab-active-section h2 { font-size: 1.3rem; margin-bottom: 0.5rem; }
-.collab-active-section p { color: var(--text-secondary); font-size: 0.9rem; margin: 0; }
+.collab-active-section h2 { font-size: 1.3rem; margin-bottom: 0.75rem; }
+.collab-active-section > p { color: var(--text-secondary); font-size: 0.9rem; margin: 0; }
+
+.active-projects-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  text-align: left;
+}
+
+.active-project-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.65rem 1rem;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-left: 3px solid var(--apc, #8A2BE2);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.18s, transform 0.15s;
+}
+.active-project-item:hover {
+  background: rgba(255,255,255,0.09);
+  transform: translateX(3px);
+}
+
+.active-project-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--apc, #8A2BE2);
+  box-shadow: 0 0 6px var(--apc, #8A2BE2);
+  flex-shrink: 0;
+  animation: live-blink 1.8s ease-in-out infinite;
+}
+
+.active-project-title {
+  flex: 1;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.active-project-genre {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--apc, #8A2BE2);
+  background: color-mix(in srgb, var(--apc, #8A2BE2) 14%, transparent);
+  border: 1px solid var(--apc, #8A2BE2);
+  border-radius: 20px;
+  padding: 1px 8px;
+  white-space: nowrap;
+}
+
+.active-project-owner {
+  font-size: 0.8rem;
+}
+
+.active-project-arrow {
+  font-size: 0.85rem;
+  color: var(--apc, #8A2BE2);
+  flex-shrink: 0;
+}
+
+[data-theme="light"] .active-project-item {
+  background: #fff;
+  border-color: rgba(138,43,226,0.12);
+}
+[data-theme="light"] .active-project-item:hover {
+  background: rgba(138,43,226,0.04);
+}
 
 /* ── Misc reused classes ───────────────────── */
 .no-results {

@@ -317,6 +317,18 @@ function Collaboration() {
 
   const isOwner = (project) => user && project.createdBy === user.id;
 
+  // Projects the user created OR joined
+  const userActiveProjects = useMemo(() => {
+    if (!user) return [];
+    return projects.filter(p => {
+      if (p.createdBy === user.id) return true;
+      try {
+        const members = JSON.parse(localStorage.getItem(`lizi_project_members_${p.id}`) || '[]');
+        return members.some(m => m.userId === user.id);
+      } catch { return false; }
+    });
+  }, [projects, user]);
+
   // ── RENDER ────────────────────────────────────────────────
   return (
     <div className="page collab-page">
@@ -646,10 +658,31 @@ function Collaboration() {
       )}
 
       {/* ── Active collaborations section ─────────────────── */}
-      <section className="collab-active-section">
-        <h2>{t('collaboration.activeCollaborations')}</h2>
-        <p>{t('collaboration.noCollaborations')}</p>
-      </section>
+      {user && (
+        <section className="collab-active-section">
+          <h2>{t('collaboration.activeCollaborations')}</h2>
+          {userActiveProjects.length === 0 ? (
+            <p>{t('collaboration.noCollaborations')}</p>
+          ) : (
+            <div className="active-projects-list">
+              {userActiveProjects.map(p => (
+                <div
+                  key={p.id}
+                  className="active-project-item"
+                  style={{ '--apc': genreColor(p.genre) }}
+                  onClick={() => navigate(`/project/${p.id}`)}
+                >
+                  <span className="active-project-dot" />
+                  <span className="active-project-title">{p.title}</span>
+                  <span className="active-project-genre">{p.genre}</span>
+                  {p.createdBy === user.id && <span className="active-project-owner">👑</span>}
+                  <span className="active-project-arrow">→</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
 
       {/* ── Project detail modal ──────────────────────────── */}
       {viewProject && (() => {
