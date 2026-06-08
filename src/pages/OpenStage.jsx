@@ -3,7 +3,16 @@ import { Link } from 'react-router-dom';
 import { useLanguage } from '../LanguageContext';
 import { useAuth } from '../AuthContext';
 import { fetchArtists } from '../lib/db';
+import translations from '../translations';
 import './Pages.css';
+
+// Map Hebrew genre labels back to English for matching
+const HE_GENRES = translations.he.dropdowns.genres;
+const EN_GENRES = translations.en.dropdowns.genres;
+const normalizeGenre = (g) => {
+  const idx = HE_GENRES.indexOf(g);
+  return idx !== -1 ? EN_GENRES[idx].toLowerCase() : g.toLowerCase();
+};
 
 const parseAgeRange = (range) => {
   const normalized = String(range || '').trim();
@@ -62,7 +71,7 @@ function OpenStage() {
     });
   }, []);
 
-  const userGenres      = useMemo(() => user?.user_metadata?.favoriteGenres?.toLowerCase().split(',').map(g => g.trim()).filter(Boolean) || [], [user]);
+  const userGenres      = useMemo(() => user?.user_metadata?.favoriteGenres?.split(',').map(g => normalizeGenre(g.trim())).filter(Boolean) || [], [user]);
   const userInstruments = useMemo(() => user?.user_metadata?.instruments?.toLowerCase().split(',').map(i => i.trim()).filter(Boolean) || [], [user]);
   const userStyle       = useMemo(() => user?.user_metadata?.musicStyle?.toLowerCase().trim() || '', [user]);
   const userAgeRange    = useMemo(() => parseAgeRange(user?.user_metadata?.connectAges), [user]);

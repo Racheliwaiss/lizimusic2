@@ -2448,8 +2448,8 @@
   gap: 1rem;
   padding: 0.85rem 1rem;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255,255,255,0.07);
   transition: background 0.2s, border-color 0.2s, transform 0.2s;
   cursor: default;
 }
@@ -2534,14 +2534,15 @@
   border: 1px solid var(--chip-color, #FF006E);
   border-radius: 4px;
   padding: 0.1rem 0.45rem;
-  background: rgba(var(--chip-color, 255 0 110) / 0.1);
+  background: color-mix(in srgb, var(--chip-color, #FF006E) 12%, transparent);
 }
 
 .style-chip,
 .instruments-chip {
   font-size: 0.72rem;
   color: var(--text-secondary);
-  background: rgba(255,255,255,0.05);
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
   border-radius: 4px;
   padding: 0.1rem 0.45rem;
 }
@@ -4562,6 +4563,49 @@
 [data-theme="light"] .project-studio-view-btn:hover {
   background: var(--music-purple);
   color: #fff;
+}
+
+/* Search page — artist track cards & chips (light mode) */
+[data-theme="light"] .search-track-bar {
+  background: #fff;
+  border-color: rgba(138, 43, 226, 0.35);
+}
+[data-theme="light"] .search-track-bar:focus-within {
+  border-color: var(--music-pink);
+  box-shadow: 0 0 0 3px rgba(255,0,110,0.12), 0 0 16px rgba(255,0,110,0.08);
+}
+[data-theme="light"] .artist-track-list {
+  background: #f7f0ff;
+  border-radius: 12px;
+  padding: 0.5rem;
+}
+[data-theme="light"] .artist-track-card {
+  background: #ffffff;
+  border-color: rgba(138, 43, 226, 0.12);
+}
+[data-theme="light"] .artist-track-card:hover {
+  background: rgba(255, 0, 110, 0.04);
+  border-color: rgba(255, 0, 110, 0.18);
+}
+[data-theme="light"] .artist-track-name { color: #131313; }
+[data-theme="light"] .style-chip,
+[data-theme="light"] .instruments-chip {
+  background: rgba(138, 43, 226, 0.07);
+  border-color: rgba(138, 43, 226, 0.2);
+  color: #4a0080;
+}
+[data-theme="light"] .artist-location { color: rgba(0,0,0,0.5); }
+[data-theme="light"] .artist-followers { color: rgba(0,0,0,0.5); }
+[data-theme="light"] .track-number { color: rgba(0,0,0,0.4); }
+[data-theme="light"] .artist-vinyl::after { background: #f7f0ff; }
+[data-theme="light"] .search-section-title { color: #131313; }
+[data-theme="light"] .search-section-count { color: rgba(0,0,0,0.45); }
+[data-theme="light"] .search-empty { color: rgba(0,0,0,0.45); }
+
+/* Collaborate panel — always stays dark as a modal */
+[data-theme="light"] .collab-panel {
+  background: linear-gradient(160deg, #1a0830 0%, #0d0d1a 100%);
+  border-color: rgba(255,255,255,0.14);
 }
 
 /* Memorial Page */

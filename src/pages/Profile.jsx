@@ -5,18 +5,24 @@ import { useAuth } from '../AuthContext';
 import UploadTrack from '../components/UploadTrack';
 import AvatarUpload from '../components/AvatarUpload';
 import { fetchUserTracks, saveTrack, updateTrack, deleteLiziMusic, fetchUserProjects, uploadAvatar, uploadTrackFile } from '../lib/db';
+import translations from '../translations';
 import './Pages.css';
+
+// English values are always used as option values for consistent data storage.
+// Translated labels are used only for display.
+const EN = translations.en.dropdowns;
 
 function Profile() {
   const { t } = useLanguage();
 
-  const GENRES       = t('dropdowns.genres');
-  const INSTRUMENTS  = t('dropdowns.instruments');
-  const MUSIC_STYLES = t('dropdowns.musicStyles');
-  const AGE_RANGES   = t('dropdowns.ageRanges');
-  const LOOKING_FOR  = t('dropdowns.lookingFor');
-  const CREATE_GOALS = t('dropdowns.createGoals');
-  const LOCATIONS    = t('dropdowns.locations');
+  // Translated label arrays (same order as EN arrays)
+  const GENRES_LABELS       = t('dropdowns.genres');
+  const INSTRUMENTS_LABELS  = t('dropdowns.instruments');
+  const MUSIC_STYLES_LABELS = t('dropdowns.musicStyles');
+  const AGE_RANGES_LABELS   = t('dropdowns.ageRanges');
+  const LOOKING_FOR_LABELS  = t('dropdowns.lookingFor');
+  const CREATE_GOALS_LABELS = t('dropdowns.createGoals');
+  const LOCATIONS_LABELS    = t('dropdowns.locations');
 
   const { user, isAuthenticated, logout, updateProfile } = useAuth();
   const navigate = useNavigate();
@@ -246,49 +252,49 @@ function Profile() {
                   {t('profile.favoriteGenres')}
                   <select name="favoriteGenres" value={formData.favoriteGenres || ''} onChange={handleChange} className="edit-select">
                     <option value="">{t('dropdowns.selectGenre')}</option>
-                    {Array.isArray(GENRES) && GENRES.map(g => <option key={g} value={g}>{g}</option>)}
+                    {EN.genres.map((g, i) => <option key={g} value={g}>{Array.isArray(GENRES_LABELS) ? GENRES_LABELS[i] || g : g}</option>)}
                   </select>
                 </label>
                 <label>
                   {t('profile.instruments')}
                   <select name="instruments" value={formData.instruments || ''} onChange={handleChange} className="edit-select">
                     <option value="">{t('dropdowns.selectInstrument')}</option>
-                    {Array.isArray(INSTRUMENTS) && INSTRUMENTS.map(i => <option key={i} value={i}>{i}</option>)}
+                    {EN.instruments.map((inst, i) => <option key={inst} value={inst}>{Array.isArray(INSTRUMENTS_LABELS) ? INSTRUMENTS_LABELS[i] || inst : inst}</option>)}
                   </select>
                 </label>
                 <label>
                   {t('profile.createGoals')}
                   <select name="createGoals" value={formData.createGoals || ''} onChange={handleChange} className="edit-select">
                     <option value="">{t('dropdowns.selectGoal')}</option>
-                    {Array.isArray(CREATE_GOALS) && CREATE_GOALS.map(g => <option key={g} value={g}>{g}</option>)}
+                    {EN.createGoals.map((g, i) => <option key={g} value={g}>{Array.isArray(CREATE_GOALS_LABELS) ? CREATE_GOALS_LABELS[i] || g : g}</option>)}
                   </select>
                 </label>
                 <label>
                   {t('profile.musicStyle')}
                   <select name="musicStyle" value={formData.musicStyle || ''} onChange={handleChange} className="edit-select">
                     <option value="">{t('dropdowns.selectStyle')}</option>
-                    {Array.isArray(MUSIC_STYLES) && MUSIC_STYLES.map(s => <option key={s} value={s}>{s}</option>)}
+                    {EN.musicStyles.map((s, i) => <option key={s} value={s}>{Array.isArray(MUSIC_STYLES_LABELS) ? MUSIC_STYLES_LABELS[i] || s : s}</option>)}
                   </select>
                 </label>
                 <label>
                   📍 {t('profile.location')}
                   <select name="location" value={formData.location || ''} onChange={handleChange} className="edit-select">
                     <option value="">{t('dropdowns.selectLocation')}</option>
-                    {Array.isArray(LOCATIONS) && LOCATIONS.map(l => <option key={l} value={l}>{l}</option>)}
+                    {EN.locations.map((l, i) => <option key={l} value={l}>{Array.isArray(LOCATIONS_LABELS) ? LOCATIONS_LABELS[i] || l : l}</option>)}
                   </select>
                 </label>
                 <label>
                   {t('profile.connectAges')}
                   <select name="connectAges" value={formData.connectAges || ''} onChange={handleChange} className="edit-select">
                     <option value="">{t('dropdowns.selectAgeRange')}</option>
-                    {Array.isArray(AGE_RANGES) && AGE_RANGES.map(a => <option key={a} value={a}>{a}</option>)}
+                    {EN.ageRanges.map((a, i) => <option key={a} value={a}>{Array.isArray(AGE_RANGES_LABELS) ? AGE_RANGES_LABELS[i] || a : a}</option>)}
                   </select>
                 </label>
                 <label>
                   {t('profile.lookingFor')}
                   <select name="lookingFor" value={formData.lookingFor || ''} onChange={handleChange} className="edit-select">
                     <option value="">{t('dropdowns.selectLookingFor')}</option>
-                    {Array.isArray(LOOKING_FOR) && LOOKING_FOR.map(lf => <option key={lf} value={lf}>{lf}</option>)}
+                    {EN.lookingFor.map((lf, i) => <option key={lf} value={lf}>{Array.isArray(LOOKING_FOR_LABELS) ? LOOKING_FOR_LABELS[i] || lf : lf}</option>)}
                   </select>
                 </label>
                 <label>
