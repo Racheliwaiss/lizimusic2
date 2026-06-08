@@ -170,7 +170,8 @@ function Profile() {
       lookingFor: formData.lookingFor,
       createGoals: formData.createGoals,
       musicStyle: formData.musicStyle,
-      phone: formData.phone,
+      phone:    formData.phone,
+      facebook: formData.facebook,
     };
 
     const result = await updateProfile(updates);
@@ -290,6 +291,26 @@ function Profile() {
                     placeholder={t('profile.lookingFor')}
                   />
                 </label>
+                <label>
+                  📱 WhatsApp / Phone
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={formData.phone || ''}
+                    onChange={handleChange}
+                    placeholder="+972 50 000 0000"
+                  />
+                </label>
+                <label>
+                  🔵 Facebook Profile URL
+                  <input
+                    type="url"
+                    name="facebook"
+                    value={formData.facebook || ''}
+                    onChange={handleChange}
+                    placeholder="https://facebook.com/yourname"
+                  />
+                </label>
                 {saveError && <div className="error-message">{saveError}</div>}
                 <div className="edit-buttons">
                   <button className="save-btn" type="submit">{t('profile.saveChanges')}</button>
@@ -335,16 +356,26 @@ function Profile() {
               {!isEditing && (
                 <>
                   <button className="edit-btn" onClick={() => setIsEditing(true)}>✏️ Edit Profile</button>
-                  <button 
+                  <button
                     className="whatsapp-btn-profile"
                     onClick={() => {
-                      const phone = user.phone || '+1234567890';
-                      const cleanPhone = phone.replace(/\D/g, '');
-                      window.open(`https://wa.me/${cleanPhone}`, '_blank');
+                      const phone = user?.user_metadata?.phone || user.phone || '';
+                      if (!phone) return;
+                      window.open(`https://wa.me/${phone.replace(/\D/g, '')}`, '_blank');
                     }}
+                    style={!user?.user_metadata?.phone && !user?.phone ? { opacity: 0.4, cursor: 'not-allowed' } : {}}
+                    title={user?.user_metadata?.phone ? 'Open WhatsApp' : 'Add phone number to enable'}
                   >
                     💬 WhatsApp
                   </button>
+                  {user?.user_metadata?.facebook && (
+                    <button
+                      className="facebook-btn-profile"
+                      onClick={() => window.open(user.user_metadata.facebook, '_blank')}
+                    >
+                      🔵 Facebook
+                    </button>
+                  )}
                 </>
               )}
               <button className="logout-btn" onClick={handleLogout}>Logout</button>

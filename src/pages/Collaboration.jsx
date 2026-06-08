@@ -280,6 +280,7 @@ function Collaboration() {
       lookingFor:  meta.lookingFor  || '',
       phone:       meta.phone       || '',
       email:       typeof user.email === 'string' ? user.email : '',
+      facebook:    meta.facebook    || '',
     };
     setProjects(prev => prev.map(p => p.id === projectId ? { ...p, members: p.members + 1 } : p));
     setViewProject(prev => prev?.id === projectId ? { ...prev, members: (prev.members || 1) + 1 } : prev);
@@ -759,6 +760,14 @@ function Collaboration() {
                                     <span>📱</span> WhatsApp
                                   </button>
                                 )}
+                                {member.facebook && (
+                                  <button
+                                    className="mpc-contact-btn mpc-facebook"
+                                    onClick={() => window.open(member.facebook, '_blank')}
+                                  >
+                                    <span>🔵</span> Facebook
+                                  </button>
+                                )}
                                 {member.email && (
                                   <button
                                     className="mpc-contact-btn mpc-email"
@@ -771,7 +780,7 @@ function Collaboration() {
                                     <span>✉️</span> Email
                                   </button>
                                 )}
-                                {!member.phone && !member.email && (
+                                {!member.phone && !member.facebook && !member.email && (
                                   <button
                                     className="mpc-contact-btn mpc-chat-tab"
                                     onClick={() => setModalTab('chat')}

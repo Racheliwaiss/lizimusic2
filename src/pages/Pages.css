@@ -1885,6 +1885,12 @@
   color: #4db8ff;
 }
 
+.mpc-facebook {
+  background: rgba(24,119,242,0.12);
+  border-color: rgba(24,119,242,0.4);
+  color: #4e9af1;
+}
+
 .mpc-chat-tab {
   background: rgba(255,0,110,0.1);
   border-color: rgba(255,0,110,0.35);

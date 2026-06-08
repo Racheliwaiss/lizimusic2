@@ -188,6 +188,7 @@ export async function joinProject(projectId, userId, profile = {}) {
     lookingFor:  profile.lookingFor  || '',
     phone:       profile.phone       || '',
     email:       profile.email       || '',
+    facebook:    profile.facebook    || '',
     joinedAt:    new Date().toISOString(),
   };
   addLocalMember(projectId, member);
@@ -229,7 +230,7 @@ export async function fetchProjectMembers(projectId) {
   try {
     const { data, error } = await supabase
       .from('project_members')
-      .select(`user_id, joined_at, profiles:user_id (name, instruments, genre, style, location, avatar, bio, phone, email, lookingFor)`)
+      .select(`user_id, joined_at, profiles:user_id (name, instruments, genre, style, location, avatar, bio, phone, email, facebook, lookingFor)`)
       .eq('project_id', projectId)
       .order('joined_at', { ascending: true });
 
@@ -247,6 +248,7 @@ export async function fetchProjectMembers(projectId) {
         lookingFor:  row.profiles?.lookingFor  || '',
         phone:       row.profiles?.phone       || '',
         email:       row.profiles?.email       || '',
+        facebook:    row.profiles?.facebook    || '',
       }));
     }
   } catch { /* fall through */ }

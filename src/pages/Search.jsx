@@ -457,6 +457,15 @@ function Search() {
                     </button>
                   )}
 
+                  {collabArtist.facebook && (
+                    <button
+                      className="mpc-contact-btn mpc-facebook"
+                      style={{ flex: 1, justifyContent: 'center', padding: '10px' }}
+                      onClick={() => window.open(collabArtist.facebook, '_blank')}
+                    >
+                      🔵 Facebook
+                    </button>
+                  )}
                   {collabArtist.email && (
                     <button
                       className="mpc-contact-btn mpc-email"
