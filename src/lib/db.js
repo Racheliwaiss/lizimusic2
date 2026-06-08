@@ -84,6 +84,20 @@ function saveLocalProjects(list) {
   try { localStorage.setItem(LOCAL_PROJECTS_KEY, JSON.stringify(list)); } catch {}
 }
 
+export async function fetchProjectById(projectId) {
+  try {
+    const { data, error } = await supabase
+      .from('projects')
+      .select('*')
+      .eq('id', projectId)
+      .single();
+    if (!error && data) return normalizeProject(data);
+  } catch { /* fall through */ }
+  // Check localStorage
+  const local = getLocalProjects();
+  return local.find(p => String(p.id) === String(projectId)) || null;
+}
+
 export async function fetchProjects() {
   try {
     const { data, error } = await supabase

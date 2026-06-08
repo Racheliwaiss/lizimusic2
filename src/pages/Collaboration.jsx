@@ -631,12 +631,13 @@ function Collaboration() {
                       ▶ {t('collaboration.joinProject')}
                     </button>
                   )}
-                  {isOwner(project) && (
-                    <span className="album-member-pill">
-                      <span className="album-live-dot" />
-                      {project.members || 1} {t('collaboration.members')}
-                    </span>
-                  )}
+                  <button
+                    className="album-view-btn"
+                    onClick={(e) => { e.stopPropagation(); navigate(`/project/${project.id}`); }}
+                    title="View project page"
+                  >
+                    👁 View
+                  </button>
                 </div>
               </div>
             );

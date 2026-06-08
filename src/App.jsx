@@ -8,6 +8,7 @@ import Login from './pages/Login';
 import Profile from './pages/Profile';
 import Messages from './pages/Messages';
 import Collaboration from './pages/Collaboration';
+import ProjectDetail from './pages/ProjectDetail';
 import Search from './pages/Search';
 import OpenStage from './pages/OpenStage';
 import About from './pages/About';
@@ -52,6 +53,7 @@ function AppContent() {
                 <Route path="/dashboard" element={<ProtectedRoute element={<Profile />} />} />
                 <Route path="/messages" element={<ProtectedRoute element={<Messages />} />} />
                 <Route path="/collaboration" element={<Collaboration />} />
+                <Route path="/project/:id" element={<ProjectDetail />} />
                 <Route path="/search" element={<Search />} />
                 <Route path="/open-stage" element={<OpenStage />} />
               </Routes>

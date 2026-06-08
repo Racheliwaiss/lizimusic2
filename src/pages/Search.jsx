@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useLanguage } from '../LanguageContext';
 import { useAuth } from '../AuthContext';
 import { fetchArtists, fetchProjects, fetchUserTracks, fetchUserProjects, sendProjectMessage } from '../lib/db';
@@ -273,6 +273,13 @@ function Search() {
                       <span className="project-tag">📍 {project.location}</span>
                     )}
                   </div>
+                  <Link
+                    to={`/project/${project.id}`}
+                    className="project-studio-view-btn"
+                    style={{ '--project-color': color }}
+                  >
+                    👁 View Project & Members
+                  </Link>
                 </div>
               );
             })}
