@@ -8,6 +8,7 @@ import {
   fetchProjectMessages, sendProjectMessage,
 } from '../lib/db';
 import './Pages.css';
+import './ProjectDetail.css';
 
 const GENRE_COLORS = {
   'Pop':        '#FF006E', 'Rock':       '#FF4500', 'Jazz':       '#FFD700',
