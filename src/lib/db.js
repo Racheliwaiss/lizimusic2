@@ -17,14 +17,18 @@ const fallbackProjects = [
 // Normalize a DB artist row → app shape
 const normalizeArtist = (row) => ({
   id:          row.id,
+  userId:      row.user_id  || null,
   name:        row.name,
   genre:       row.genre,
   instruments: row.instruments || '',
   style:       row.style || '',
+  bio:         row.bio   || '',
   ageRange:    row.age_range || '',
   followers:   row.followers || 0,
   avatar:      row.avatar || '🎤',
   location:    row.location || '',
+  phone:       row.phone || '',
+  email:       row.email || '',
 });
 
 // Normalize a DB project row → app shape
@@ -179,6 +183,11 @@ export async function joinProject(projectId, userId, profile = {}) {
     genre:       profile.genre       || '',
     location:    profile.location    || '',
     avatar:      profile.avatar      || '🎤',
+    bio:         profile.bio         || '',
+    style:       profile.style       || '',
+    lookingFor:  profile.lookingFor  || '',
+    phone:       profile.phone       || '',
+    email:       profile.email       || '',
     joinedAt:    new Date().toISOString(),
   };
   addLocalMember(projectId, member);
@@ -220,7 +229,7 @@ export async function fetchProjectMembers(projectId) {
   try {
     const { data, error } = await supabase
       .from('project_members')
-      .select(`user_id, joined_at, profiles:user_id (name, instruments, genre, style, location, avatar, bio)`)
+      .select(`user_id, joined_at, profiles:user_id (name, instruments, genre, style, location, avatar, bio, phone, email, lookingFor)`)
       .eq('project_id', projectId)
       .order('joined_at', { ascending: true });
 
@@ -231,9 +240,13 @@ export async function fetchProjectMembers(projectId) {
         name:        row.profiles?.name        || 'Anonymous Artist',
         instruments: row.profiles?.instruments || '',
         genre:       row.profiles?.genre       || '',
+        style:       row.profiles?.style       || '',
         location:    row.profiles?.location    || '',
         avatar:      row.profiles?.avatar      || '🎤',
         bio:         row.profiles?.bio         || '',
+        lookingFor:  row.profiles?.lookingFor  || '',
+        phone:       row.profiles?.phone       || '',
+        email:       row.profiles?.email       || '',
       }));
     }
   } catch { /* fall through */ }

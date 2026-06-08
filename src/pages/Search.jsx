@@ -1,6 +1,8 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../LanguageContext';
-import { fetchArtists, fetchProjects } from '../lib/db';
+import { useAuth } from '../AuthContext';
+import { fetchArtists, fetchProjects, fetchUserTracks, fetchUserProjects, sendProjectMessage } from '../lib/db';
 import './Pages.css';
 
 const GENRE_COLORS = {
@@ -21,16 +23,77 @@ function genreColor(genre) {
 }
 
 function Search() {
-  const [query, setQuery] = useState('');
-  const [followed, setFollowed] = useState(new Set());
-  const [allArtists, setAllArtists] = useState([]);
+  const [query, setQuery]             = useState('');
+  const [followed, setFollowed]       = useState(new Set());
+  const [allArtists, setAllArtists]   = useState([]);
   const [allProjects, setAllProjects] = useState([]);
+
+  // Collab panel state
+  const [collabArtist, setCollabArtist]         = useState(null);
+  const [collabTab, setCollabTab]               = useState('tracks');
+  const [artistTracks, setArtistTracks]         = useState([]);
+  const [tracksLoading, setTracksLoading]       = useState(false);
+  const [userProjects, setUserProjects]         = useState([]);
+  const [inviteProjectId, setInviteProjectId]   = useState('');
+  const [inviteNote, setInviteNote]             = useState('');
+  const [inviteSent, setInviteSent]             = useState(false);
+  const [connectMsg, setConnectMsg]             = useState('');
+  const panelRef = useRef(null);
+
   const { t } = useLanguage();
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchArtists().then(setAllArtists);
     fetchProjects().then(setAllProjects);
   }, []);
+
+  // Load user's projects when panel opens
+  useEffect(() => {
+    if (collabArtist && user) {
+      fetchUserProjects(user.id).then(setUserProjects);
+    }
+  }, [collabArtist, user]);
+
+  // Load artist's tracks when panel opens
+  useEffect(() => {
+    if (!collabArtist) return;
+    if (collabArtist.userId) {
+      setTracksLoading(true);
+      fetchUserTracks(collabArtist.userId)
+        .then(setArtistTracks)
+        .finally(() => setTracksLoading(false));
+    } else {
+      setArtistTracks([]);
+    }
+  }, [collabArtist]);
+
+  const openCollab = (artist) => {
+    if (!user) { navigate('/login'); return; }
+    setCollabArtist(artist);
+    setCollabTab('tracks');
+    setInviteProjectId('');
+    setInviteNote('');
+    setInviteSent(false);
+    setConnectMsg('');
+  };
+
+  const closeCollab = () => setCollabArtist(null);
+
+  const handleInvite = () => {
+    if (!inviteProjectId) return;
+    const project = userProjects.find(p => String(p.id) === String(inviteProjectId));
+    if (!project) return;
+    const note = inviteNote.trim() ||
+      `Hey ${collabArtist.name}! I'd love to have you join my project "${project.title}" on LIZI 🎵`;
+    sendProjectMessage(project.id, {
+      text:         `💌 Collaboration invite sent to ${collabArtist.name}: "${note}"`,
+      senderName:   user.user_metadata?.name || user.email?.split('@')[0] || 'Artist',
+      senderAvatar: user.user_metadata?.avatar_url ? '📷' : '🎤',
+    });
+    setInviteSent(true);
+  };
 
   const toggleFollow = (id) => {
     setFollowed((prev) => {
@@ -47,8 +110,8 @@ function Search() {
     return allArtists.filter((a) =>
       a.name.toLowerCase().includes(q) ||
       a.genre.toLowerCase().includes(q) ||
-      a.instruments.toLowerCase().includes(q) ||
-      a.style.toLowerCase().includes(q)
+      (a.instruments || '').toLowerCase().includes(q) ||
+      (a.style || '').toLowerCase().includes(q)
     );
   }, [query, allArtists]);
 
@@ -110,10 +173,7 @@ function Search() {
                   <div className="artist-track-info">
                     <span className="artist-track-name">{artist.name}</span>
                     <div className="artist-track-meta">
-                      <span
-                        className="genre-chip"
-                        style={{ '--chip-color': genreColor(artist.genre) }}
-                      >
+                      <span className="genre-chip" style={{ '--chip-color': genreColor(artist.genre) }}>
                         {artist.genre}
                       </span>
                       {artist.style && <span className="style-chip">{artist.style}</span>}
@@ -134,6 +194,13 @@ function Search() {
                       onClick={() => toggleFollow(artist.id)}
                     >
                       {followed.has(artist.id) ? t('search.followingBtn') : t('search.followBtn')}
+                    </button>
+                    <button
+                      className="collab-invite-btn"
+                      onClick={() => openCollab(artist)}
+                      title="Invite to collaborate"
+                    >
+                      🎵 Collaborate
                     </button>
                   </div>
                 </div>
@@ -212,6 +279,217 @@ function Search() {
           </div>
         )}
       </section>
+
+      {/* ── Collaborate panel ─────────────────────────────── */}
+      {collabArtist && (
+        <div className="collab-panel-overlay" onClick={(e) => e.target === e.currentTarget && closeCollab()}>
+          <div className="collab-panel" ref={panelRef}>
+            <button className="collab-panel-close" onClick={closeCollab} aria-label="Close">✕</button>
+
+            {/* Artist header */}
+            <div
+              className="collab-panel-header"
+              style={{ '--panel-color': genreColor(collabArtist.genre) }}
+            >
+              <div className="collab-panel-avatar">{collabArtist.avatar || '🎤'}</div>
+              <div className="collab-panel-info">
+                <h3 className="collab-panel-name">{collabArtist.name}</h3>
+                <div className="collab-panel-chips">
+                  <span className="mpc-chip mpc-chip-genre">{collabArtist.genre}</span>
+                  {collabArtist.style && <span className="mpc-chip mpc-chip-style">{collabArtist.style}</span>}
+                </div>
+                {collabArtist.instruments && (
+                  <p className="collab-panel-instruments">🎸 {collabArtist.instruments}</p>
+                )}
+                {collabArtist.location && (
+                  <p className="collab-panel-location">📍 {collabArtist.location}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Tabs */}
+            <div className="modal-tabs" style={{ marginTop: '0.75rem' }}>
+              <button
+                className={`modal-tab ${collabTab === 'tracks' ? 'active' : ''}`}
+                onClick={() => setCollabTab('tracks')}
+              >
+                🎵 Tracks
+              </button>
+              <button
+                className={`modal-tab ${collabTab === 'invite' ? 'active' : ''}`}
+                onClick={() => setCollabTab('invite')}
+              >
+                📩 Invite
+              </button>
+              <button
+                className={`modal-tab ${collabTab === 'connect' ? 'active' : ''}`}
+                onClick={() => setCollabTab('connect')}
+              >
+                💬 Connect
+              </button>
+            </div>
+
+            {/* Tracks tab */}
+            {collabTab === 'tracks' && (
+              <div className="collab-panel-tab-body">
+                {tracksLoading ? (
+                  <p className="members-loading">Loading tracks…</p>
+                ) : artistTracks.length === 0 ? (
+                  <div className="collab-no-tracks">
+                    <span className="collab-no-tracks-icon">🎵</span>
+                    <p>{collabArtist.name} hasn't shared public tracks yet.</p>
+                    <p className="collab-no-tracks-sub">Reach out via the Connect tab to request a listen.</p>
+                  </div>
+                ) : (
+                  <div className="project-track-list">
+                    {artistTracks.map((track, i) => (
+                      <div key={track.id || i} className="project-track-row">
+                        <span className="project-track-num">{String(i + 1).padStart(2, '0')}</span>
+                        <div className="project-track-info">
+                          <span className="project-track-title">{track.title}</span>
+                          {track.genre && <span className="project-track-meta">{track.genre}</span>}
+                        </div>
+                        {track.url
+                          ? <audio className="project-track-player" src={track.url} controls preload="none" />
+                          : <span className="project-track-no-audio">No audio</span>
+                        }
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Invite to project tab */}
+            {collabTab === 'invite' && (
+              <div className="collab-panel-tab-body">
+                {inviteSent ? (
+                  <div className="collab-invite-sent">
+                    <span className="collab-invite-sent-icon">✅</span>
+                    <p>Invite recorded in your project's chat!</p>
+                    <p className="collab-no-tracks-sub">
+                      Share your project link with {collabArtist.name} to complete the invite.
+                    </p>
+                    <button className="mpc-contact-btn mpc-chat-tab" style={{ marginTop: '0.75rem' }} onClick={() => setInviteSent(false)}>
+                      Send another
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <label className="collab-form-label">Choose your project</label>
+                    {userProjects.length === 0 ? (
+                      <p className="members-empty">
+                        You haven't created any projects yet.{' '}
+                        <button className="collab-link-btn" onClick={() => navigate('/collaboration')}>Create one →</button>
+                      </p>
+                    ) : (
+                      <select
+                        className="genre-filter-dropdown"
+                        style={{ width: '100%', marginBottom: '0.75rem' }}
+                        value={inviteProjectId}
+                        onChange={(e) => setInviteProjectId(e.target.value)}
+                      >
+                        <option value="">— Pick a project —</option>
+                        {userProjects.map(p => (
+                          <option key={p.id} value={p.id}>{p.title}</option>
+                        ))}
+                      </select>
+                    )}
+
+                    <label className="collab-form-label">Personal note (optional)</label>
+                    <textarea
+                      className="collab-note-input"
+                      rows={3}
+                      placeholder={`Hi ${collabArtist.name}, I think you'd be a great fit for my project because…`}
+                      value={inviteNote}
+                      onChange={(e) => setInviteNote(e.target.value)}
+                    />
+
+                    <button
+                      className="join-btn"
+                      style={{ width: '100%', marginTop: '0.75rem', padding: '10px' }}
+                      onClick={handleInvite}
+                      disabled={!inviteProjectId}
+                    >
+                      📩 Send Invite to {collabArtist.name}
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
+
+            {/* Connect tab */}
+            {collabTab === 'connect' && (
+              <div className="collab-panel-tab-body">
+                <p className="collab-form-label" style={{ marginBottom: '0.75rem' }}>
+                  Reach out to {collabArtist.name} directly:
+                </p>
+
+                <div className="collab-connect-btns">
+                  {collabArtist.phone ? (
+                    <button
+                      className="mpc-contact-btn mpc-whatsapp"
+                      style={{ flex: 1, justifyContent: 'center', padding: '10px' }}
+                      onClick={() => {
+                        const phone = collabArtist.phone.replace(/\D/g, '');
+                        const msg = encodeURIComponent(
+                          connectMsg.trim() ||
+                          `Hi ${collabArtist.name}! I found your profile on LIZI and would love to collaborate on music 🎵`
+                        );
+                        window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+                      }}
+                    >
+                      📱 WhatsApp
+                    </button>
+                  ) : (
+                    <button
+                      className="mpc-contact-btn mpc-whatsapp"
+                      style={{ flex: 1, justifyContent: 'center', padding: '10px' }}
+                      onClick={() => {
+                        const msg = encodeURIComponent(
+                          connectMsg.trim() ||
+                          `Hi ${collabArtist.name}! I found your profile on LIZI and would love to collaborate 🎵`
+                        );
+                        window.open(`https://wa.me/?text=${msg}`, '_blank');
+                      }}
+                    >
+                      📱 WhatsApp
+                    </button>
+                  )}
+
+                  {collabArtist.email && (
+                    <button
+                      className="mpc-contact-btn mpc-email"
+                      style={{ flex: 1, justifyContent: 'center', padding: '10px' }}
+                      onClick={() => {
+                        const subject = encodeURIComponent(`LIZI Music Collaboration`);
+                        const body = encodeURIComponent(
+                          connectMsg.trim() ||
+                          `Hi ${collabArtist.name},\n\nI found your profile on LIZI and would love to collaborate!\n\nLet me know if you're interested 🎵`
+                        );
+                        window.open(`mailto:${collabArtist.email}?subject=${subject}&body=${body}`);
+                      }}
+                    >
+                      ✉️ Email
+                    </button>
+                  )}
+                </div>
+
+                <label className="collab-form-label" style={{ marginTop: '1rem' }}>
+                  Personalise your message (optional)
+                </label>
+                <textarea
+                  className="collab-note-input"
+                  rows={3}
+                  placeholder={`Hi ${collabArtist.name}, I love your ${collabArtist.genre} style and…`}
+                  value={connectMsg}
+                  onChange={(e) => setConnectMsg(e.target.value)}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

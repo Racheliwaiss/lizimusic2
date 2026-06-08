@@ -22,6 +22,28 @@ const AGE_RANGES = [
   '16-25', '18-30', '18-35', '20-40', '25-50', '16+', '18+', '25+', 'All ages',
 ];
 
+const INSTRUMENTS = [
+  'Guitar', 'Bass Guitar', 'Electric Guitar', 'Acoustic Guitar',
+  'Piano', 'Keyboards', 'Synthesizer',
+  'Drums', 'Percussion', 'Drum Machine',
+  'Vocals', 'Backing Vocals',
+  'Violin', 'Cello', 'Viola', 'Strings',
+  'Saxophone', 'Trumpet', 'Trombone', 'Flute', 'Clarinet',
+  'Oud', 'Banjo', 'Ukulele', 'Mandolin', 'Harmonica',
+  'DJ / Turntables', 'Production', 'Beatmaking',
+  'Songwriting', 'Composition', 'Mixing / Mastering',
+  'Other',
+];
+
+const LOCATIONS = [
+  'Tel Aviv', 'Jerusalem', 'Haifa', 'Beer Sheva', 'Rishon LeZion',
+  'Petah Tikva', 'Netanya', 'Ashdod', 'Rehovot', 'Ramat Gan',
+  'Herzliya', 'Raanana', 'Holon', 'Bat Yam', 'Bnei Brak',
+  'Eilat', 'Tiberias', 'Nazareth', 'Safed', "Modi'in",
+  'Jaffa', 'Ramat Hasharon', 'Givatayim', 'Kfar Saba',
+  'Remote / Online',
+];
+
 const GENRE_COLORS = {
   'Pop':        '#FF006E',
   'Rock':       '#FF4500',
@@ -246,16 +268,22 @@ function Collaboration() {
   // ── JOIN ──────────────────────────────────────────────────
   const handleJoin = async (projectId) => {
     if (!user) { navigate('/login'); return; }
+    const meta = user.user_metadata || {};
     const profile = {
-      name:        user.user_metadata?.name || user.email?.split('@')[0] || 'Artist',
-      instruments: user.user_metadata?.instruments || '',
-      genre:       user.user_metadata?.favoriteGenres || '',
-      location:    user.user_metadata?.location || '',
-      avatar:      user.user_metadata?.avatar_url ? '📷' : '🎤',
+      name:        meta.name        || user.email?.split('@')[0] || 'Artist',
+      instruments: meta.instruments || '',
+      genre:       meta.favoriteGenres || '',
+      style:       meta.musicStyle  || '',
+      location:    meta.location    || '',
+      avatar:      meta.avatar_url  ? '📷' : '🎤',
+      bio:         meta.bio         || meta.about || '',
+      lookingFor:  meta.lookingFor  || '',
+      phone:       meta.phone       || '',
+      email:       typeof user.email === 'string' ? user.email : '',
     };
     setProjects(prev => prev.map(p => p.id === projectId ? { ...p, members: p.members + 1 } : p));
     setViewProject(prev => prev?.id === projectId ? { ...prev, members: (prev.members || 1) + 1 } : prev);
-    setViewMembers(prev => [...prev, { ...profile, userId: user.id, joinedAt: new Date().toISOString() }]);
+    setViewMembers(prev => [...prev, { ...profile, userId: user.id, joinedAt: new Date().toISOString(), isSelf: true }]);
     setSuccessMessage('You joined the project!');
     setViewProject(null);
     await joinProject(projectId, user.id, profile);
@@ -307,14 +335,27 @@ function Collaboration() {
       {user ? (
         <div className="collab-controls-bar">
           {/* Genre filter */}
-          <select
-            className="genre-filter-dropdown"
-            value={genreFilter}
-            onChange={(e) => setGenreFilter(e.target.value)}
-          >
-            <option value="">🎵 All Genres</option>
-            {GENRES.map(g => <option key={g} value={g}>{g}</option>)}
-          </select>
+          <div className="genre-filter-wrap">
+            {genreFilter && (
+              <span
+                className="genre-filter-dot"
+                style={{ background: genreColor(genreFilter) }}
+              />
+            )}
+            <select
+              className="genre-filter-dropdown"
+              value={genreFilter}
+              onChange={(e) => setGenreFilter(e.target.value)}
+              style={genreFilter ? {
+                borderColor: genreColor(genreFilter),
+                boxShadow: `0 0 0 1px ${genreColor(genreFilter)}44`,
+                paddingLeft: '28px',
+              } : {}}
+            >
+              <option value="">🎵 All Genres</option>
+              {GENRES.map(g => <option key={g} value={g}>{g}</option>)}
+            </select>
+          </div>
 
           <div className="collab-controls-right">
             {hasPreferences && (
@@ -371,48 +412,89 @@ function Collaboration() {
 
             <label className="studio-field">
               <span className="studio-field-label">🎸 {t('collaboration.projectGenre')}</span>
-              <select
-                className="studio-input studio-select"
-                value={formData.genre}
-                onChange={handleFieldChange('genre')}
-              >
-                <option value="">{t('collaboration.projectGenre')}…</option>
-                {GENRES.map(g => <option key={g} value={g}>{g}</option>)}
-              </select>
+              <div className="studio-select-wrap">
+                <select
+                  className="studio-input studio-select"
+                  value={formData.genre}
+                  onChange={handleFieldChange('genre')}
+                  style={formData.genre ? {
+                    borderColor: genreColor(formData.genre),
+                    boxShadow: `0 0 0 1px ${genreColor(formData.genre)}44`,
+                  } : {}}
+                >
+                  <option value="">{t('collaboration.projectGenre')}…</option>
+                  {GENRES.map(g => <option key={g} value={g}>{g}</option>)}
+                </select>
+                {formData.genre && (
+                  <span
+                    className="studio-select-dot"
+                    style={{ background: genreColor(formData.genre) }}
+                  />
+                )}
+              </div>
             </label>
 
             <label className="studio-field">
               <span className="studio-field-label">🥁 {t('collaboration.projectInstruments')}</span>
-              <input
-                type="text"
-                className="studio-input"
-                value={formData.instruments}
-                onChange={handleFieldChange('instruments')}
-                placeholder={t('collaboration.projectInstruments')}
-              />
+              <div className="studio-select-wrap">
+                <select
+                  className="studio-input studio-select"
+                  value={formData.instruments}
+                  onChange={handleFieldChange('instruments')}
+                  style={formData.instruments ? {
+                    borderColor: 'var(--music-pink)',
+                    boxShadow: '0 0 0 1px rgba(255,0,110,0.22)',
+                  } : {}}
+                >
+                  <option value="">🥁 Choose instrument…</option>
+                  {INSTRUMENTS.map(ins => <option key={ins} value={ins}>{ins}</option>)}
+                </select>
+                {formData.instruments && (
+                  <span className="studio-select-dot" style={{ background: 'var(--music-pink)' }} />
+                )}
+              </div>
             </label>
 
             <label className="studio-field">
               <span className="studio-field-label">👤 {t('collaboration.projectAgeRange')}</span>
-              <select
-                className="studio-input studio-select"
-                value={formData.ageRange}
-                onChange={handleFieldChange('ageRange')}
-              >
-                <option value="">{t('collaboration.projectAgeRange')}…</option>
-                {AGE_RANGES.map(r => <option key={r} value={r}>{r}</option>)}
-              </select>
+              <div className="studio-select-wrap">
+                <select
+                  className="studio-input studio-select"
+                  value={formData.ageRange}
+                  onChange={handleFieldChange('ageRange')}
+                  style={formData.ageRange ? {
+                    borderColor: 'var(--music-cyan)',
+                    boxShadow: '0 0 0 1px rgba(0,217,255,0.25)',
+                  } : {}}
+                >
+                  <option value="">{t('collaboration.projectAgeRange')}…</option>
+                  {AGE_RANGES.map(r => <option key={r} value={r}>{r}</option>)}
+                </select>
+                {formData.ageRange && (
+                  <span className="studio-select-dot" style={{ background: 'var(--music-cyan)' }} />
+                )}
+              </div>
             </label>
 
             <label className="studio-field">
               <span className="studio-field-label">📍 Location</span>
-              <input
-                type="text"
-                className="studio-input"
-                value={formData.location}
-                onChange={handleFieldChange('location')}
-                placeholder="Tel Aviv, Remote, Online…"
-              />
+              <div className="studio-select-wrap">
+                <select
+                  className="studio-input studio-select"
+                  value={formData.location}
+                  onChange={handleFieldChange('location')}
+                  style={formData.location ? {
+                    borderColor: 'var(--music-cyan)',
+                    boxShadow: '0 0 0 1px rgba(0,217,255,0.25)',
+                  } : {}}
+                >
+                  <option value="">📍 Choose location…</option>
+                  {LOCATIONS.map(l => <option key={l} value={l}>{l}</option>)}
+                </select>
+                {formData.location && (
+                  <span className="studio-select-dot" style={{ background: 'var(--music-cyan)' }} />
+                )}
+              </div>
             </label>
 
             <label className="studio-field studio-field-full">
@@ -632,22 +714,72 @@ function Collaboration() {
                       ) : (
                         <div className="members-list">
                           {viewMembers.map((member, i) => (
-                            <div key={member.userId || i} className="member-card">
-                              <div className="member-avatar">{member.avatar || '🎤'}</div>
-                              <div className="member-info">
-                                <p className="member-name">{member.name}</p>
-                                {member.instruments && <p className="member-instruments">🎸 {member.instruments}</p>}
-                                {member.genre       && <p className="member-genre">{member.genre}</p>}
-                                {member.location    && <p className="member-location">📍 {member.location}</p>}
+                            <div key={member.userId || i} className="member-profile-card">
+                              <div className="mpc-header">
+                                <div className="mpc-avatar">{member.avatar || '🎤'}</div>
+                                <div className="mpc-top-info">
+                                  <span className="mpc-name">{member.name}</span>
+                                  {member.joinedAt && (
+                                    <span className="mpc-joined">
+                                      Joined {new Date(member.joinedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                                    </span>
+                                  )}
+                                </div>
                               </div>
-                              <button
-                                className="member-connect-btn"
-                                onClick={() => {
-                                  const msg = encodeURIComponent(`Hi ${member.name}, I found you on LIZI! Let's collaborate on "${viewProject.title}" 🎵`);
-                                  window.open(`https://wa.me/?text=${msg}`, '_blank');
-                                }}
-                                title="Connect via WhatsApp"
-                              >💬</button>
+
+                              <div className="mpc-chips">
+                                {member.genre      && <span className="mpc-chip mpc-chip-genre">{member.genre}</span>}
+                                {member.style      && <span className="mpc-chip mpc-chip-style">{member.style}</span>}
+                                {member.instruments && member.instruments.split(',').map(ins => (
+                                  <span key={ins.trim()} className="mpc-chip mpc-chip-inst">🎸 {ins.trim()}</span>
+                                ))}
+                              </div>
+
+                              {(member.bio || member.lookingFor) && (
+                                <div className="mpc-bio">
+                                  {member.bio && <p>{member.bio}</p>}
+                                  {member.lookingFor && <p className="mpc-looking">🔍 Looking for: {member.lookingFor}</p>}
+                                </div>
+                              )}
+
+                              {member.location && (
+                                <p className="mpc-location">📍 {member.location}</p>
+                              )}
+
+                              <div className="mpc-contact">
+                                {member.phone && (
+                                  <button
+                                    className="mpc-contact-btn mpc-whatsapp"
+                                    onClick={() => {
+                                      const phone = member.phone.replace(/\D/g, '');
+                                      const msg = encodeURIComponent(`Hi ${member.name}! I'm on the "${viewProject.title}" project on LIZI 🎵`);
+                                      window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+                                    }}
+                                  >
+                                    <span>📱</span> WhatsApp
+                                  </button>
+                                )}
+                                {member.email && (
+                                  <button
+                                    className="mpc-contact-btn mpc-email"
+                                    onClick={() => {
+                                      const subject = encodeURIComponent(`LIZI Collaboration – ${viewProject.title}`);
+                                      const body = encodeURIComponent(`Hi ${member.name},\n\nI found you through the "${viewProject.title}" project on LIZI. Let's collaborate! 🎵`);
+                                      window.open(`mailto:${member.email}?subject=${subject}&body=${body}`);
+                                    }}
+                                  >
+                                    <span>✉️</span> Email
+                                  </button>
+                                )}
+                                {!member.phone && !member.email && (
+                                  <button
+                                    className="mpc-contact-btn mpc-chat-tab"
+                                    onClick={() => setModalTab('chat')}
+                                  >
+                                    💬 Message in Chat
+                                  </button>
+                                )}
+                              </div>
                             </div>
                           ))}
                         </div>
@@ -770,12 +902,15 @@ function Collaboration() {
                   ) : (
                     <div className="members-list">
                       {viewMembers.map((member, i) => (
-                        <div key={member.userId || i} className="member-card">
-                          <div className="member-avatar">{member.avatar || '🎤'}</div>
-                          <div className="member-info">
-                            <p className="member-name">{member.name}</p>
-                            {member.instruments && <p className="member-instruments">🎸 {member.instruments}</p>}
+                        <div key={member.userId || i} className="member-profile-card member-profile-card--preview">
+                          <div className="mpc-header">
+                            <div className="mpc-avatar">{member.avatar || '🎤'}</div>
+                            <div className="mpc-top-info">
+                              <span className="mpc-name">{member.name}</span>
+                              {member.instruments && <span className="mpc-sub">🎸 {member.instruments}</span>}
+                            </div>
                           </div>
+                          {member.location && <p className="mpc-location">📍 {member.location}</p>}
                         </div>
                       ))}
                     </div>
