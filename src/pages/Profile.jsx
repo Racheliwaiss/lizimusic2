@@ -9,6 +9,15 @@ import './Pages.css';
 
 function Profile() {
   const { t } = useLanguage();
+
+  const GENRES       = t('dropdowns.genres');
+  const INSTRUMENTS  = t('dropdowns.instruments');
+  const MUSIC_STYLES = t('dropdowns.musicStyles');
+  const AGE_RANGES   = t('dropdowns.ageRanges');
+  const LOOKING_FOR  = t('dropdowns.lookingFor');
+  const CREATE_GOALS = t('dropdowns.createGoals');
+  const LOCATIONS    = t('dropdowns.locations');
+
   const { user, isAuthenticated, logout, updateProfile } = useAuth();
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(true);
@@ -42,6 +51,7 @@ function Profile() {
       musicStyle: metadata.musicStyle || '',
       phone:    metadata.phone    || user?.phone || '',
       facebook: metadata.facebook || '',
+      location: metadata.location || '',
       email: userEmail,
     };
   }, [user]);
@@ -172,6 +182,7 @@ function Profile() {
       musicStyle: formData.musicStyle,
       phone:    formData.phone,
       facebook: formData.facebook,
+      location: formData.location,
     };
 
     const result = await updateProfile(updates);
@@ -233,63 +244,52 @@ function Profile() {
                 </label>
                 <label>
                   {t('profile.favoriteGenres')}
-                  <input
-                    type="text"
-                    name="favoriteGenres"
-                    value={formData.favoriteGenres || ''}
-                    onChange={handleChange}
-                    placeholder={t('profile.favoriteGenres')}
-                  />
+                  <select name="favoriteGenres" value={formData.favoriteGenres || ''} onChange={handleChange} className="edit-select">
+                    <option value="">{t('dropdowns.selectGenre')}</option>
+                    {Array.isArray(GENRES) && GENRES.map(g => <option key={g} value={g}>{g}</option>)}
+                  </select>
                 </label>
                 <label>
                   {t('profile.instruments')}
-                  <input
-                    type="text"
-                    name="instruments"
-                    value={formData.instruments || ''}
-                    onChange={handleChange}
-                    placeholder={t('profile.instruments')}
-                  />
+                  <select name="instruments" value={formData.instruments || ''} onChange={handleChange} className="edit-select">
+                    <option value="">{t('dropdowns.selectInstrument')}</option>
+                    {Array.isArray(INSTRUMENTS) && INSTRUMENTS.map(i => <option key={i} value={i}>{i}</option>)}
+                  </select>
                 </label>
                 <label>
                   {t('profile.createGoals')}
-                  <input
-                    type="text"
-                    name="createGoals"
-                    value={formData.createGoals || ''}
-                    onChange={handleChange}
-                    placeholder={t('profile.createGoals')}
-                  />
+                  <select name="createGoals" value={formData.createGoals || ''} onChange={handleChange} className="edit-select">
+                    <option value="">{t('dropdowns.selectGoal')}</option>
+                    {Array.isArray(CREATE_GOALS) && CREATE_GOALS.map(g => <option key={g} value={g}>{g}</option>)}
+                  </select>
                 </label>
                 <label>
                   {t('profile.musicStyle')}
-                  <input
-                    type="text"
-                    name="musicStyle"
-                    value={formData.musicStyle || ''}
-                    onChange={handleChange}
-                    placeholder={t('profile.musicStyle')}
-                  />
+                  <select name="musicStyle" value={formData.musicStyle || ''} onChange={handleChange} className="edit-select">
+                    <option value="">{t('dropdowns.selectStyle')}</option>
+                    {Array.isArray(MUSIC_STYLES) && MUSIC_STYLES.map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </label>
+                <label>
+                  📍 {t('profile.location')}
+                  <select name="location" value={formData.location || ''} onChange={handleChange} className="edit-select">
+                    <option value="">{t('dropdowns.selectLocation')}</option>
+                    {Array.isArray(LOCATIONS) && LOCATIONS.map(l => <option key={l} value={l}>{l}</option>)}
+                  </select>
                 </label>
                 <label>
                   {t('profile.connectAges')}
-                  <input
-                    type="text"
-                    name="connectAges"
-                    value={formData.connectAges || ''}
-                    onChange={handleChange}
-                    placeholder={t('profile.connectAges')}
-                  />
+                  <select name="connectAges" value={formData.connectAges || ''} onChange={handleChange} className="edit-select">
+                    <option value="">{t('dropdowns.selectAgeRange')}</option>
+                    {Array.isArray(AGE_RANGES) && AGE_RANGES.map(a => <option key={a} value={a}>{a}</option>)}
+                  </select>
                 </label>
                 <label>
                   {t('profile.lookingFor')}
-                  <input
-                    type="text"
-                    name="lookingFor"
-                    value={formData.lookingFor || ''}
-                    onChange={handleChange}
-                    placeholder={t('profile.lookingFor')}
-                  />
+                  <select name="lookingFor" value={formData.lookingFor || ''} onChange={handleChange} className="edit-select">
+                    <option value="">{t('dropdowns.selectLookingFor')}</option>
+                    {Array.isArray(LOOKING_FOR) && LOOKING_FOR.map(lf => <option key={lf} value={lf}>{lf}</option>)}
+                  </select>
                 </label>
                 <label>
                   📱 WhatsApp / Phone
