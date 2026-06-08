@@ -40,7 +40,8 @@ function Profile() {
       lookingFor: metadata.lookingFor || '',
       createGoals: metadata.createGoals || '',
       musicStyle: metadata.musicStyle || '',
-      phone: metadata.phone || user?.phone || '',
+      phone:    metadata.phone    || user?.phone || '',
+      facebook: metadata.facebook || '',
       email: userEmail,
     };
   }, [user]);
