@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../LanguageContext';
 import { useAuth } from '../AuthContext';
@@ -6,9 +6,10 @@ import { supabase } from '../lib/supabase';
 import './Layout.css';
 
 function Layout({ children }) {
-  const [theme, setTheme] = useState(
-    localStorage.getItem('theme') || 'dark'
-  );
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef(null);
+
   const { language, toggleLanguage, t } = useLanguage();
   const { user, logout } = useAuth();
   const location = useLocation();
@@ -18,6 +19,17 @@ function Layout({ children }) {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
+  // Close profile dropdown on outside click
+  useEffect(() => {
+    const handler = (e) => {
+      if (profileRef.current && !profileRef.current.contains(e.target)) {
+        setProfileOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
   const toggleTheme = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);
@@ -25,18 +37,20 @@ function Layout({ children }) {
   };
 
   const handleLogout = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        console.error('Logout error:', error);
-      }
-    } catch (err) {
-      console.error('Logout error:', err);
-    }
+    setProfileOpen(false);
+    try { await supabase.auth.signOut(); } catch {}
     navigate('/');
   };
 
+  const goTo = (path) => { setProfileOpen(false); navigate(path); };
+
   const isActive = (path) => location.pathname === path;
+
+  const displayName = user?.user_metadata?.name
+    || user?.email?.split('@')[0]
+    || 'Profile';
+
+  const avatarUrl = user?.user_metadata?.avatar_url;
 
   return (
     <div className="layout">
@@ -44,16 +58,17 @@ function Layout({ children }) {
         <div className="logo">
           <Link to="/">{t('nav.logo')}</Link>
         </div>
+
         <div className="nav-links">
-          <Link to="/" className={isActive('/') ? 'active' : ''}>{t('nav.home')}</Link>
-          <Link to="/about" className={isActive('/about') ? 'active' : ''}>{t('nav.about')}</Link>
-          <Link to="/memorial" className={isActive('/memorial') ? 'active' : ''}>{t('nav.memorial')}</Link>
-          <Link to="/open-stage" className={isActive('/open-stage') ? 'active' : ''}>{t('nav.discover')}</Link>
-          <Link to="/search" className={isActive('/search') ? 'active' : ''}>{t('nav.search')}</Link>
+          <Link to="/"            className={isActive('/')             ? 'active' : ''}>{t('nav.home')}</Link>
+          <Link to="/about"       className={isActive('/about')        ? 'active' : ''}>{t('nav.about')}</Link>
+          <Link to="/memorial"    className={isActive('/memorial')     ? 'active' : ''}>{t('nav.memorial')}</Link>
+          <Link to="/open-stage"  className={isActive('/open-stage')   ? 'active' : ''}>{t('nav.discover')}</Link>
+          <Link to="/search"      className={isActive('/search')       ? 'active' : ''}>{t('nav.search')}</Link>
           <Link to="/collaboration" className={isActive('/collaboration') ? 'active' : ''}>{t('nav.collaborate')}</Link>
-          <Link to="/messages" className={isActive('/messages') ? 'active' : ''}>{t('nav.messages')}</Link>
-          <Link to="/dashboard" className={isActive('/dashboard') ? 'active' : ''}>{t('nav.profile')}</Link>
+          <Link to="/messages"    className={isActive('/messages')     ? 'active' : ''}>{t('nav.messages')}</Link>
         </div>
+
         <div className="navbar-controls">
           <button className="language-toggle" onClick={toggleLanguage} title="Toggle Language">
             {language === 'en' ? 'עברית' : 'English'}
@@ -61,13 +76,58 @@ function Layout({ children }) {
           <button className="theme-toggle" onClick={toggleTheme}>
             {theme === 'dark' ? '☀️' : '🌙'}
           </button>
-          {user && (
-            <button className="logout-btn" onClick={handleLogout} title="Logout">
-              🚪 Logout
+
+          {user ? (
+            <div className="profile-dropdown-wrap" ref={profileRef}>
+              <button
+                className={`profile-trigger ${profileOpen ? 'open' : ''}`}
+                onClick={() => setProfileOpen(v => !v)}
+                aria-expanded={profileOpen}
+                aria-haspopup="true"
+              >
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt="avatar" className="nav-avatar-img" />
+                ) : (
+                  <span className="nav-avatar-emoji">🎵</span>
+                )}
+                <span className="nav-display-name">{displayName}</span>
+                <span className={`nav-chevron ${profileOpen ? 'up' : ''}`}>▾</span>
+              </button>
+
+              {profileOpen && (
+                <div className="profile-dropdown">
+                  <div className="dropdown-header">
+                    <p className="dropdown-name">{displayName}</p>
+                    <p className="dropdown-email">{user.email}</p>
+                  </div>
+                  <div className="dropdown-divider" />
+                  <button className="dropdown-item" onClick={() => goTo('/profile')}>
+                    👤 View Profile
+                  </button>
+                  <button className="dropdown-item" onClick={() => goTo('/profile')}>
+                    🎵 My Tracks
+                  </button>
+                  <button className="dropdown-item" onClick={() => goTo('/collaboration')}>
+                    🎼 My Projects
+                  </button>
+                  <button className="dropdown-item" onClick={() => goTo('/messages')}>
+                    💬 Messages
+                  </button>
+                  <div className="dropdown-divider" />
+                  <button className="dropdown-item dropdown-item-danger" onClick={handleLogout}>
+                    🚪 Logout
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <button className="logout-btn" onClick={() => navigate('/login')}>
+              Login
             </button>
           )}
         </div>
       </nav>
+
       <main className="main-content">
         {children}
       </main>

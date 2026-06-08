@@ -464,3 +464,55 @@ export async function deleteLiziMusic(trackId) {
     return { error: err.message };
   }
 }
+
+// ── Project Tracks (localStorage) ───────────────────────────
+
+const projectTracksKey = (id) => `lizi_pt_${id}`;
+
+export function fetchProjectTracks(projectId) {
+  try {
+    return JSON.parse(localStorage.getItem(projectTracksKey(projectId)) || '[]');
+  } catch {
+    return [];
+  }
+}
+
+export function addTrackToProject(projectId, track) {
+  const tracks = fetchProjectTracks(projectId);
+  if (tracks.find(t => String(t.id) === String(track.id))) return tracks;
+  const next = [{ ...track, sharedAt: new Date().toISOString() }, ...tracks];
+  try { localStorage.setItem(projectTracksKey(projectId), JSON.stringify(next)); } catch {}
+  return next;
+}
+
+export function removeTrackFromProject(projectId, trackId) {
+  const next = fetchProjectTracks(projectId).filter(t => String(t.id) !== String(trackId));
+  try { localStorage.setItem(projectTracksKey(projectId), JSON.stringify(next)); } catch {}
+  return next;
+}
+
+// ── Project Chat (localStorage) ──────────────────────────────
+
+const projectChatKey = (id) => `lizi_pc_${id}`;
+
+export function fetchProjectMessages(projectId) {
+  try {
+    return JSON.parse(localStorage.getItem(projectChatKey(projectId)) || '[]');
+  } catch {
+    return [];
+  }
+}
+
+export function sendProjectMessage(projectId, { text, senderName, senderAvatar }) {
+  const messages = fetchProjectMessages(projectId);
+  const msg = {
+    id:          Date.now(),
+    text:        text.trim(),
+    senderName,
+    senderAvatar: senderAvatar || '🎤',
+    sentAt:      new Date().toISOString(),
+  };
+  const next = [...messages, msg];
+  try { localStorage.setItem(projectChatKey(projectId), JSON.stringify(next)); } catch {}
+  return next;
+}

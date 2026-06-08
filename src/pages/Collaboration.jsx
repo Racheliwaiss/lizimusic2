@@ -1,11 +1,51 @@
-import React, { useEffect, useMemo, useState, useCallback } from 'react';
+import React, { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../LanguageContext';
 import { useAuth } from '../AuthContext';
-import { fetchProjects, createProject, updateProject, deleteProject, joinProject, fetchProjectMembers } from '../lib/db';
+import {
+  fetchProjects, createProject, updateProject, deleteProject,
+  joinProject, fetchProjectMembers,
+  fetchUserTracks,
+  fetchProjectTracks, addTrackToProject, removeTrackFromProject,
+  fetchProjectMessages, sendProjectMessage,
+} from '../lib/db';
 import './Pages.css';
 
 const EMPTY_FORM = { title: '', genre: '', instruments: '', ageRange: '', location: '', description: '' };
+
+const GENRES = [
+  'Pop', 'Rock', 'Jazz', 'Hip-Hop', 'Electronic',
+  'R&B', 'Folk', 'Classical', 'World', 'Reggae', 'Other',
+];
+
+const AGE_RANGES = [
+  '16-25', '18-30', '18-35', '20-40', '25-50', '16+', '18+', '25+', 'All ages',
+];
+
+const GENRE_COLORS = {
+  'Pop':        '#FF006E',
+  'Rock':       '#FF4500',
+  'Jazz':       '#FFD700',
+  'Hip-Hop':    '#9B59B6',
+  'Electronic': '#00D9FF',
+  'R&B':        '#FF69B4',
+  'Folk':       '#90EE90',
+  'Classical':  '#DDA0DD',
+  'World':      '#FFA500',
+  'Reggae':     '#00FF7F',
+  'Other':      '#8A2BE2',
+};
+
+function genreColor(genre) {
+  return GENRE_COLORS[genre] || '#8A2BE2';
+}
+
+// Stable waveform heights per project id
+function waveHeights(seed, bars = 14) {
+  return Array.from({ length: bars }, (_, i) =>
+    18 + Math.abs(Math.sin(i * 1.7 + (seed % 7))) * 16
+  );
+}
 
 const parseAgeRange = (range) => {
   const s = String(range || '').trim();
@@ -30,18 +70,39 @@ function Collaboration() {
   const [editingProject, setEditingProject] = useState(null);
   const [formData, setFormData]             = useState(EMPTY_FORM);
   const [deleteTarget, setDeleteTarget]     = useState(null);
-  const [viewProject, setViewProject]       = useState(null);  // detail modal
-  const [viewMembers, setViewMembers]       = useState([]);    // members of viewed project
+  const [viewProject, setViewProject]       = useState(null);
+  const [viewMembers, setViewMembers]       = useState([]);
   const [membersLoading, setMembersLoading] = useState(false);
+  const [openMenuId, setOpenMenuId]         = useState(null);
+  const menuRefs                            = useRef({});
   const [formError, setFormError]           = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [showAll, setShowAll]               = useState(false);
+  const [genreFilter, setGenreFilter]       = useState('');
+
+  // Modal tabs
+  const [modalTab, setModalTab]             = useState('members');  // 'members' | 'tracks' | 'chat'
+  const [projectTracks, setProjectTracks]   = useState([]);
+  const [userTracks, setUserTracks]         = useState([]);
+  const [messages, setMessages]             = useState([]);
+  const [chatInput, setChatInput]           = useState('');
+  const [showSharePicker, setShowSharePicker] = useState(false);
+  const chatEndRef                          = useRef(null);
 
   useEffect(() => {
     fetchProjects().then((data) => { setProjects(data); setLoading(false); });
   }, []);
 
-  // Auto-clear success message after 3 s
+  useEffect(() => {
+    if (!openMenuId) return;
+    const handler = (e) => {
+      const ref = menuRefs.current[openMenuId];
+      if (ref && !ref.contains(e.target)) setOpenMenuId(null);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [openMenuId]);
+
   useEffect(() => {
     if (!successMessage) return;
     const timer = setTimeout(() => setSuccessMessage(''), 3000);
@@ -106,15 +167,12 @@ function Collaboration() {
       setSuccessMessage('Project updated.');
     } else {
       const { project, error: createErr } = await createProject(fields, user?.id);
-      if (createErr && !project) {
-        console.warn('createProject Supabase error (local fallback):', createErr);
-      }
+      if (createErr && !project) console.warn('createProject fallback:', createErr);
       const saved = project
         ? { ...project, createdBy: user?.id }
         : { id: Date.now(), ...fields, members: 1, createdBy: user?.id };
       setProjects(prev => [saved, ...prev]);
 
-      // Auto-register the creator as the first member so they appear in the members list
       const creatorProfile = {
         name:        user?.user_metadata?.name || user?.email?.split('@')[0] || 'Creator',
         instruments: user?.user_metadata?.instruments || '',
@@ -123,10 +181,8 @@ function Collaboration() {
         avatar:      '👑',
       };
       await joinProject(saved.id, user?.id, creatorProfile);
-
-      setSuccessMessage('Project created! You are now connected as the first member.');
+      setSuccessMessage('Project created! You are now the first member.');
     }
-
     closeForm();
   };
 
@@ -134,28 +190,62 @@ function Collaboration() {
   const handleDeleteConfirm = async () => {
     if (!deleteTarget) return;
     const { error } = await deleteProject(deleteTarget.id);
-    if (error) { setSuccessMessage(''); setFormError(`Delete failed: ${error}`); setDeleteTarget(null); return; }
+    if (error) { setFormError(`Delete failed: ${error}`); setDeleteTarget(null); return; }
     setProjects(prev => prev.filter(p => p.id !== deleteTarget.id));
     setDeleteTarget(null);
     setSuccessMessage('Project deleted.');
   };
 
-  // ── Open detail modal + fetch members ────────────────────
+  // ── Detail modal ──────────────────────────────────────────
   const openDetailModal = (project) => {
     setViewProject(project);
     setViewMembers([]);
     setMembersLoading(true);
+    setModalTab('members');
+    setShowSharePicker(false);
+    setChatInput('');
+    setProjectTracks(fetchProjectTracks(project.id));
+    setMessages(fetchProjectMessages(project.id));
     fetchProjectMembers(project.id).then(members => {
       setViewMembers(members);
       setMembersLoading(false);
     });
+    if (user) fetchUserTracks(user.id).then(setUserTracks);
+  };
+
+  // Auto-scroll chat to bottom when new messages arrive
+  useEffect(() => {
+    if (modalTab === 'chat') chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, modalTab]);
+
+  // ── Track sharing ─────────────────────────────────────────
+  const handleShareTrack = (track) => {
+    const next = addTrackToProject(viewProject.id, { ...track, sharedBy: user?.user_metadata?.name || user?.email?.split('@')[0] || 'Member' });
+    setProjectTracks(next);
+    setShowSharePicker(false);
+  };
+
+  const handleRemoveTrack = (trackId) => {
+    const next = removeTrackFromProject(viewProject.id, trackId);
+    setProjectTracks(next);
+  };
+
+  // ── Chat send ─────────────────────────────────────────────
+  const handleSendMessage = (e) => {
+    e.preventDefault();
+    if (!chatInput.trim()) return;
+    const next = sendProjectMessage(viewProject.id, {
+      text:         chatInput,
+      senderName:   user?.user_metadata?.name || user?.email?.split('@')[0] || 'Artist',
+      senderAvatar: user?.user_metadata?.avatar || '🎤',
+    });
+    setMessages(next);
+    setChatInput('');
   };
 
   // ── JOIN ──────────────────────────────────────────────────
   const handleJoin = async (projectId) => {
     if (!user) { navigate('/login'); return; }
-
-    // Build the profile snapshot to store with membership
     const profile = {
       name:        user.user_metadata?.name || user.email?.split('@')[0] || 'Artist',
       instruments: user.user_metadata?.instruments || '',
@@ -163,13 +253,9 @@ function Collaboration() {
       location:    user.user_metadata?.location || '',
       avatar:      user.user_metadata?.avatar_url ? '📷' : '🎤',
     };
-
-    // Optimistic UI update
     setProjects(prev => prev.map(p => p.id === projectId ? { ...p, members: p.members + 1 } : p));
     setViewProject(prev => prev?.id === projectId ? { ...prev, members: (prev.members || 1) + 1 } : prev);
-    // Add the joining user to the local members list immediately
     setViewMembers(prev => [...prev, { ...profile, userId: user.id, joinedAt: new Date().toISOString() }]);
-
     setSuccessMessage('You joined the project!');
     setViewProject(null);
     await joinProject(projectId, user.id, profile);
@@ -177,288 +263,557 @@ function Collaboration() {
 
   // ── Filter ────────────────────────────────────────────────
   const { matchedProjects, hasPreferences } = useMemo(() => {
-    if (!user) return { matchedProjects: projects, hasPreferences: false };
+    const applyGenreFilter = (list) =>
+      genreFilter ? list.filter(p => p.genre.toLowerCase() === genreFilter.toLowerCase()) : list;
+
+    if (!user) return { matchedProjects: applyGenreFilter(projects), hasPreferences: false };
 
     const userGenres      = user?.user_metadata?.favoriteGenres?.toLowerCase().split(',').map(g => g.trim()).filter(Boolean) || [];
     const userInstruments = user?.user_metadata?.instruments?.toLowerCase().split(',').map(i => i.trim()).filter(Boolean) || [];
     const userAgeRange    = parseAgeRange(user?.user_metadata?.connectAges);
     const hasPref = userGenres.length > 0 || userInstruments.length > 0 || Boolean(userAgeRange);
 
-    if (!hasPref || showAll) return { matchedProjects: projects, hasPreferences: hasPref };
+    if (!hasPref || showAll) return { matchedProjects: applyGenreFilter(projects), hasPreferences: hasPref };
 
     const filtered = projects.filter(p => {
-      if (p.createdBy === user.id) return true;                          // always show own
+      if (p.createdBy === user.id) return true;
       const gOk = !userGenres.length      || userGenres.some(g => p.genre.toLowerCase().includes(g) || g.includes(p.genre.toLowerCase()));
       const iOk = !userInstruments.length || userInstruments.some(ui => p.instruments.toLowerCase().includes(ui));
       const aOk = !userAgeRange           || rangeOverlap(userAgeRange, parseAgeRange(p.ageRange));
       return gOk && iOk && aOk;
     });
 
-    return { matchedProjects: filtered, hasPreferences: hasPref };
-  }, [user, projects, showAll]);
+    return { matchedProjects: applyGenreFilter(filtered), hasPreferences: hasPref };
+  }, [user, projects, showAll, genreFilter]);
 
   const isOwner = (project) => user && project.createdBy === user.id;
 
-  // ── New-Project button label ──────────────────────────────
-  const newBtnLabel = () => {
-    if (!formOpen) return t('collaboration.newProject');
-    if (editingProject) return '✕ Cancel edit';
-    return t('collaboration.cancelNewProject');
-  };
-
   // ── RENDER ────────────────────────────────────────────────
   return (
-    <div className="page collaboration-page">
-      <section className="hero">
-        <div className="hero-sound-bars">
-          <div className="bar"></div><div className="bar"></div>
-          <div className="bar"></div><div className="bar"></div>
-          <div className="bar"></div>
+    <div className="page collab-page">
+
+      {/* ── Hero ──────────────────────────────────────────── */}
+      <section className="collab-hero">
+        <div className="collab-eq-bars">
+          {[...Array(14)].map((_, i) => (
+            <div key={i} className="collab-eq-bar" style={{ animationDelay: `${i * 0.07}s` }} />
+          ))}
         </div>
-        <h1>🎼 {t('collaboration.title')}</h1>
+        <h1 className="collab-hero-title">🎼 {t('collaboration.title')}</h1>
+        <p className="collab-hero-sub">Find your next creative partner</p>
       </section>
 
+      {/* ── Controls ──────────────────────────────────────── */}
       {user ? (
-        <>
-          <button className="new-project-btn" onClick={formOpen ? closeForm : openNewForm}>
-            {newBtnLabel()}
-          </button>
+        <div className="collab-controls-bar">
+          {/* Genre filter */}
+          <select
+            className="genre-filter-dropdown"
+            value={genreFilter}
+            onChange={(e) => setGenreFilter(e.target.value)}
+          >
+            <option value="">🎵 All Genres</option>
+            {GENRES.map(g => <option key={g} value={g}>{g}</option>)}
+          </select>
 
-          {successMessage && <div className="form-success">{successMessage}</div>}
-
-          {formOpen && (
-            <section className="new-project-form">
-              <h2>{editingProject ? '✏️ Edit Project' : t('collaboration.newProjectFormTitle')}</h2>
-              {formError && <div className="form-error">{formError}</div>}
-              <form onSubmit={handleSubmit}>
-                <div className="form-row">
-                  <label>
-                    {t('collaboration.projectTitle')}
-                    <input type="text" className="form-input" value={formData.title}       onChange={handleFieldChange('title')}       placeholder={t('collaboration.projectTitle')} />
-                  </label>
-                  <label>
-                    {t('collaboration.projectGenre')}
-                    <input type="text" className="form-input" value={formData.genre}       onChange={handleFieldChange('genre')}       placeholder={t('collaboration.projectGenre')} />
-                  </label>
-                </div>
-                <div className="form-row">
-                  <label>
-                    {t('collaboration.projectInstruments')}
-                    <input type="text" className="form-input" value={formData.instruments} onChange={handleFieldChange('instruments')} placeholder={t('collaboration.projectInstruments')} />
-                  </label>
-                  <label>
-                    {t('collaboration.projectAgeRange')}
-                    <input type="text" className="form-input" value={formData.ageRange}    onChange={handleFieldChange('ageRange')}    placeholder={t('collaboration.projectAgeRange')} />
-                  </label>
-                </div>
-                <div className="form-row">
-                  <label className="full-width">
-                    📍 Location
-                    <input type="text" className="form-input" value={formData.location} onChange={handleFieldChange('location')} placeholder="e.g. Tel Aviv, Remote, Online…" />
-                  </label>
-                </div>
-                <div className="form-row">
-                  <label className="full-width">
-                    {t('collaboration.projectDescription')}
-                    <textarea className="form-input" value={formData.description} onChange={handleFieldChange('description')} placeholder={t('collaboration.projectDescription')} />
-                  </label>
-                </div>
-                <div className="project-form-actions">
-                  <button type="button" className="cancel-btn" onClick={closeForm}>Cancel</button>
-                  <button type="submit" className="new-project-btn">
-                    {editingProject ? 'Save Changes' : t('collaboration.projectCreateButton')}
-                  </button>
-                </div>
-              </form>
-            </section>
-          )}
-
-          <div className="collab-filter-bar">
-            <p className="suggested-label">{t('collaboration.suggestedForYou')}</p>
-            <div className="collab-filter-controls">
-              {hasPreferences && (
-                <button
-                  className={`filter-toggle-btn ${showAll ? 'active' : ''}`}
-                  onClick={() => setShowAll(v => !v)}
-                >
-                  {showAll ? '🎯 Show matched' : '🌐 Show all'}
-                </button>
-              )}
-              <Link to="/profile" className="profile-action-btn">{t('collaboration.updateProfile')}</Link>
-            </div>
+          <div className="collab-controls-right">
+            {hasPreferences && (
+              <button
+                className={`collab-toggle-btn ${showAll ? 'active' : ''}`}
+                onClick={() => setShowAll(v => !v)}
+              >
+                {showAll ? '🎯 Matched' : '🌐 All'}
+              </button>
+            )}
+            <Link to="/profile" className="collab-profile-link">{t('collaboration.updateProfile')}</Link>
+            <button
+              className={`collab-rec-btn ${formOpen ? 'rec-cancel' : ''}`}
+              onClick={formOpen ? closeForm : openNewForm}
+            >
+              <span className="rec-dot" />
+              {formOpen ? 'Cancel' : t('collaboration.newProject')}
+            </button>
           </div>
-        </>
+        </div>
       ) : (
-        <div className="login-prompt">
+        <div className="collab-login-prompt">
           <p>{t('collaboration.loginToCreateProject')}</p>
-          <button className="new-project-btn" onClick={() => navigate('/login')}>{t('collaboration.loginToCreate')}</button>
+          <button className="collab-rec-btn" onClick={() => navigate('/login')}>
+            <span className="rec-dot" />{t('collaboration.loginToCreate')}
+          </button>
         </div>
       )}
 
+      {/* ── Toast ─────────────────────────────────────────── */}
+      {successMessage && <div className="collab-toast">{successMessage}</div>}
+
+      {/* ── Create / Edit form ────────────────────────────── */}
+      {formOpen && (
+        <section className="collab-studio-form">
+          <div className="studio-form-header">
+            <span className="studio-form-icon">🎛️</span>
+            <h2>{editingProject ? '✏️ Edit Project' : t('collaboration.newProjectFormTitle')}</h2>
+          </div>
+
+          {formError && <div className="collab-form-error">{formError}</div>}
+
+          <form onSubmit={handleSubmit} className="studio-form-grid">
+            <label className="studio-field">
+              <span className="studio-field-label">🎵 {t('collaboration.projectTitle')}</span>
+              <input
+                type="text"
+                className="studio-input"
+                value={formData.title}
+                onChange={handleFieldChange('title')}
+                placeholder={t('collaboration.projectTitle')}
+              />
+            </label>
+
+            <label className="studio-field">
+              <span className="studio-field-label">🎸 {t('collaboration.projectGenre')}</span>
+              <select
+                className="studio-input studio-select"
+                value={formData.genre}
+                onChange={handleFieldChange('genre')}
+              >
+                <option value="">{t('collaboration.projectGenre')}…</option>
+                {GENRES.map(g => <option key={g} value={g}>{g}</option>)}
+              </select>
+            </label>
+
+            <label className="studio-field">
+              <span className="studio-field-label">🥁 {t('collaboration.projectInstruments')}</span>
+              <input
+                type="text"
+                className="studio-input"
+                value={formData.instruments}
+                onChange={handleFieldChange('instruments')}
+                placeholder={t('collaboration.projectInstruments')}
+              />
+            </label>
+
+            <label className="studio-field">
+              <span className="studio-field-label">👤 {t('collaboration.projectAgeRange')}</span>
+              <select
+                className="studio-input studio-select"
+                value={formData.ageRange}
+                onChange={handleFieldChange('ageRange')}
+              >
+                <option value="">{t('collaboration.projectAgeRange')}…</option>
+                {AGE_RANGES.map(r => <option key={r} value={r}>{r}</option>)}
+              </select>
+            </label>
+
+            <label className="studio-field">
+              <span className="studio-field-label">📍 Location</span>
+              <input
+                type="text"
+                className="studio-input"
+                value={formData.location}
+                onChange={handleFieldChange('location')}
+                placeholder="Tel Aviv, Remote, Online…"
+              />
+            </label>
+
+            <label className="studio-field studio-field-full">
+              <span className="studio-field-label">📝 {t('collaboration.projectDescription')}</span>
+              <textarea
+                className="studio-input studio-textarea"
+                value={formData.description}
+                onChange={handleFieldChange('description')}
+                placeholder={t('collaboration.projectDescription')}
+              />
+            </label>
+
+            <div className="studio-form-actions">
+              <button type="button" className="studio-cancel-btn" onClick={closeForm}>Cancel</button>
+              <button type="submit" className="collab-rec-btn">
+                <span className="rec-dot" />
+                {editingProject ? 'Save Changes' : t('collaboration.projectCreateButton')}
+              </button>
+            </div>
+          </form>
+        </section>
+      )}
+
+      {/* ── Project grid ──────────────────────────────────── */}
       {loading ? (
-        <div className="loading-state">Loading projects…</div>
+        <div className="collab-loading">
+          <div className="collab-loading-bars">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="collab-loading-bar" style={{ animationDelay: `${i * 0.15}s` }} />
+            ))}
+          </div>
+          <p>Loading projects…</p>
+        </div>
+      ) : matchedProjects.length === 0 ? (
+        <div className="collab-empty">
+          <span className="collab-empty-icon">🎵</span>
+          <p>No projects match your preferences.</p>
+          {hasPreferences && (
+            <button className="collab-toggle-btn" onClick={() => setShowAll(true)}>
+              🌐 Show all projects
+            </button>
+          )}
+        </div>
       ) : (
-        <div className="projects-grid">
-          {matchedProjects.length > 0 ? (
-            matchedProjects.map((project) => (
+        <div className="collab-album-grid">
+          {matchedProjects.map((project) => {
+            const color  = genreColor(project.genre);
+            const heights = waveHeights(project.id);
+            return (
               <div
                 key={project.id}
-                className={`project-card clickable-card ${isOwner(project) ? 'owner-card' : ''}`}
+                className={`collab-album-card ${isOwner(project) ? 'collab-album-owner' : ''}`}
+                style={{ '--card-color': color }}
                 onClick={() => openDetailModal(project)}
                 role="button"
                 tabIndex={0}
                 onKeyDown={(e) => e.key === 'Enter' && openDetailModal(project)}
               >
-                {isOwner(project) && <div className="owner-badge">Your project</div>}
-                <div className="project-thumbnail">🎼</div>
-                <h3>{project.title}</h3>
-                <p className="genre">{project.genre}</p>
-                <p className="instruments">🎸 {project.instruments}</p>
-                {project.ageRange && <p className="age-range">👥 Ages: {project.ageRange}</p>}
-                {project.location && <p className="project-location">📍 {project.location}</p>}
-                <p className="description">{project.description}</p>
-                <div className="members">
-                  <span>👤 {project.members} {t('collaboration.members')}</span>
+                {/* Colored top stripe */}
+                <div className="album-stripe" />
+
+                {/* Top row */}
+                <div className="album-top-row">
+                  <span className="album-genre-chip">{project.genre || 'Music'}</span>
+                  {isOwner(project) ? (
+                    <div
+                      className="project-kebab-wrap"
+                      ref={el => { menuRefs.current[project.id] = el; }}
+                    >
+                      <button
+                        className="kebab-btn"
+                        onClick={(e) => { e.stopPropagation(); setOpenMenuId(id => id === project.id ? null : project.id); }}
+                        aria-label="Project options"
+                      >⋮</button>
+                      {openMenuId === project.id && (
+                        <div className="kebab-dropdown">
+                          <button className="kebab-item" onClick={(e) => { e.stopPropagation(); setOpenMenuId(null); openDetailModal(project); }}>
+                            👥 View Members
+                          </button>
+                          <button className="kebab-item" onClick={(e) => { e.stopPropagation(); setOpenMenuId(null); openEditForm(project); }}>
+                            ✏️ Edit
+                          </button>
+                          <div className="kebab-divider" />
+                          <button className="kebab-item kebab-item-danger" onClick={(e) => { e.stopPropagation(); setOpenMenuId(null); setDeleteTarget(project); }}>
+                            🗑️ Delete
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <span className="album-member-pill">
+                      <span className="album-live-dot" />
+                      {project.members || 1} {t('collaboration.members')}
+                    </span>
+                  )}
                 </div>
 
-                {isOwner(project) ? (
-                  <div className="project-owner-actions">
-                    <button className="track-edit-btn" onClick={(e) => { e.stopPropagation(); openEditForm(project); }}>✏️ Edit</button>
-                    <button className="track-delete-btn" onClick={(e) => { e.stopPropagation(); setDeleteTarget(project); }}>🗑️</button>
-                  </div>
-                ) : (
-                  <button
-                    className="join-btn"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    {t('collaboration.joinProject')} →
-                  </button>
+                {/* Mini waveform */}
+                <div className="album-waveform">
+                  {heights.map((h, i) => (
+                    <div
+                      key={i}
+                      className="album-wave-bar"
+                      style={{ height: `${h}px`, animationDelay: `${i * 0.06}s` }}
+                    />
+                  ))}
+                </div>
+
+                {/* Title */}
+                <h3 className="album-title">{project.title}</h3>
+
+                {/* Description */}
+                {project.description && (
+                  <p className="album-desc">{project.description}</p>
                 )}
+
+                {/* Info chips */}
+                <div className="album-chips">
+                  {project.instruments && <span className="album-chip">🎸 {project.instruments}</span>}
+                  {project.ageRange    && <span className="album-chip">👤 {project.ageRange}</span>}
+                  {project.location    && <span className="album-chip">📍 {project.location}</span>}
+                </div>
+
+                {/* Footer */}
+                <div className="album-footer">
+                  {isOwner(project) ? (
+                    <span className="album-owner-badge">👑 Your Project</span>
+                  ) : (
+                    <button
+                      className="album-join-btn"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      ▶ {t('collaboration.joinProject')}
+                    </button>
+                  )}
+                  {isOwner(project) && (
+                    <span className="album-member-pill">
+                      <span className="album-live-dot" />
+                      {project.members || 1} {t('collaboration.members')}
+                    </span>
+                  )}
+                </div>
               </div>
-            ))
-          ) : (
-            <div className="no-results-block">
-              <p className="no-results">No projects match your preferences.</p>
-              {hasPreferences && (
-                <button className="filter-toggle-btn" onClick={() => setShowAll(true)}>
-                  🌐 Show all projects
-                </button>
-              )}
-            </div>
-          )}
+            );
+          })}
         </div>
       )}
 
-      <section className="active-collaborations">
+      {/* ── Active collaborations section ─────────────────── */}
+      <section className="collab-active-section">
         <h2>{t('collaboration.activeCollaborations')}</h2>
         <p>{t('collaboration.noCollaborations')}</p>
       </section>
 
-      {/* ── Project detail modal ─────────────────────────── */}
-      {viewProject && (
-        <div className="upload-overlay" onClick={(e) => e.target === e.currentTarget && setViewProject(null)}>
-          <div className="project-detail-modal">
-            <button className="upload-close-btn" onClick={() => setViewProject(null)} aria-label="Close">✕</button>
+      {/* ── Project detail modal ──────────────────────────── */}
+      {viewProject && (() => {
+        const isMember = isOwner(viewProject) || viewMembers.some(m => m.userId === user?.id);
+        const color    = genreColor(viewProject.genre);
+        return (
+          <div className="upload-overlay" onClick={(e) => e.target === e.currentTarget && setViewProject(null)}>
+            <div className="project-detail-modal">
+              <button className="upload-close-btn" onClick={() => setViewProject(null)} aria-label="Close">✕</button>
 
-            <div className="project-detail-icon">🎼</div>
-            <h2 className="project-detail-title">{viewProject.title}</h2>
+              {/* Waveform header */}
+              <div className="modal-waveform-header" style={{ '--modal-color': color }}>
+                {waveHeights(viewProject.id, 20).map((h, i) => (
+                  <div key={i} className="modal-wave-bar" style={{ height: `${h}px`, animationDelay: `${i * 0.05}s` }} />
+                ))}
+              </div>
 
-            <div className="project-detail-tags">
-              {viewProject.genre    && <span className="detail-tag genre-tag-chip">{viewProject.genre}</span>}
-              {viewProject.ageRange && <span className="detail-tag age-tag-chip">👥 Ages {viewProject.ageRange}</span>}
-              {viewProject.location && <span className="detail-tag loc-tag-chip">📍 {viewProject.location}</span>}
-            </div>
+              <div className="project-detail-icon">🎼</div>
+              <h2 className="project-detail-title">{viewProject.title}</h2>
 
-            <div className="project-detail-rows">
-              {viewProject.instruments && (
-                <div className="detail-row">
-                  <span className="detail-label">🎸 Instruments</span>
-                  <span className="detail-value">{viewProject.instruments}</span>
-                </div>
-              )}
-              {viewProject.description && (
-                <div className="detail-row detail-description">
-                  <span className="detail-label">📝 About</span>
-                  <span className="detail-value">{viewProject.description}</span>
-                </div>
-              )}
-            </div>
+              <div className="project-detail-tags">
+                {viewProject.genre    && <span className="detail-tag genre-tag-chip">{viewProject.genre}</span>}
+                {viewProject.ageRange && <span className="detail-tag age-tag-chip">👤 Ages {viewProject.ageRange}</span>}
+                {viewProject.location && <span className="detail-tag loc-tag-chip">📍 {viewProject.location}</span>}
+              </div>
 
-            {/* ── Members list ─────────────────────────────── */}
-            <div className="project-members-section">
-              <h4 className="project-members-title">
-                👥 Members ({viewProject.members || 0})
-              </h4>
+              <div className="project-detail-rows">
+                {viewProject.instruments && (
+                  <div className="detail-row">
+                    <span className="detail-label">🎸 Instruments</span>
+                    <span className="detail-value">{viewProject.instruments}</span>
+                  </div>
+                )}
+                {viewProject.description && (
+                  <div className="detail-row detail-description">
+                    <span className="detail-label">📝 About</span>
+                    <span className="detail-value">{viewProject.description}</span>
+                  </div>
+                )}
+              </div>
 
-              {membersLoading ? (
-                <p className="members-loading">Loading members…</p>
-              ) : viewMembers.length === 0 ? (
-                <p className="members-empty">No members yet — be the first to join!</p>
-              ) : (
-                <div className="members-list">
-                  {viewMembers.map((member, i) => (
-                    <div key={member.userId || i} className="member-card">
-                      <div className="member-avatar">{member.avatar || '🎤'}</div>
-                      <div className="member-info">
-                        <p className="member-name">{member.name}</p>
-                        {member.instruments && <p className="member-instruments">🎸 {member.instruments}</p>}
-                        {member.genre       && <p className="member-genre">{member.genre}</p>}
-                        {member.location    && <p className="member-location">📍 {member.location}</p>}
-                      </div>
-                      <button
-                        className="member-connect-btn"
-                        onClick={() => {
-                          const msg = encodeURIComponent(`Hi ${member.name}, I found you on LIZI! Let's collaborate on "${viewProject.title}" 🎵`);
-                          window.open(`https://wa.me/?text=${msg}`, '_blank');
-                        }}
-                        title="Connect via WhatsApp"
-                      >
-                        💬
-                      </button>
+              {/* ── Tabs (only for members/owner) ─────────── */}
+              {isMember ? (
+                <>
+                  <div className="modal-tabs">
+                    <button className={`modal-tab ${modalTab === 'members' ? 'active' : ''}`} onClick={() => setModalTab('members')}>
+                      👥 Members <span className="tab-badge">{viewProject.members || 0}</span>
+                    </button>
+                    <button className={`modal-tab ${modalTab === 'tracks' ? 'active' : ''}`} onClick={() => setModalTab('tracks')}>
+                      🎵 Tracks <span className="tab-badge">{projectTracks.length}</span>
+                    </button>
+                    <button className={`modal-tab ${modalTab === 'chat' ? 'active' : ''}`} onClick={() => setModalTab('chat')}>
+                      💬 Chat <span className="tab-badge">{messages.length}</span>
+                    </button>
+                  </div>
+
+                  {/* Members tab */}
+                  {modalTab === 'members' && (
+                    <div className="modal-tab-panel">
+                      {membersLoading ? (
+                        <p className="members-loading">Loading members…</p>
+                      ) : viewMembers.length === 0 ? (
+                        <p className="members-empty">No members yet.</p>
+                      ) : (
+                        <div className="members-list">
+                          {viewMembers.map((member, i) => (
+                            <div key={member.userId || i} className="member-card">
+                              <div className="member-avatar">{member.avatar || '🎤'}</div>
+                              <div className="member-info">
+                                <p className="member-name">{member.name}</p>
+                                {member.instruments && <p className="member-instruments">🎸 {member.instruments}</p>}
+                                {member.genre       && <p className="member-genre">{member.genre}</p>}
+                                {member.location    && <p className="member-location">📍 {member.location}</p>}
+                              </div>
+                              <button
+                                className="member-connect-btn"
+                                onClick={() => {
+                                  const msg = encodeURIComponent(`Hi ${member.name}, I found you on LIZI! Let's collaborate on "${viewProject.title}" 🎵`);
+                                  window.open(`https://wa.me/?text=${msg}`, '_blank');
+                                }}
+                                title="Connect via WhatsApp"
+                              >💬</button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
+                  )}
 
-            <div className="project-detail-actions">
-              {isOwner(viewProject) ? (
-                <>
-                  <button className="cancel-btn" onClick={() => setViewProject(null)}>Close</button>
-                  <button
-                    className="track-edit-btn"
-                    style={{ flex: 1, padding: '10px 16px' }}
-                    onClick={() => { setViewProject(null); openEditForm(viewProject); }}
-                  >
-                    ✏️ Edit Project
-                  </button>
-                  <button
-                    className="track-delete-btn"
-                    style={{ padding: '10px 14px' }}
-                    onClick={() => { setViewProject(null); setDeleteTarget(viewProject); }}
-                  >
-                    🗑️
-                  </button>
-                </>
-              ) : user ? (
-                <>
-                  <button className="cancel-btn" onClick={() => setViewProject(null)}>Maybe later</button>
-                  <button className="join-btn join-btn-large" onClick={() => handleJoin(viewProject.id)}>
-                    ✅ {t('collaboration.joinProject')}
-                  </button>
+                  {/* Tracks tab */}
+                  {modalTab === 'tracks' && (
+                    <div className="modal-tab-panel">
+                      {projectTracks.length === 0 ? (
+                        <p className="members-empty">No tracks shared yet. Be the first!</p>
+                      ) : (
+                        <div className="project-track-list">
+                          {projectTracks.map((track, i) => (
+                            <div key={track.id || i} className="project-track-row">
+                              <span className="project-track-num">{String(i + 1).padStart(2, '0')}</span>
+                              <div className="project-track-info">
+                                <span className="project-track-title">{track.title}</span>
+                                <span className="project-track-meta">
+                                  {track.genre && `${track.genre} · `}shared by {track.sharedBy || 'Member'}
+                                </span>
+                              </div>
+                              {track.url ? (
+                                <audio
+                                  className="project-track-player"
+                                  src={track.url}
+                                  controls
+                                  preload="none"
+                                />
+                              ) : (
+                                <span className="project-track-no-audio">No audio</span>
+                              )}
+                              {(isOwner(viewProject) || track.sharedByUserId === user?.id) && (
+                                <button
+                                  className="project-track-remove"
+                                  onClick={() => handleRemoveTrack(track.id)}
+                                  title="Remove"
+                                >✕</button>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Share picker */}
+                      {!showSharePicker ? (
+                        <button className="collab-rec-btn" style={{ marginTop: '1rem', width: '100%' }} onClick={() => setShowSharePicker(true)}>
+                          <span className="rec-dot" /> Share a Track
+                        </button>
+                      ) : (
+                        <div className="share-picker">
+                          <p className="share-picker-label">Pick a track from your library:</p>
+                          {userTracks.length === 0 ? (
+                            <p className="members-empty">You have no uploaded tracks yet.</p>
+                          ) : (
+                            <div className="share-picker-list">
+                              {userTracks.map(track => (
+                                <button
+                                  key={track.id}
+                                  className="share-picker-item"
+                                  onClick={() => handleShareTrack(track)}
+                                >
+                                  <span className="share-picker-icon">🎵</span>
+                                  <span className="share-picker-name">{track.title}</span>
+                                  {track.genre && <span className="share-picker-genre">{track.genre}</span>}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                          <button className="studio-cancel-btn" style={{ marginTop: '0.5rem' }} onClick={() => setShowSharePicker(false)}>Cancel</button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Chat tab */}
+                  {modalTab === 'chat' && (
+                    <div className="modal-tab-panel chat-panel">
+                      <div className="chat-messages">
+                        {messages.length === 0 ? (
+                          <p className="members-empty">No messages yet. Start the conversation!</p>
+                        ) : (
+                          messages.map((msg) => {
+                            const isMe = msg.senderName === (user?.user_metadata?.name || user?.email?.split('@')[0]);
+                            return (
+                              <div key={msg.id} className={`chat-bubble ${isMe ? 'chat-bubble-me' : 'chat-bubble-them'}`}>
+                                {!isMe && <span className="chat-sender">{msg.senderAvatar} {msg.senderName}</span>}
+                                <p className="chat-text">{msg.text}</p>
+                                <span className="chat-time">
+                                  {new Date(msg.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </span>
+                              </div>
+                            );
+                          })
+                        )}
+                        <div ref={chatEndRef} />
+                      </div>
+                      <form className="chat-input-row" onSubmit={handleSendMessage}>
+                        <input
+                          className="chat-input"
+                          value={chatInput}
+                          onChange={(e) => setChatInput(e.target.value)}
+                          placeholder="Type a message…"
+                          autoComplete="off"
+                        />
+                        <button type="submit" className="chat-send-btn" disabled={!chatInput.trim()}>▶</button>
+                      </form>
+                    </div>
+                  )}
                 </>
               ) : (
-                <>
-                  <button className="cancel-btn" onClick={() => setViewProject(null)}>Cancel</button>
-                  <button className="join-btn join-btn-large" onClick={() => navigate('/login')}>
-                    Login to Join
-                  </button>
-                </>
+                /* Non-member: show members list only */
+                <div className="project-members-section">
+                  <h4 className="project-members-title">👥 Members ({viewProject.members || 0})</h4>
+                  {membersLoading ? (
+                    <p className="members-loading">Loading members…</p>
+                  ) : viewMembers.length === 0 ? (
+                    <p className="members-empty">No members yet — be the first to join!</p>
+                  ) : (
+                    <div className="members-list">
+                      {viewMembers.map((member, i) => (
+                        <div key={member.userId || i} className="member-card">
+                          <div className="member-avatar">{member.avatar || '🎤'}</div>
+                          <div className="member-info">
+                            <p className="member-name">{member.name}</p>
+                            {member.instruments && <p className="member-instruments">🎸 {member.instruments}</p>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               )}
+
+              <div className="project-detail-actions">
+                {isOwner(viewProject) ? (
+                  <>
+                    <button className="cancel-btn" onClick={() => setViewProject(null)}>Close</button>
+                    <button className="track-edit-btn" style={{ flex: 1, padding: '10px 16px' }} onClick={() => { setViewProject(null); openEditForm(viewProject); }}>
+                      ✏️ Edit
+                    </button>
+                    <button className="track-delete-btn" style={{ padding: '10px 14px' }} onClick={() => { setViewProject(null); setDeleteTarget(viewProject); }}>
+                      🗑️
+                    </button>
+                  </>
+                ) : user && isMember ? (
+                  <button className="cancel-btn" style={{ width: '100%' }} onClick={() => setViewProject(null)}>Close</button>
+                ) : user ? (
+                  <>
+                    <button className="cancel-btn" onClick={() => setViewProject(null)}>Maybe later</button>
+                    <button className="join-btn join-btn-large" onClick={() => handleJoin(viewProject.id)}>
+                      ✅ {t('collaboration.joinProject')}
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button className="cancel-btn" onClick={() => setViewProject(null)}>Cancel</button>
+                    <button className="join-btn join-btn-large" onClick={() => navigate('/login')}>Login to Join</button>
+                  </>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* ── Delete confirmation ───────────────────────────── */}
       {deleteTarget && (
