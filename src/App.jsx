@@ -13,6 +13,9 @@ import Search from './pages/Search';
 import OpenStage from './pages/OpenStage';
 import About from './pages/About';
 import Memorial from './pages/Memorial';
+import Feed from './pages/Feed';
+import Events from './pages/Events';
+import FindBandmate from './pages/FindBandmate';
 import BandBackground from './components/BandBackground';
 
 // Protected Route Component
@@ -57,6 +60,9 @@ function AppContent() {
                 <Route path="/project/:id" element={<ProjectDetail />} />
                 <Route path="/search" element={<Search />} />
                 <Route path="/open-stage" element={<OpenStage />} />
+                <Route path="/feed" element={<Feed />} />
+                <Route path="/events" element={<Events />} />
+                <Route path="/find-bandmate" element={<FindBandmate />} />
               </Routes>
             </Layout>
           }

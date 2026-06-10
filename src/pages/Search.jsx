@@ -24,6 +24,8 @@ function genreColor(genre) {
 
 function Search() {
   const [query, setQuery]             = useState('');
+  const [filterGenre, setFilterGenre]           = useState('');
+  const [filterInstrument, setFilterInstrument] = useState('');
   const [followed, setFollowed]       = useState(new Set());
   const [allArtists, setAllArtists]   = useState([]);
   const [allProjects, setAllProjects] = useState([]);
@@ -104,16 +106,30 @@ function Search() {
     });
   };
 
+  const GENRES_LIST = ['Pop','Rock','Jazz','Hip-Hop','Electronic','R&B','Folk','Classical','World','Reggae','Other'];
+  const INSTRUMENTS_LIST = [
+    'Guitar','Bass Guitar','Electric Guitar','Acoustic Guitar',
+    'Piano','Keyboards','Synthesizer','Drums','Percussion',
+    'Vocals','Backing Vocals','Violin','Cello','Saxophone',
+    'Trumpet','Flute','Clarinet','Oud','DJ / Turntables',
+    'Production','Beatmaking','Songwriting','Mixing / Mastering','Other',
+  ];
+
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return [];
-    return allArtists.filter((a) =>
-      a.name.toLowerCase().includes(q) ||
-      a.genre.toLowerCase().includes(q) ||
-      (a.instruments || '').toLowerCase().includes(q) ||
-      (a.style || '').toLowerCase().includes(q)
-    );
-  }, [query, allArtists]);
+    return allArtists.filter((a) => {
+      const matchesQuery = !q || (
+        a.name.toLowerCase().includes(q) ||
+        a.genre.toLowerCase().includes(q) ||
+        (a.instruments || '').toLowerCase().includes(q) ||
+        (a.style || '').toLowerCase().includes(q)
+      );
+      const matchesGenre = !filterGenre || a.genre.toLowerCase() === filterGenre.toLowerCase();
+      const matchesInstrument = !filterInstrument ||
+        (a.instruments || '').toLowerCase().includes(filterInstrument.toLowerCase());
+      return matchesQuery && matchesGenre && matchesInstrument;
+    });
+  }, [query, allArtists, filterGenre, filterInstrument]);
 
   return (
     <div className="page search-page-v2">
@@ -145,13 +161,46 @@ function Search() {
         )}
       </div>
 
+      {/* Browse filters */}
+      <div className="search-browse-filters">
+        <select
+          className="genre-filter-dropdown"
+          value={filterGenre}
+          onChange={(e) => setFilterGenre(e.target.value)}
+          style={filterGenre ? { borderColor: genreColor(filterGenre), boxShadow: `0 0 0 1px ${genreColor(filterGenre)}44` } : {}}
+        >
+          <option value="">🎵 All Genres</option>
+          {GENRES_LIST.map(g => <option key={g} value={g}>{g}</option>)}
+        </select>
+        <select
+          className="genre-filter-dropdown"
+          value={filterInstrument}
+          onChange={(e) => setFilterInstrument(e.target.value)}
+          style={filterInstrument ? { borderColor: 'var(--music-pink)', boxShadow: '0 0 0 1px rgba(255,0,110,0.3)' } : {}}
+        >
+          <option value="">🎸 All Instruments</option>
+          {INSTRUMENTS_LIST.map(i => <option key={i} value={i}>{i}</option>)}
+        </select>
+        {(filterGenre || filterInstrument) && (
+          <button className="studio-cancel-btn" onClick={() => { setFilterGenre(''); setFilterInstrument(''); }}>
+            ✕ Clear
+          </button>
+        )}
+      </div>
+
       {/* Artist results */}
-      {query.trim() && (
+      {(query.trim() || filterGenre || filterInstrument) && (
         <section className="search-section">
           <div className="search-section-header">
             <span className="search-section-icon">🎤</span>
             <h2 className="search-section-title">{t('search.artistsSection')}</h2>
             <span className="search-section-count">{results.length} {t('search.found')}</span>
+            {(filterGenre || filterInstrument) && (
+              <span className="search-filter-active">
+                {filterGenre && <span className="genre-chip" style={{ '--chip-color': genreColor(filterGenre) }}>{filterGenre}</span>}
+                {filterInstrument && <span className="instruments-chip">🎸 {filterInstrument}</span>}
+              </span>
+            )}
           </div>
 
           {results.length === 0 ? (

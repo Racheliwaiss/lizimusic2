@@ -5,9 +5,12 @@ const translations = {
     nav: {
       logo: '🎵 LIZI',
       home: 'Home',
+      feed: 'Feed',
       discover: 'Discover',
       search: 'Search',
       collaborate: 'Collaborate',
+      findBandmate: 'Find Bandmate',
+      events: 'Events',
       messages: 'Messages',
       profile: 'Profile',
       about: 'About',
@@ -249,6 +252,52 @@ const translations = {
       ],
     },
 
+    feed: {
+      title: 'Community Feed',
+      subtitle: 'See what musicians are creating right now',
+      filter: {
+        all: 'All',
+        tracks: 'Tracks',
+        projects: 'Projects',
+        members: 'Members',
+      },
+      cta: {
+        openStage: '🎵 Open Stage',
+        collaborate: '🎼 Collaborate',
+      },
+    },
+
+    events: {
+      title: 'Events & Gigs',
+      subtitle: 'Find jam sessions, rehearsals, gigs, and workshops near you',
+      postEvent: '+ Post Event',
+      loginToPost: 'Login to Post',
+      form: {
+        title: 'Event Title',
+        type: 'Event Type',
+        genre: 'Genre',
+        location: 'Location',
+        date: 'Date',
+        time: 'Time',
+        description: 'Description',
+        contact: 'Contact',
+        submit: 'Post Event',
+      },
+    },
+
+    bandmate: {
+      title: 'Find a Bandmate',
+      subtitle: 'Post a listing or browse musicians looking to connect',
+      postListing: '+ Post Listing',
+      form: {
+        instrument: 'Instrument Needed',
+        genre: 'Genre',
+        location: 'Location',
+        description: 'Description',
+        contact: 'Contact',
+      },
+    },
+
     memorial: {
       title: 'In Memory of Lizi Chalfon Elharrer',
       subtitle: 'This site is dedicated to the memory of Lizi Chalfon Elharrer, murdered in terror on October 7, 2023.',
@@ -272,9 +321,12 @@ const translations = {
     nav: {
       logo: '🎵 LIZI',
       home: 'בית',
+      feed: 'פיד',
       discover: 'גילוי',
       search: 'חיפוש',
       collaborate: 'שיתוף פעולה',
+      findBandmate: 'מצא/י חבר להקה',
+      events: 'אירועים',
       messages: 'הודעות',
       profile: 'פרופיל',
       about: 'אודות',
@@ -514,6 +566,52 @@ const translations = {
         'אילת','טבריה','נצרת','צפת','מודיעין',
         'יפו','רמת השרון','גבעתיים','כפר סבא','מרחוק / אונליין',
       ],
+    },
+
+    feed: {
+      title: 'פיד קהילה',
+      subtitle: 'ראה מה המוזיקאים יוצרים עכשיו',
+      filter: {
+        all: 'הכל',
+        tracks: 'שירים',
+        projects: 'פרויקטים',
+        members: 'חברים',
+      },
+      cta: {
+        openStage: '🎵 Open Stage',
+        collaborate: '🎼 שיתוף פעולה',
+      },
+    },
+
+    events: {
+      title: 'אירועים וגיגים',
+      subtitle: 'מצא ג\'אם סשנז, חזרות, גיגים וסדנאות בקרבתך',
+      postEvent: '+ פרסם אירוע',
+      loginToPost: 'התחבר לפרסום',
+      form: {
+        title: 'כותרת האירוע',
+        type: 'סוג האירוע',
+        genre: "ז'אנר",
+        location: 'מיקום',
+        date: 'תאריך',
+        time: 'שעה',
+        description: 'תיאור',
+        contact: 'יצירת קשר',
+        submit: 'פרסם אירוע',
+      },
+    },
+
+    bandmate: {
+      title: 'מצא/י חבר להקה',
+      subtitle: 'פרסם מודעה או עיין/י במוזיקאים שמחפשים להתחבר',
+      postListing: '+ פרסם מודעה',
+      form: {
+        instrument: 'כלי נגינה מבוקש',
+        genre: "ז'אנר",
+        location: 'מיקום',
+        description: 'תיאור',
+        contact: 'יצירת קשר',
+      },
     },
 
     memorial: {

@@ -60,13 +60,16 @@ function Layout({ children }) {
         </div>
 
         <div className="nav-links">
-          <Link to="/about"       className={isActive('/about')        ? 'active' : ''}>{t('nav.about')}</Link>
-          <Link to="/memorial"    className={isActive('/memorial')     ? 'active' : ''}>{t('nav.memorial')}</Link>
-          <Link to="/open-stage"  className={isActive('/open-stage')   ? 'active' : ''}>{t('nav.discover')}</Link>
-          <Link to="/search"      className={isActive('/search')       ? 'active' : ''}>{t('nav.search')}</Link>
-          <Link to="/collaboration" className={isActive('/collaboration') ? 'active' : ''}>{t('nav.collaborate')}</Link>
-          <Link to="/messages"    className={isActive('/messages')     ? 'active' : ''}>{t('nav.messages')}</Link>
-          <Link to="/"            className={isActive('/')             ? 'active' : ''}>{t('nav.home')}</Link>
+          <Link to="/feed"          className={isActive('/feed')           ? 'active' : ''}>{t('nav.feed')}</Link>
+          <Link to="/open-stage"    className={isActive('/open-stage')     ? 'active' : ''}>{t('nav.discover')}</Link>
+          <Link to="/search"        className={isActive('/search')         ? 'active' : ''}>{t('nav.search')}</Link>
+          <Link to="/collaboration" className={isActive('/collaboration')   ? 'active' : ''}>{t('nav.collaborate')}</Link>
+          <Link to="/find-bandmate" className={isActive('/find-bandmate')  ? 'active' : ''}>{t('nav.findBandmate')}</Link>
+          <Link to="/events"        className={isActive('/events')         ? 'active' : ''}>{t('nav.events')}</Link>
+          <Link to="/messages"      className={isActive('/messages')       ? 'active' : ''}>{t('nav.messages')}</Link>
+          <Link to="/about"         className={isActive('/about')          ? 'active' : ''}>{t('nav.about')}</Link>
+          <Link to="/memorial"      className={isActive('/memorial')       ? 'active' : ''}>{t('nav.memorial')}</Link>
+          <Link to="/"              className={isActive('/')               ? 'active' : ''}>{t('nav.home')}</Link>
         </div>
 
         <div className="navbar-controls">
