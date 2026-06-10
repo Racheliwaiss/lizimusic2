@@ -143,6 +143,16 @@ const translations = {
       updateProfile: 'Not matching? Update your profile',
       followers: 'followers',
       listenNow: 'Listen Now',
+      matchingBy: 'Matching by',
+      completeProfile: 'Complete your profile to see personalized matches',
+      goToProfile: 'Set up profile',
+      nearYou: 'Near You',
+      matchGenre: 'Genre',
+      matchLocation: 'Location',
+      matchInstruments: 'Instruments',
+      matchStyle: 'Style',
+      matchAge: 'Age range',
+      connect: 'Connect',
     },
 
     // About Page
@@ -198,7 +208,7 @@ const translations = {
       selectLocation:   'Select location…',
       selectAgeRange:   'Select age range…',
       selectLookingFor: "Select what you're looking for…",
-      genres: ['Pop','Rock','Jazz','Hip-Hop','Electronic','R&B','Folk','Classical','World','Reggae','Other'],
+      genres: ['Pop','Rock','Jazz','Hip-Hop','Electronic','R&B','Folk','Classical','Gospel','World','Reggae','Other'],
       instruments: [
         'Guitar','Bass Guitar','Electric Guitar','Acoustic Guitar',
         'Piano','Keyboards','Synthesizer',
@@ -399,7 +409,17 @@ const translations = {
       suggestedForYou: 'מומלץ עבורך',
       updateProfile: 'לא מתאים? עדכן את הפרופיל שלך',
       followers: 'עוקבים',
-      listenNow: 'היוזן עכשיו',
+      listenNow: 'האזן עכשיו',
+      matchingBy: 'מתאים לפי',
+      completeProfile: 'השלם את הפרופיל שלך כדי לראות התאמות אישיות',
+      goToProfile: 'הגדר פרופיל',
+      nearYou: 'קרוב אליך',
+      matchGenre: "ז'אנר",
+      matchLocation: 'מיקום',
+      matchInstruments: 'כלים',
+      matchStyle: 'סגנון',
+      matchAge: 'טווח גילאים',
+      connect: 'צור קשר',
     },
 
     // About Page
@@ -455,7 +475,7 @@ const translations = {
       selectLocation:   'בחר מיקום…',
       selectAgeRange:   'בחר טווח גילאים…',
       selectLookingFor: 'בחר את מה שאתה מחפש…',
-      genres: ["פופ","רוק","ג'אז",'היפ הופ','אלקטרוני','R&B','פולק','קלאסי','עולמי','רגאי','אחר'],
+      genres: ["פופ","רוק","ג'אז",'היפ הופ','אלקטרוני','R&B','פולק','קלאסי','גוספל','עולמי','רגאי','אחר'],
       instruments: [
         'גיטרה','גיטרה בס','גיטרה חשמלית','גיטרה אקוסטית',
         'פסנתר','קלידים','סינתיסייזר',

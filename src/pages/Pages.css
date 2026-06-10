@@ -4839,3 +4839,135 @@
   box-shadow: 0 12px 35px rgba(255, 0, 110, 0.6);
   color: white;
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   Open Stage — Match UI
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Profile match summary bar */
+.os-match-summary {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 18px;
+  margin-bottom: var(--spacing-lg);
+  background: rgba(168, 85, 247, 0.08);
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  border-radius: 12px;
+}
+
+.os-match-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.os-match-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  background: rgba(0, 207, 255, 0.1);
+  border: 1px solid rgba(0, 207, 255, 0.3);
+  border-radius: 20px;
+  font-size: 0.78rem;
+  color: var(--text-primary);
+}
+
+.os-edit-profile {
+  margin-left: auto;
+  font-size: 0.74rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  opacity: 0.7;
+  white-space: nowrap;
+}
+.os-edit-profile:hover { opacity: 1; color: var(--music-cyan); }
+
+/* No-profile prompt */
+.os-no-profile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 20px;
+  margin-bottom: var(--spacing-lg);
+  background: rgba(255, 179, 0, 0.07);
+  border: 1px solid rgba(255, 179, 0, 0.25);
+  border-radius: 12px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.os-setup-btn {
+  flex-shrink: 0;
+  padding: 6px 16px;
+  background: linear-gradient(135deg, var(--music-pink), var(--music-purple));
+  color: #fff;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+.os-setup-btn:hover { opacity: 0.85; color: #fff; }
+
+/* Match factor pills (on artist cards) */
+.os-factor-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 6px 0 4px;
+  justify-content: center;
+}
+
+.os-factor-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 9px;
+  border-radius: 12px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  background: color-mix(in srgb, var(--fpill-color, #888) 14%, transparent);
+  border: 1px solid var(--fpill-color, #888);
+  color: var(--fpill-color, #888);
+}
+
+/* "Near You" badge inside location line */
+.os-near-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 7px;
+  background: rgba(168, 85, 247, 0.18);
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  border-radius: 8px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #c084fc;
+  vertical-align: middle;
+}
+
+/* Dimmed card for 0% match */
+.artist-card--dim {
+  opacity: 0.45;
+}
+.artist-card--dim:hover {
+  opacity: 1;
+}
+
+/* Light mode overrides */
+[data-theme="light"] .os-match-summary {
+  background: rgba(138, 43, 226, 0.05);
+  border-color: rgba(138, 43, 226, 0.2);
+}
+[data-theme="light"] .os-match-chip {
+  background: rgba(0, 120, 180, 0.08);
+  border-color: rgba(0, 120, 180, 0.25);
+}
+[data-theme="light"] .os-no-profile {
+  background: rgba(180, 100, 0, 0.06);
+  border-color: rgba(180, 100, 0, 0.2);
+}
