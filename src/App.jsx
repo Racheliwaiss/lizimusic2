@@ -13,6 +13,7 @@ import Search from './pages/Search';
 import OpenStage from './pages/OpenStage';
 import About from './pages/About';
 import Memorial from './pages/Memorial';
+import BandBackground from './components/BandBackground';
 
 // Protected Route Component
 function ProtectedRoute({ element }) {
@@ -69,6 +70,7 @@ function App() {
   return (
     <LanguageProvider>
       <AuthProvider>
+        <BandBackground />
         <AppContent />
       </AuthProvider>
     </LanguageProvider>
