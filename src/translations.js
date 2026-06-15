@@ -10,11 +10,22 @@ const translations = {
       search: 'Search',
       collaborate: 'Collaborate',
       findBandmate: 'Find Bandmate',
+      connectCollaborate: 'Connect & Collaborate',
       events: 'Events',
       messages: 'Messages',
       profile: 'Profile',
       about: 'About',
       memorial: 'Memorial',
+      bandmateMenu: {
+        browseListings: 'Browse Listings',
+        postListing: 'Post a Listing',
+        searchMusicians: 'Search Musicians',
+      },
+      collaborateMenu: {
+        browseProjects: 'Browse Projects',
+        createProject: 'Create a Project',
+        myProjects: 'My Projects',
+      },
     },
 
     // Home Page
@@ -326,11 +337,22 @@ const translations = {
       search: 'חיפוש',
       collaborate: 'שיתוף פעולה',
       findBandmate: 'מצא/י חבר להקה',
+      connectCollaborate: 'חיבור ושיתוף פעולה',
       events: 'אירועים',
       messages: 'הודעות',
       profile: 'פרופיל',
       about: 'אודות',
       memorial: 'לזכרה',
+      bandmateMenu: {
+        browseListings: 'עיון במודעות',
+        postListing: 'פרסם מודעה',
+        searchMusicians: 'חפש מוזיקאים',
+      },
+      collaborateMenu: {
+        browseProjects: 'עיון בפרויקטים',
+        createProject: 'צור פרויקט',
+        myProjects: 'הפרויקטים שלי',
+      },
     },
 
     // Home Page

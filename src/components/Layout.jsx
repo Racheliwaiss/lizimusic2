@@ -8,7 +8,9 @@ import './Layout.css';
 function Layout({ children }) {
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
   const [profileOpen, setProfileOpen] = useState(false);
+  const [connectOpen, setConnectOpen] = useState(false);
   const profileRef = useRef(null);
+  const connectTimer = useRef(null);
 
   const { language, toggleLanguage, t } = useLanguage();
   const { user, logout } = useAuth();
@@ -44,6 +46,9 @@ function Layout({ children }) {
 
   const goTo = (path) => { setProfileOpen(false); navigate(path); };
 
+  const openConnect = () => { clearTimeout(connectTimer.current); setConnectOpen(true); };
+  const closeConnect = () => { connectTimer.current = setTimeout(() => setConnectOpen(false), 150); };
+
   const isActive = (path) => location.pathname === path;
 
   const displayName = user?.user_metadata?.name
@@ -63,8 +68,42 @@ function Layout({ children }) {
           <Link to="/feed"          className={isActive('/feed')           ? 'active' : ''}>{t('nav.feed')}</Link>
           <Link to="/open-stage"    className={isActive('/open-stage')     ? 'active' : ''}>{t('nav.discover')}</Link>
           <Link to="/search"        className={isActive('/search')         ? 'active' : ''}>{t('nav.search')}</Link>
-          <Link to="/collaboration" className={isActive('/collaboration')   ? 'active' : ''}>{t('nav.collaborate')}</Link>
-          <Link to="/find-bandmate" className={isActive('/find-bandmate')  ? 'active' : ''}>{t('nav.findBandmate')}</Link>
+          <div
+            className="nav-dropdown-wrap"
+            onMouseEnter={openConnect}
+            onMouseLeave={closeConnect}
+          >
+            <span
+              className={`nav-link-btn ${(isActive('/collaboration') || isActive('/find-bandmate')) ? 'active' : ''}`}
+            >
+              {t('nav.connectCollaborate')} <span className="nav-chevron-small">▾</span>
+            </span>
+            {connectOpen && (
+              <div className="nav-dropdown nav-dropdown-wide" onMouseEnter={openConnect} onMouseLeave={closeConnect}>
+                <p className="nav-dropdown-section-label">{t('nav.collaborate')}</p>
+                <Link to="/collaboration" className="nav-dropdown-item" onClick={() => setConnectOpen(false)}>
+                  🎼 {t('nav.collaborateMenu.browseProjects')}
+                </Link>
+                <Link to="/collaboration" className="nav-dropdown-item" onClick={() => setConnectOpen(false)}>
+                  ➕ {t('nav.collaborateMenu.createProject')}
+                </Link>
+                <Link to="/profile" className="nav-dropdown-item" onClick={() => setConnectOpen(false)}>
+                  👤 {t('nav.collaborateMenu.myProjects')}
+                </Link>
+                <div className="nav-dropdown-divider" />
+                <p className="nav-dropdown-section-label">{t('nav.findBandmate')}</p>
+                <Link to="/find-bandmate" className="nav-dropdown-item" onClick={() => setConnectOpen(false)}>
+                  🥁 {t('nav.bandmateMenu.browseListings')}
+                </Link>
+                <Link to="/find-bandmate" className="nav-dropdown-item" onClick={() => setConnectOpen(false)}>
+                  📋 {t('nav.bandmateMenu.postListing')}
+                </Link>
+                <Link to="/search" className="nav-dropdown-item" onClick={() => setConnectOpen(false)}>
+                  🔍 {t('nav.bandmateMenu.searchMusicians')}
+                </Link>
+              </div>
+            )}
+          </div>
           <Link to="/events"        className={isActive('/events')         ? 'active' : ''}>{t('nav.events')}</Link>
           <Link to="/messages"      className={isActive('/messages')       ? 'active' : ''}>{t('nav.messages')}</Link>
           <Link to="/about"         className={isActive('/about')          ? 'active' : ''}>{t('nav.about')}</Link>

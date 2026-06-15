@@ -116,6 +116,107 @@
   box-shadow: 0 0 20px rgba(255, 0, 110, 0.4);
 }
 
+/* ── Nav hover dropdowns ─────────────────────────────────── */
+.nav-dropdown-wrap {
+  position: relative;
+}
+
+.nav-chevron-small {
+  font-size: 0.65rem;
+  opacity: 0.7;
+  margin-left: 2px;
+}
+
+.nav-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 190px;
+  background: var(--bg-secondary);
+  border: 1px solid rgba(139, 0, 255, 0.4);
+  border-radius: 12px;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.45);
+  z-index: 200;
+  overflow: hidden;
+  animation: dropdown-appear 0.15s ease;
+}
+
+.nav-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  color: var(--text-primary) !important;
+  font-size: 0.85rem;
+  font-weight: 500;
+  white-space: nowrap;
+  border-radius: 0 !important;
+  background: none !important;
+  transition: background 0.15s;
+}
+
+.nav-dropdown-item:hover {
+  background: rgba(255, 0, 110, 0.1) !important;
+  color: var(--music-pink) !important;
+}
+
+.nav-dropdown-wide {
+  min-width: 240px;
+}
+
+.nav-dropdown-section-label {
+  padding: 8px 14px 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--music-cyan);
+  margin: 0;
+  opacity: 0.8;
+}
+
+.nav-dropdown-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 6px 0;
+}
+
+/* Trigger span styled like a nav link */
+.nav-link-btn {
+  color: var(--text-secondary);
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 20px;
+  white-space: nowrap;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.nav-link-btn:hover,
+.nav-link-btn.active {
+  color: var(--music-pink);
+  background: rgba(255, 0, 110, 0.1);
+}
+
+[data-theme="light"] .nav-dropdown {
+  background: rgba(255, 250, 255, 0.98);
+  border-color: rgba(179, 102, 255, 0.4);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] .nav-dropdown-divider {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .nav-dropdown-section-label {
+  color: #007a99;
+}
+
 /* ── Profile dropdown ────────────────────────────────────── */
 .profile-dropdown-wrap {
   position: relative;
