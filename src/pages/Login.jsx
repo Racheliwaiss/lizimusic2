@@ -45,7 +45,7 @@ function Login() {
       options: { redirectTo: window.location.origin + '/dashboard' },
     });
     if (error) {
-      setError('Google login failed. Please try again.');
+      setError(error.message || 'Google login failed. Please try again.');
       setGoogleLoading(false);
     }
   };
