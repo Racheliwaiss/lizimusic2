@@ -107,6 +107,7 @@ function Layout({ children }) {
           <Link to="/events"        className={isActive('/events')         ? 'active' : ''}>{t('nav.events')}</Link>
           <Link to="/messages"      className={isActive('/messages')       ? 'active' : ''}>{t('nav.messages')}</Link>
           <Link to="/about"         className={isActive('/about')          ? 'active' : ''}>{t('nav.about')}</Link>
+          <Link to="/contact"       className={isActive('/contact')        ? 'active' : ''}>{t('nav.contact')}</Link>
           <Link to="/memorial"      className={isActive('/memorial')       ? 'active' : ''}>{t('nav.memorial')}</Link>
           <Link to="/"              className={isActive('/')               ? 'active' : ''}>{t('nav.home')}</Link>
         </div>

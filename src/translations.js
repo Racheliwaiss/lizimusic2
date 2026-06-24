@@ -15,6 +15,7 @@ const translations = {
       messages: 'Messages',
       profile: 'Profile',
       about: 'About',
+      contact: 'Contact',
       memorial: 'Memorial',
       bandmateMenu: {
         browseListings: 'Browse Listings',
@@ -309,6 +310,23 @@ const translations = {
       },
     },
 
+    contact: {
+      title: '📬 Contact Us',
+      subtitle: 'We\'d love to hear from you — questions, collaborations, or feedback',
+      emailUs: 'Get in Touch',
+      emailDesc: 'Reach out to us directly and we\'ll get back to you as soon as possible.',
+      copy: 'Copy email address',
+      copied: 'Copied!',
+      sendEmail: '✉️ Open Email',
+      collabTitle: 'Collaborations',
+      collabDesc: 'Interested in partnering with LIZI or featuring your project? Drop us a line.',
+      supportTitle: 'Support',
+      supportDesc: 'Having trouble with your account or a feature? We\'re here to help.',
+      feedbackTitle: 'Feedback & Ideas',
+      feedbackDesc: 'Have a suggestion to improve the platform? We love hearing from our community.',
+      responseNote: 'We typically respond within 1–2 business days.',
+    },
+
     memorial: {
       title: 'In Memory of Lizi Chalfon Elharrer',
       subtitle: 'This site is dedicated to the memory of Lizi Chalfon Elharrer, murdered in terror on October 7, 2023.',
@@ -342,6 +360,7 @@ const translations = {
       messages: 'הודעות',
       profile: 'פרופיל',
       about: 'אודות',
+      contact: 'צור קשר',
       memorial: 'לזכרה',
       bandmateMenu: {
         browseListings: 'עיון במודעות',
@@ -634,6 +653,23 @@ const translations = {
         description: 'תיאור',
         contact: 'יצירת קשר',
       },
+    },
+
+    contact: {
+      title: '📬 צור קשר',
+      subtitle: 'נשמח לשמוע ממך — שאלות, שיתופי פעולה או משוב',
+      emailUs: 'צרו קשר',
+      emailDesc: 'פנו אלינו ישירות ונחזור אליכם בהקדם האפשרי.',
+      copy: 'העתק כתובת מייל',
+      copied: 'הועתק!',
+      sendEmail: '✉️ פתח אימייל',
+      collabTitle: 'שיתופי פעולה',
+      collabDesc: 'מעוניינים בשותפות עם LIZI או הצגת הפרויקט שלכם? שלחו לנו הודעה.',
+      supportTitle: 'תמיכה',
+      supportDesc: 'יש בעיה עם החשבון או עם פיצ\'ר? אנחנו כאן לעזור.',
+      feedbackTitle: 'משוב ורעיונות',
+      feedbackDesc: 'יש לכם הצעה לשיפור הפלטפורמה? אנחנו אוהבים לשמוע מהקהילה שלנו.',
+      responseNote: 'אנו מגיבים בדרך כלל תוך 1–2 ימי עסקים.',
     },
 
     memorial: {

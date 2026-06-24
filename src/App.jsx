@@ -16,6 +16,7 @@ import Memorial from './pages/Memorial';
 import Feed from './pages/Feed';
 import Events from './pages/Events';
 import FindBandmate from './pages/FindBandmate';
+import Contact from './pages/Contact';
 import BandBackground from './components/BandBackground';
 
 // Protected Route Component
@@ -63,6 +64,7 @@ function AppContent() {
                 <Route path="/feed" element={<Feed />} />
                 <Route path="/events" element={<Events />} />
                 <Route path="/find-bandmate" element={<FindBandmate />} />
+                <Route path="/contact" element={<Contact />} />
               </Routes>
             </Layout>
           }
