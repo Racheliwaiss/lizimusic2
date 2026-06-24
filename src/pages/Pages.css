@@ -5924,3 +5924,82 @@
   font-size: 0.9rem;
 }
 .fav-empty-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+
+/* ══════════════════════════════════════════
+   Voice search
+   ══════════════════════════════════════════ */
+
+/* Search bar glow while listening */
+.search-track-bar--listening {
+  border-color: #ff4444 !important;
+  box-shadow: 0 0 0 3px rgba(255, 68, 68, 0.25), 0 4px 24px rgba(255, 68, 68, 0.2) !important;
+}
+
+/* Mic button */
+.voice-search-btn {
+  background: transparent;
+  border: none;
+  padding: 6px 8px;
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s, transform 0.15s;
+  color: var(--text-secondary);
+}
+.voice-search-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+  transform: scale(1.1);
+}
+
+/* Idle state */
+.voice-search-btn--idle { color: var(--text-secondary); }
+.voice-search-btn--idle:hover { color: var(--music-cyan); }
+
+/* Listening state — red mic */
+.voice-search-btn--listening {
+  color: #ff4444;
+  background: rgba(255, 68, 68, 0.12);
+}
+.voice-search-btn--listening:hover { background: rgba(255, 68, 68, 0.2); transform: scale(1); }
+
+/* Error state */
+.voice-search-btn--error { color: #ff9900; }
+
+/* Pulsing ring around the mic icon while listening */
+.voice-pulse-ring {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.voice-pulse-ring::before,
+.voice-pulse-ring::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 68, 68, 0.6);
+  will-change: transform, opacity;
+  animation: voice-ring 1.4s ease-out infinite;
+}
+.voice-pulse-ring::after { animation-delay: 0.7s; }
+
+@keyframes voice-ring {
+  0%   { transform: scale(1);   opacity: 1; }
+  100% { transform: scale(2.6); opacity: 0; }
+}
+
+/* Error message below search bar */
+.voice-error-msg {
+  font-size: 0.8rem;
+  color: #ff9900;
+  margin: 0.4rem 0 0 0.5rem;
+  padding: 0;
+}
