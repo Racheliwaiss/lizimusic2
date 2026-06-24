@@ -11,6 +11,7 @@ function Layout({ children }) {
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
   const [profileOpen, setProfileOpen] = useState(false);
   const [connectOpen, setConnectOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const profileRef = useRef(null);
   const connectTimer = useRef(null);
 
@@ -48,7 +49,8 @@ function Layout({ children }) {
     navigate('/');
   };
 
-  const goTo = (path) => { setProfileOpen(false); navigate(path); };
+  const goTo = (path) => { setProfileOpen(false); setMenuOpen(false); navigate(path); };
+  const closeMenu = () => setMenuOpen(false);
 
   const openConnect = () => { clearTimeout(connectTimer.current); setConnectOpen(true); };
   const closeConnect = () => { connectTimer.current = setTimeout(() => setConnectOpen(false), 150); };
@@ -65,10 +67,20 @@ function Layout({ children }) {
     <div className="layout">
       <nav className="navbar">
         <div className="logo">
-          <Link to="/">{t('nav.logo')}</Link>
+          <Link to="/" onClick={closeMenu}>{t('nav.logo')}</Link>
         </div>
 
-        <div className="nav-links">
+        {/* Hamburger — mobile only */}
+        <button
+          className={`nav-hamburger ${menuOpen ? 'open' : ''}`}
+          onClick={() => setMenuOpen(v => !v)}
+          aria-label="Toggle menu"
+          aria-expanded={menuOpen}
+        >
+          <span /><span /><span />
+        </button>
+
+        <div className={`nav-links ${menuOpen ? 'nav-links--open' : ''}`} onClick={closeMenu}>
           <Link to="/feed"          className={isActive('/feed')           ? 'active' : ''}>{t('nav.feed')}</Link>
           <Link to="/open-stage"    className={isActive('/open-stage')     ? 'active' : ''}>{t('nav.discover')}</Link>
           <Link to="/search"        className={isActive('/search')         ? 'active' : ''}>{t('nav.search')}</Link>
@@ -76,6 +88,7 @@ function Layout({ children }) {
             className="nav-dropdown-wrap"
             onMouseEnter={openConnect}
             onMouseLeave={closeConnect}
+            onClick={(e) => e.stopPropagation()}
           >
             <span
               className={`nav-link-btn ${(isActive('/collaboration') || isActive('/find-bandmate')) ? 'active' : ''}`}

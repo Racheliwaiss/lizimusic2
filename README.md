@@ -1,325 +1,222 @@
-# LIZI - Music Collaboration Platform
+# LIZI — Music Collaboration Platform
 
-A modern web-based music platform empowering amateur musicians to create, collaborate, discover, and share their music with a vibrant community.
+LIZI connects Israeli musicians — find bandmates, discover artists, join projects, post events, and collaborate, all in one place.
 
-## Overview
+**Live:** deployed on Vercel · **Contact:** lizimusicplatform@gmail.com
 
-LIZI is a comprehensive music ecosystem designed to democratize music creation and distribution. Whether you're an aspiring producer, hobbyist musician, or music curator, LIZI provides intuitive tools and a supportive community to bring your musical vision to life.
+---
 
-## Key Features
+## Features
 
-- **Music Studio**: Browser-based music creation and editing tools
-- **Discovery Hub**: Browse and discover music from other amateur musicians
-- **User Profiles**: Showcase your portfolio with statistics and follower systems
-- **Collaboration Tools**: Connect with other musicians for remixes and projects
-- **Community Engagement**: Comments, likes, playlists, and sharing capabilities
+| Page | What it does |
+|---|---|
+| **Open Stage** `/open-stage` | Browse artists with match-scoring based on your profile (genre, instruments, location, style, age) |
+| **Find Bandmate** `/find-bandmate` | Post and browse musician listings filtered by instrument, genre, and city |
+| **Events** `/events` | Find and post jam sessions, gigs, workshops, open mics, and rehearsals |
+| **Collaboration** `/collaboration` | Create and join music projects; invite artists via in-app chat |
+| **Search** `/search` | Full-text + filter search across artists and projects, with **voice search** (Hebrew & English) |
+| **Profile** `/profile` | Upload tracks, manage projects, edit preferences, save Favourites |
+| **Feed** `/feed` | Social activity feed |
+| **Messages** `/messages` | Project-based messaging |
+| **Contact** `/contact` | Contact form with copy-to-clipboard email |
 
-## Target Audience
+**Cross-cutting features:**
+- **Favourites** — heart any artist, event, bandmate listing, or project; all appear in your Profile
+- **Geolocation** — auto-detect your city (24 Israeli cities via Haversine distance), "Near You" badges on cards, auto-fill location filters
+- **Voice search** — Web Speech API, real-time interim results, language follows the app toggle
+- **Bilingual** — full Hebrew (RTL) and English, toggle in the navbar, persisted across sessions
+- **Dark / Light theme** — toggle in the navbar
+- **Fully responsive** — hamburger nav, collapsing grids, bottom-sheet modals on mobile
 
-- **Aspiring Producers** (Ages 16-35): Learning production independently, seeking feedback and exposure
-- **Hobbyist Musicians**: Creating music for leisure with an easy-to-use platform
-- **Collaborators**: Partners looking to work on remixes and projects together
-- **Music Curators**: Discovering and sharing music with their network
+---
 
 ## Tech Stack
 
-- **Frontend**: React 18
-- **Build Tool**: Vite
-- **Styling**: Custom design system with dark theme
-- **Linting**: ESLint with React support
-- **Package Manager**: npm
+- **React 18** + **Vite 5** + **React Router 6**
+- **Supabase** — PostgreSQL, Storage, Auth (Google OAuth supported)
+- **Plain CSS** with CSS custom properties — no UI framework
+- **Vitest** + jsdom for unit tests
+- `localStorage` mock — the entire app works without a live Supabase project
 
-# LIZI - Music Collaboration Platform
+---
 
-A modern React-based music collaboration platform built with Vite, React Router, and styled with a dark/light theme toggle.
+## Getting Started
 
-## 🎵 Project Overview
+### 1. Install
 
-LIZI is a music collaboration platform that connects artists, producers, and musicians. Users can discover talent, collaborate on projects, send messages, and showcase their work.
+```bash
+npm install
+```
 
-## 📁 Project Structure
+### 2. Configure environment
+
+```bash
+cp .env.example .env.local
+```
+
+```env
+VITE_SUPABASE_URL=https://<project>.supabase.co
+VITE_SUPABASE_ANON_KEY=<anon-key>
+```
+
+> Leave these empty and the app falls back to a `localStorage` mock automatically — all features work without a real database.
+
+### 3. Run
+
+```bash
+npm run dev        # http://localhost:5173
+```
+
+---
+
+## Scripts
+
+```bash
+npm run dev          # Dev server with hot reload
+npm run build        # Production build → dist/
+npm run preview      # Serve the production build locally
+npm run lint         # ESLint (0 warnings policy)
+npm run test         # Vitest single run
+npm run test:watch   # Vitest watch mode
+npm run test:ui      # Vitest visual UI
+npm run mock-server  # Mock auth REST server on port 4000
+```
+
+Run a single test file:
+
+```bash
+npx vitest run src/test/liziMusic.test.js
+```
+
+---
+
+## Project Structure
 
 ```
 src/
 ├── components/
-│   ├── Layout.jsx          # Main layout with navigation
-│   └── Layout.css          # Layout styles
+│   ├── Layout.jsx            # Navbar, hamburger menu, geo banner, theme toggle
+│   ├── Layout.css
+│   ├── LocationDetector.css  # Geo banner + Near You badge styles (global)
+│   ├── BandBackground.jsx
+│   ├── UploadTrack.jsx
+│   └── AvatarUpload.jsx
+│
 ├── pages/
-│   ├── Home.jsx            # Homepage with features
-│   ├── Login.jsx           # Login page
-│   ├── Profile.jsx         # User profile page
-│   ├── Messages.jsx        # Direct messaging
-│   ├── Collaboration.jsx   # Collaboration projects
-│   ├── Search.jsx          # Search functionality
-│   ├── OpenStage.jsx       # Artist discovery
-│   └── Pages.css           # All page styles
-├── styles/
-│   └── global.css          # Global styles & theme variables
-├── App.jsx                 # Main app component with routing
-└── main.jsx                # Vite entry point
+│   ├── Home.jsx
+│   ├── OpenStage.jsx         # Artist discovery + match scoring
+│   ├── FindBandmate.jsx
+│   ├── Events.jsx
+│   ├── Collaboration.jsx
+│   ├── Search.jsx            # Voice search + text + filters
+│   ├── Profile.jsx           # Tracks, projects, favourites
+│   ├── Feed.jsx
+│   ├── Messages.jsx
+│   ├── Contact.jsx
+│   ├── About.jsx
+│   ├── Memorial.jsx
+│   ├── Login.jsx
+│   └── Pages.css             # All page styles + mobile responsive
+│
+├── hooks/
+│   ├── useFavourites.js      # localStorage-backed favourites (heart toggle)
+│   └── useGeolocation.js
+│
+├── lib/
+│   ├── supabase.js           # Supabase client (real or mock, auto-detected)
+│   ├── db.js                 # All DB operations; falls back to localStorage on error
+│   ├── geolocation.js        # Haversine formula, 24 Israeli cities, proximity labels
+│   └── authApi.js
+│
+├── GeoContext.jsx            # Global geolocation state (city, status, detect, clear)
+├── AuthContext.jsx
+├── LanguageContext.jsx       # Language toggle, RTL, t() translation helper
+├── translations.js           # en + he strings (dot-notation access)
+├── data/artists.js           # Seed artist data (Supabase fallback)
+└── styles/global.css         # CSS variables, dark/light theme, RTL
 ```
 
-## 🚀 Getting Started
+---
 
-### Prerequisites
-- Node.js 16+
-- npm or yarn
+## Architecture Notes
 
-### Installation
+### Context providers (App.jsx wrapping order)
 
-1. Install dependencies:
-```bash
-npm install
+```
+<LanguageProvider>
+  <AuthProvider>
+    <GeoProvider>          ← city shared app-wide
+      <AppContent />
+    </GeoProvider>
+  </AuthProvider>
+</LanguageProvider>
 ```
 
-2. Start the development server:
-```bash
-npm run dev
+### Data layer
+
+`src/lib/db.js` tries Supabase first for every operation and silently falls back to `localStorage` on any error. Local projects are stored under `lizi_local_projects`; project members under `lizi_project_members`.
+
+### Supabase tables
+
+| Table | Purpose |
+|---|---|
+| `artists` | Artist profiles |
+| `projects` | Collaboration projects |
+| `project_members` | Users ↔ projects join table |
+| `Lizi Music` | User track uploads (note: space in name) |
+| `profiles` | Extended user metadata |
+
+Storage buckets: `tracks` (audio, max 50 MB), `avatars` (images, max 5 MB; base64 fallback)
+
+### Translations
+
+```js
+const { t } = useLanguage();
+t('nav.home')       // → 'Home'   or  'בית'
+t('geo.nearYou')    // → 'Near You'  or  'קרוב אליך'
 ```
 
-The app will be available at `http://localhost:5174` (or the next available port).
+Dot-notation is supported. If a key is missing, the key string itself is returned (never blank).
 
-### Available Scripts
+### Geolocation
 
-- `npm run dev` - Start development server with hot reload
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
+`GeoContext` wraps the whole app and holds `{ city, status, detect, clear }`. On mount it silently auto-detects if the browser already granted permission. The detected city is cached in `localStorage` under `lizi_detected_location`.
 
-## 🎨 Features
+`src/lib/geolocation.js` exports:
+- `CITY_COORDS` — 24 Israeli cities with lat/lng
+- `nearestCity(lat, lng)` — Haversine nearest-city lookup
+- `proximityLabel(userCity, targetLocation)` — returns `'exact' | 'nearby' | 'remote' | null`
 
-### Pages & Routes
-- **Home (`/`)** - Homepage with platform overview and features
-- **Discover (`/open-stage`)** - Browse emerging artists by genre
-- **Search (`/search`)** - Search for artists, tracks, and producers
-- **Collaborate (`/collaboration`)** - View and join collaboration projects
-- **Messages (`/messages`)** - Direct messaging with other users
-- **Profile (`/profile`)** - User profile with stats and recent works
-- **Login (`/login`)** - Authentication page
+---
 
-### Theme Support
-- Dark theme (default) with purple accent colors
-- Light theme toggle via button in navbar
-- Smooth transitions between themes
+## Testing
 
-### Responsive Design
-- Mobile-first approach
-- Responsive grid layouts
-- Mobile-optimized navigation
-- Touch-friendly buttons and interactions
+Tests live in `src/test/`. Mock Supabase with `vi.mock`:
 
-## 🛠️ Tech Stack
-
-- **Frontend Framework**: React 18.2.0
-- **Build Tool**: Vite 5.0.0
-- **Routing**: React Router 6.22.0
-- **Styling**: CSS with CSS Variables for theming
-- **Linting**: ESLint with React plugins
-
-## 🎨 Styling
-
-### Color Scheme
-
-#### Dark Theme
-- Primary Background: `#301934` to `#131313`
-- Accent: `#8A2BE2` (Purple)
-- Secondary Accent: `#00BFFF` (Cyan)
-- Text Primary: `#e5e2e1`
-
-#### Light Theme
-- Primary Background: `#f5f1ff` to `#ffffff`
-- Text Primary: `#131313`
-
-### CSS Variables
-All colors, spacing, and transitions use CSS variables defined in `:root` for easy theming.
-
-## 📦 Dependencies
-
-### Production
-- `react`: UI library
-- `react-dom`: DOM rendering
-- `react-router-dom`: Client-side routing
-
-### Development
-- `@vitejs/plugin-react`: Vite plugin for React
-- `vite`: Build tool
-- `eslint`: Code linting
-- `eslint-plugin-react`: React-specific linting rules
-
-## 🔧 Configuration Files
-
-- `vite.config.js` - Vite configuration with React plugin
-- `index.html` - Entry HTML file
-- `package.json` - Project dependencies and scripts
-
-## 📝 Development Guidelines
-
-### Adding a New Page
-
-1. Create a new component in `src/pages/`:
-```jsx
-import React from 'react';
-import './Pages.css';
-
-function NewPage() {
-  return (
-    <div className="page new-page">
-      {/* Content */}
-    </div>
-  );
-}
-
-export default NewPage;
+```js
+vi.mock('../lib/supabase', () => ({
+  supabase: {
+    from: () => ({ select: () => ({ data: [], error: null }) }),
+  },
+}));
 ```
 
-2. Import and add route in `src/App.jsx`:
-```jsx
-import NewPage from './pages/NewPage';
+See `src/test/liziMusic.test.js` for the full chained query builder mock pattern.
 
-// Inside Routes:
-<Route path="/new-page" element={<NewPage />} />
-```
+---
 
-3. Add navigation link in `src/components/Layout.jsx`:
-```jsx
-<Link to="/new-page">New Page</Link>
-```
+## Deployment
 
-### Adding Styles
+Deployed on **Vercel** as a static SPA. Build output goes to `dist/`:
 
-- Global styles go in `src/styles/global.css`
-- Page-specific styles go in `src/pages/Pages.css`
-- Component styles go in corresponding `.css` files
-
-### Theme Implementation
-
-Use CSS variables for all colors:
-```css
-color: var(--text-primary);
-background: var(--card-bg);
-border-color: var(--border-color);
-```
-
-## 🚢 Deployment
-
-Build for production:
 ```bash
 npm run build
 ```
 
-The build output will be in the `dist/` directory.
-
-## 📋 Future Enhancements
-
-- [ ] Backend API integration
-- [ ] User authentication & session management
-- [ ] Real-time messaging with WebSockets
-- [ ] Audio player component
-- [ ] File upload for tracks
-- [ ] User notifications
-- [ ] Social features (likes, comments, follows)
-- [ ] Admin dashboard
-- [ ] Analytics
-
-## 📞 Contact & Support
-
-For issues or feature requests, please create an issue in the project repository.
-
-## 📄 License
-
-This project is private and proprietary.
-
-
-### Prerequisites
-
-- Node.js (v16 or higher)
-- npm or yarn
-
-#
-
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd lizi
-```
-
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Start the development server:
-```bash
-npm run dev
-```
-
-The application will be available at `http://localhost:5173` (default Vite port).
-
-## Development
-
-### Available Scripts
-
-- `npm run dev` - Start the development server
-- `npm run build` - Build the project for production
-- `npm run preview` - Preview the production build locally
-- `npm run lint` - Run ESLint to check code quality
-
-### Project Structure
-
-```
-src/
-├── components/     # Reusable React components
-├── pages/          # Page components
-├── styles/         # Global styles and design system
-└── utils/          # Utility functions and helpers
-
-Public assets:
-├── index.html      # Main entry point
-├── login.html      # Authentication page
-├── profile.html    # User profile page
-├── search.html     - Music search and discovery
-├── messages.html   # Messaging interface
-└── collaboration.html  # Collaboration features
-```
-
-## Design System
-
-LIZI uses a modern dark theme with carefully crafted color palette:
-
-- **Primary Color**: White (#ffffff)
-- **Surface Colors**: Dark grays (#131313 - #353534)
-- **Text Color**: Light beige (#e5e2e1)
-- **Accent Color**: Light gray (#c8c6c5)
-
-For detailed design specifications, see [DESIGN.md](DESIGN.md)
-
-## Documentation
-
-- [PRD.md](PRD.md) - Complete Product Requirements Document
-- [DESIGN.md](DESIGN.md) - Design system and visual specifications
-- [COMPONENTS_README.md](COMPONENTS_README.md) - Component documentation
-
-
-
-We welcome contributions! Please ensure your code:
-- Follows the ESLint rules configured in the project
-- Maintains the design system specifications
-- Includes appropriate documentation
-
-## Project Status
-
-**Current Version**: 1.0.0  
-**Status**: In Development  
-**Last Updated**: May 2026
-
-
-
-[Add your license information here]
-
-## Support
-
-For questions, feedback, or issues, please reach out to the development team.
+No server-side rendering — React Router handles client-side navigation.
 
 ---
 
-**Built with ❤️ for musicians everywhere**
+## License
+
+Private and proprietary. All rights reserved.
