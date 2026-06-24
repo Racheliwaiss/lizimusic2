@@ -22,23 +22,23 @@
 
 /* Prompt state */
 .geo-banner--prompt {
-  background: rgba(0, 217, 255, 0.06);
-  border: 1px solid rgba(0, 217, 255, 0.25);
-  color: var(--text-secondary);
+  background: rgba(0, 217, 255, 0.15);
+  border: 1.5px solid rgba(0, 217, 255, 0.55);
+  color: var(--text-primary);
 }
 
 /* Active / detected state */
 .geo-banner--active {
-  background: rgba(45, 255, 176, 0.07);
-  border: 1px solid rgba(45, 255, 176, 0.3);
+  background: rgba(45, 255, 176, 0.15);
+  border: 1.5px solid rgba(45, 255, 176, 0.55);
   color: var(--text-primary);
 }
 
 /* Loading state */
 .geo-banner--loading {
-  background: rgba(138, 43, 226, 0.07);
-  border: 1px solid rgba(138, 43, 226, 0.25);
-  color: var(--text-secondary);
+  background: rgba(138, 43, 226, 0.15);
+  border: 1.5px solid rgba(138, 43, 226, 0.45);
+  color: var(--text-primary);
 }
 
 .geo-banner-icon {
