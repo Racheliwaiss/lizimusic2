@@ -189,20 +189,49 @@ function Search() {
       </section>
 
       {/* Search bar */}
-      <div className="search-track-bar">
-        <span className="search-track-icon">🎙️</span>
+      <div className={`search-track-bar ${voiceState === 'listening' ? 'search-track-bar--listening' : ''}`}>
+        <span className="search-track-icon">🔍</span>
         <input
           type="text"
-          placeholder={t('search.placeholder')}
+          placeholder={voiceState === 'listening' ? (language === 'he' ? 'מדבר…' : 'Listening…') : t('search.placeholder')}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className="search-track-input"
           autoFocus
         />
-        {query && (
+        {query && voiceState !== 'listening' && (
           <button className="search-clear-btn" onClick={() => setQuery('')}>✕</button>
         )}
+        {voiceSupported && (
+          <button
+            className={`voice-search-btn voice-search-btn--${voiceState}`}
+            onClick={startVoice}
+            title={voiceState === 'listening'
+              ? (language === 'he' ? 'עצור האזנה' : 'Stop listening')
+              : (language === 'he' ? 'חיפוש קולי' : 'Voice search')}
+            aria-label="Voice search"
+          >
+            {voiceState === 'listening' ? (
+              <span className="voice-pulse-ring">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3z"/>
+                  <path d="M17 11a1 1 0 0 0-2 0 3 3 0 0 1-6 0 1 1 0 0 0-2 0 5 5 0 0 0 4 4.9V18H9a1 1 0 0 0 0 2h6a1 1 0 0 0 0-2h-2v-2.1A5 5 0 0 0 17 11z"/>
+                </svg>
+              </span>
+            ) : (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3z"/>
+                <path d="M17 11a1 1 0 0 0-2 0 3 3 0 0 1-6 0 1 1 0 0 0-2 0 5 5 0 0 0 4 4.9V18H9a1 1 0 0 0 0 2h6a1 1 0 0 0 0-2h-2v-2.1A5 5 0 0 0 17 11z"/>
+              </svg>
+            )}
+          </button>
+        )}
       </div>
+      {voiceState === 'error' && (
+        <p className="voice-error-msg">
+          {language === 'he' ? '⚠️ לא ניתן לגשת למיקרופון. בדוק הרשאות.' : '⚠️ Microphone access denied. Check your browser permissions.'}
+        </p>
+      )}
 
       {/* Browse filters */}
       <div className="search-browse-filters">
