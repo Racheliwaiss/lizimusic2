@@ -4,6 +4,7 @@ import { useLanguage } from '../LanguageContext';
 import { useAuth } from '../AuthContext';
 import { useGeoContext } from '../GeoContext';
 import { proximityLabel } from '../lib/geolocation';
+import { useFavourites } from '../hooks/useFavourites';
 import {
   fetchProjects, createProject, updateProject, deleteProject,
   joinProject, fetchProjectMembers,
@@ -104,6 +105,7 @@ function Collaboration() {
   const [showAll, setShowAll]               = useState(false);
   const [genreFilter, setGenreFilter]       = useState('');
   const { city: detectedCity }              = useGeoContext();
+  const { isFav, toggle: toggleFav }        = useFavourites();
 
   // Modal tabs
   const [modalTab, setModalTab]             = useState('members');  // 'members' | 'tracks' | 'chat'
@@ -662,6 +664,13 @@ function Collaboration() {
                     title="View project page"
                   >
                     👁 View
+                  </button>
+                  <button
+                    className={`fav-btn ${isFav(project.id) ? 'fav-btn--on' : ''}`}
+                    onClick={(e) => { e.stopPropagation(); toggleFav({ type: 'project', id: project.id, title: project.title, genre: project.genre, instruments: project.instruments, location: project.location, description: project.description }); }}
+                    title={isFav(project.id) ? 'Remove from favourites' : 'Save project'}
+                  >
+                    {isFav(project.id) ? '❤️' : '🤍'}
                   </button>
                 </div>
               </div>

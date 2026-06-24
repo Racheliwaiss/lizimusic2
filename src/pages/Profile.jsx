@@ -7,6 +7,7 @@ import AvatarUpload from '../components/AvatarUpload';
 import { fetchUserTracks, saveTrack, updateTrack, deleteLiziMusic, fetchUserProjects, uploadAvatar, uploadTrackFile } from '../lib/db';
 import translations from '../translations';
 import { nearestCity, GEO_LS_KEY } from '../lib/geolocation';
+import { useFavourites } from '../hooks/useFavourites';
 import './Pages.css';
 
 // English values are always used as option values for consistent data storage.
@@ -27,6 +28,8 @@ function Profile() {
 
   const { user, isAuthenticated, logout, updateProfile } = useAuth();
   const navigate = useNavigate();
+  const { favourites, remove: removeFav } = useFavourites();
+  const [favTab, setFavTab] = useState('all');
   const [isEditing, setIsEditing] = useState(true);
   const [saveError, setSaveError] = useState('');
   const [tracks, setTracks] = useState([]);
@@ -497,6 +500,95 @@ function Profile() {
               </div>
             ))}
           </div>
+        )}
+      </section>
+
+      {/* Favourites */}
+      <section className="profile-content my-projects-section">
+        <div className="works-header">
+          <h2>❤️ Favourites {favourites.length > 0 && <span style={{ fontSize: '0.85rem', fontWeight: 400, color: 'var(--text-secondary)' }}>({favourites.length})</span>}</h2>
+        </div>
+
+        {favourites.length === 0 ? (
+          <div className="no-tracks">
+            <div className="no-tracks-icon">🤍</div>
+            <p>Heart any artist, event, or project to save it here.</p>
+          </div>
+        ) : (
+          <>
+            <div className="fav-tabs">
+              {[
+                { key: 'all', label: 'All' },
+                { key: 'artist', label: '🎤 Artists' },
+                { key: 'event', label: '📅 Events' },
+                { key: 'bandmate', label: '🔍 Bandmates' },
+                { key: 'project', label: '🎼 Projects' },
+              ].map(tab => (
+                <button
+                  key={tab.key}
+                  className={`fav-tab ${favTab === tab.key ? 'active' : ''}`}
+                  onClick={() => setFavTab(tab.key)}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {(() => {
+              const visible = favTab === 'all' ? favourites : favourites.filter(f => f.type === favTab);
+              if (visible.length === 0)
+                return <div className="fav-empty"><div className="fav-empty-icon">🤍</div><p>No {favTab}s saved yet.</p></div>;
+              return (
+                <div className="fav-grid">
+                  {visible.map(fav => (
+                    <div key={fav.id} className="fav-card">
+                      <button className="fav-card-remove" onClick={() => removeFav(fav.id)} title="Remove">✕</button>
+                      {fav.type === 'artist' && (
+                        <>
+                          <div className="fav-card-avatar">{fav.avatar || '🎤'}</div>
+                          <span className="fav-card-type">Artist</span>
+                          <p className="fav-card-name">{fav.name}</p>
+                          {fav.genre && <p className="fav-card-sub">🎵 {fav.genre}</p>}
+                          {fav.instruments && <p className="fav-card-sub">🎸 {fav.instruments}</p>}
+                          {fav.location && <p className="fav-card-sub">📍 {fav.location}</p>}
+                        </>
+                      )}
+                      {fav.type === 'event' && (
+                        <>
+                          <div className="fav-card-avatar">{fav.avatar || '📅'}</div>
+                          <span className="fav-card-type">Event</span>
+                          <p className="fav-card-name">{fav.title}</p>
+                          {fav.date && <p className="fav-card-sub">📅 {fav.date}</p>}
+                          {fav.location && <p className="fav-card-sub">📍 {fav.location}</p>}
+                          {fav.genre && <p className="fav-card-sub">🎵 {fav.genre}</p>}
+                        </>
+                      )}
+                      {fav.type === 'bandmate' && (
+                        <>
+                          <div className="fav-card-avatar">{fav.avatar || '🎵'}</div>
+                          <span className="fav-card-type">Bandmate</span>
+                          <p className="fav-card-name">{fav.instrument}</p>
+                          {fav.genre && <p className="fav-card-sub">🎵 {fav.genre}</p>}
+                          {fav.location && <p className="fav-card-sub">📍 {fav.location}</p>}
+                          {fav.postedBy && <p className="fav-card-sub">👤 {fav.postedBy}</p>}
+                        </>
+                      )}
+                      {fav.type === 'project' && (
+                        <>
+                          <div className="fav-card-avatar">🎼</div>
+                          <span className="fav-card-type">Project</span>
+                          <p className="fav-card-name">{fav.title}</p>
+                          {fav.genre && <p className="fav-card-sub">🎵 {fav.genre}</p>}
+                          {fav.instruments && <p className="fav-card-sub">🎸 {fav.instruments}</p>}
+                          {fav.location && <p className="fav-card-sub">📍 {fav.location}</p>}
+                        </>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
+          </>
         )}
       </section>
 

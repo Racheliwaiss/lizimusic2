@@ -5813,3 +5813,114 @@
 }
 
 [dir="rtl"] .contact-info-card:hover { transform: translateX(-4px); }
+
+/* ══════════════════════════════════════════
+   Favourite heart button (shared across pages)
+   ══════════════════════════════════════════ */
+.fav-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.15rem;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 50%;
+  transition: transform 0.15s, background 0.15s;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.fav-btn:hover { transform: scale(1.25); background: rgba(255,255,255,0.06); }
+.fav-btn--on   { transform: scale(1.1); }
+
+/* ══════════════════════════════════════════
+   Favourites section in Profile
+   ══════════════════════════════════════════ */
+.fav-tabs {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+.fav-tab {
+  padding: 6px 18px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border-color);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.fav-tab:hover { border-color: var(--music-cyan); color: var(--music-cyan); }
+.fav-tab.active {
+  background: linear-gradient(135deg, var(--music-pink), var(--music-purple));
+  border-color: transparent;
+  color: #fff;
+}
+
+.fav-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.fav-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  position: relative;
+  transition: transform 0.15s, border-color 0.15s;
+}
+.fav-card:hover { transform: translateY(-2px); border-color: var(--music-pink); }
+
+.fav-card-type {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--music-cyan);
+  margin-bottom: 0.1rem;
+}
+.fav-card-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.2;
+}
+.fav-card-sub {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+.fav-card-avatar {
+  font-size: 1.6rem;
+  margin-bottom: 0.2rem;
+}
+.fav-card-remove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: transparent;
+  border: none;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 3px 5px;
+  border-radius: 4px;
+  transition: color 0.15s;
+  line-height: 1;
+}
+.fav-card-remove:hover { color: #ff4444; }
+
+.fav-empty {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+.fav-empty-icon { font-size: 2rem; margin-bottom: 0.5rem; }

@@ -4,6 +4,7 @@ import { useLanguage } from '../LanguageContext';
 import { useAuth } from '../AuthContext';
 import { useGeoContext } from '../GeoContext';
 import { proximityLabel } from '../lib/geolocation';
+import { useFavourites } from '../hooks/useFavourites';
 import './Pages.css';
 
 const INSTRUMENTS = [
@@ -86,6 +87,7 @@ function FindBandmate() {
     try { return JSON.parse(localStorage.getItem('lizi_bandmate_posts') || '[]'); } catch { return []; }
   });
   const { city: detectedCity } = useGeoContext();
+  const { isFav, toggle: toggleFav } = useFavourites();
 
   const [filterInstrument, setFilterInstrument] = useState('');
   const [filterGenre, setFilterGenre]           = useState('');
@@ -294,6 +296,13 @@ function FindBandmate() {
                 )}
                 <div className="bandmate-footer">
                   <span className="event-posted-by">Posted by {post.postedBy}</span>
+                  <button
+                    className={`fav-btn ${isFav(post.id) ? 'fav-btn--on' : ''}`}
+                    onClick={() => toggleFav({ type: 'bandmate', id: post.id, instrument: post.instrument, genre: post.genre, location: post.location, description: post.description, postedBy: post.postedBy, avatar: post.avatar })}
+                    title={isFav(post.id) ? 'Remove from favourites' : 'Save listing'}
+                  >
+                    {isFav(post.id) ? '❤️' : '🤍'}
+                  </button>
                   {post.contact ? (
                     <button
                       className="mpc-contact-btn mpc-whatsapp"

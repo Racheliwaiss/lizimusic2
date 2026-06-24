@@ -279,6 +279,13 @@ function Events() {
                 {ev.description && <p className="event-desc">{ev.description}</p>}
                 <div className="event-footer">
                   <span className="event-posted-by">Posted by {ev.postedBy}</span>
+                  <button
+                    className={`fav-btn ${isFav(ev.id) ? 'fav-btn--on' : ''}`}
+                    onClick={() => toggleFav({ type: 'event', id: ev.id, title: ev.title, type_: ev.type, genre: ev.genre, location: ev.location, date: ev.date, avatar: ev.avatar, description: ev.description })}
+                    title={isFav(ev.id) ? 'Remove from favourites' : 'Save event'}
+                  >
+                    {isFav(ev.id) ? '❤️' : '🤍'}
+                  </button>
                   {ev.contact && (
                     <button
                       className="mpc-contact-btn mpc-whatsapp"
