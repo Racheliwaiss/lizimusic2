@@ -220,6 +220,11 @@ function Profile() {
 
   return (
     <div className="page profile-page">
+      {saveSuccess && (
+        <div className="profile-save-toast">
+          ✅ {t('profile.saveChanges')} — {t('profile.saved') || 'Profile saved!'}
+        </div>
+      )}
       <div className="profile-header">
         <div className="profile-banner">
           <div className="banner-decoration">🎵</div>
