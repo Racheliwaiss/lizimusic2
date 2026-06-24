@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useLanguage } from '../LanguageContext';
 import { useAuth } from '../AuthContext';
@@ -43,11 +43,51 @@ function Search() {
   const [inviteSent, setInviteSent]             = useState(false);
   const [connectMsg, setConnectMsg]             = useState('');
   const panelRef = useRef(null);
+  const recognitionRef = useRef(null);
   const { city: detectedCity } = useGeoContext();
 
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  /* ── Voice search ──────────────────────────────────────────────── */
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const voiceSupported = Boolean(SpeechRecognition);
+  const [voiceState, setVoiceState] = useState('idle'); // 'idle' | 'listening' | 'error'
+
+  const stopVoice = useCallback(() => {
+    recognitionRef.current?.stop();
+    setVoiceState('idle');
+  }, []);
+
+  const startVoice = useCallback(() => {
+    if (!voiceSupported) return;
+    if (voiceState === 'listening') { stopVoice(); return; }
+
+    const rec = new SpeechRecognition();
+    rec.lang = language === 'he' ? 'he-IL' : 'en-US';
+    rec.interimResults = true;
+    rec.maxAlternatives = 1;
+    rec.continuous = false;
+
+    rec.onstart  = () => setVoiceState('listening');
+    rec.onerror  = () => setVoiceState('error');
+    rec.onend    = () => setVoiceState('idle');
+
+    rec.onresult = (e) => {
+      const transcript = Array.from(e.results)
+        .map(r => r[0].transcript)
+        .join('');
+      setQuery(transcript);
+      if (e.results[e.results.length - 1].isFinal) stopVoice();
+    };
+
+    recognitionRef.current = rec;
+    rec.start();
+  }, [voiceSupported, voiceState, language, stopVoice]);
+
+  /* Stop on unmount */
+  useEffect(() => () => recognitionRef.current?.stop(), []);
 
   useEffect(() => {
     fetchArtists().then(setAllArtists);
