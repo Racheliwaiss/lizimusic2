@@ -5,39 +5,34 @@
 .geo-banner {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0.6rem 1rem;
-  border-radius: 10px;
-  font-size: 0.85rem;
-  margin-bottom: 1rem;
+  gap: 0.75rem;
+  padding: 0.65rem 1.1rem;
+  border-radius: 12px;
+  font-size: 0.88rem;
+  font-weight: 500;
   flex-wrap: wrap;
-  animation: geo-slide-in 0.25s ease;
-  will-change: transform, opacity;
 }
 
-@keyframes geo-slide-in {
-  from { opacity: 0; transform: translateY(-8px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* Prompt state */
+/* Prompt state – solid teal tint, unmissable */
 .geo-banner--prompt {
-  background: rgba(0, 217, 255, 0.15);
-  border: 1.5px solid rgba(0, 217, 255, 0.55);
+  background: rgba(0, 217, 255, 0.18);
+  border: 2px solid #00d9ff;
   color: var(--text-primary);
+  box-shadow: 0 0 12px rgba(0, 217, 255, 0.25);
 }
 
 /* Active / detected state */
 .geo-banner--active {
   background: rgba(45, 255, 176, 0.15);
-  border: 1.5px solid rgba(45, 255, 176, 0.55);
+  border: 2px solid #2dffb0;
   color: var(--text-primary);
+  box-shadow: 0 0 12px rgba(45, 255, 176, 0.2);
 }
 
 /* Loading state */
 .geo-banner--loading {
   background: rgba(138, 43, 226, 0.15);
-  border: 1.5px solid rgba(138, 43, 226, 0.45);
+  border: 2px solid var(--music-purple);
   color: var(--text-primary);
 }
 
