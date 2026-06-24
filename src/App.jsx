@@ -18,6 +18,7 @@ import Feed from './pages/Feed';
 import Events from './pages/Events';
 import FindBandmate from './pages/FindBandmate';
 import Contact from './pages/Contact';
+import MyTracks from './pages/MyTracks';
 import BandBackground from './components/BandBackground';
 
 // Protected Route Component
@@ -58,6 +59,7 @@ function AppContent() {
                 <Route path="/profile" element={<ProtectedRoute element={<Profile />} />} />
                 <Route path="/dashboard" element={<ProtectedRoute element={<Profile />} />} />
                 <Route path="/messages" element={<ProtectedRoute element={<Messages />} />} />
+                <Route path="/my-tracks" element={<ProtectedRoute element={<MyTracks />} />} />
                 <Route path="/collaboration" element={<Collaboration />} />
                 <Route path="/project/:id" element={<ProjectDetail />} />
                 <Route path="/search" element={<Search />} />
