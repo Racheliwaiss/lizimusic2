@@ -32,7 +32,7 @@ const mockAuth = {
     }
 
     const user = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: 'mock_' + finalEmail.replace(/[^a-z0-9]/gi, '_'),
       email: finalEmail,
       user_metadata: finalMetadata,
       created_at: new Date().toISOString(),
@@ -43,15 +43,27 @@ const mockAuth = {
   },
 
   signInWithPassword: async (email, password) => {
-    let finalEmail = '';
-    if (typeof email === 'object' && email !== null) {
-      finalEmail = email.email || '';
-    } else {
-      finalEmail = typeof email === 'string' ? email : '';
+    const finalEmail = (typeof email === 'object' && email !== null)
+      ? (email.email || '')
+      : (typeof email === 'string' ? email : '');
+
+    /* Reuse the existing stored user if the email matches —
+       this preserves all previously saved user_metadata on re-login. */
+    const raw = localStorage.getItem('supabase_user');
+    if (raw) {
+      try {
+        const existing = JSON.parse(raw);
+        if (existing.email === finalEmail) {
+          _notify('SIGNED_IN', { user: existing });
+          return { data: { user: existing }, error: null };
+        }
+      } catch {}
     }
 
+    /* New user — use a deterministic ID so the same email always
+       gets the same user ID across sign-ups in mock mode. */
     const user = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: 'mock_' + finalEmail.replace(/[^a-z0-9]/gi, '_'),
       email: finalEmail,
       user_metadata: {},
       created_at: new Date().toISOString(),
