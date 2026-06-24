@@ -1,7 +1,9 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../LanguageContext';
 import { useAuth } from '../AuthContext';
+import LocationDetector from '../components/LocationDetector';
+import { proximityLabel } from '../lib/geolocation';
 import './Pages.css';
 
 const EVENT_TYPES = ['Jam Session', 'Rehearsal', 'Gig', 'Workshop', 'Open Mic'];
@@ -92,6 +94,13 @@ function Events() {
   const [formOpen, setFormOpen]         = useState(false);
   const [formData, setFormData]         = useState(EMPTY_FORM);
   const [formError, setFormError]       = useState('');
+  const [detectedCity, setDetectedCity] = useState(null);
+
+  const handleCityDetected = useCallback((city) => {
+    setDetectedCity(city);
+    setFilterLocation(prev => prev || city);
+    setFormData(prev => prev.location ? prev : { ...prev, location: city });
+  }, []);
 
   const allEvents = useMemo(() => {
     const combined = [...SEED_EVENTS, ...userEvents];
@@ -133,6 +142,8 @@ function Events() {
 
   return (
     <div className="page events-page">
+      <LocationDetector onCity={handleCityDetected} />
+
       <section className="events-hero">
         <div className="feed-eq-bars">
           {[...Array(14)].map((_, i) => (
@@ -259,6 +270,16 @@ function Events() {
                   <span className="event-meta">📅 {formatDate(ev.date)}{ev.time && ` · ${ev.time}`}</span>
                   <span className="event-meta">📍 {ev.location}</span>
                   {ev.genre && <span className="event-meta">🎵 {ev.genre}</span>}
+                  {(() => {
+                    const prox = proximityLabel(detectedCity, ev.location);
+                    if (!prox) return null;
+                    const labels = { exact: t('geo.nearYou'), nearby: t('geo.nearby'), remote: t('geo.remote') };
+                    return (
+                      <span className={`near-you-badge near-you-badge--${prox}`}>
+                        {prox === 'exact' ? '📍' : prox === 'remote' ? '🌐' : '🗺️'} {labels[prox]}
+                      </span>
+                    );
+                  })()}
                 </div>
                 {ev.description && <p className="event-desc">{ev.description}</p>}
                 <div className="event-footer">

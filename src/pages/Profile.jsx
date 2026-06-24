@@ -6,6 +6,7 @@ import UploadTrack from '../components/UploadTrack';
 import AvatarUpload from '../components/AvatarUpload';
 import { fetchUserTracks, saveTrack, updateTrack, deleteLiziMusic, fetchUserProjects, uploadAvatar, uploadTrackFile } from '../lib/db';
 import translations from '../translations';
+import { GEO_LS_KEY } from '../lib/geolocation';
 import './Pages.css';
 
 // English values are always used as option values for consistent data storage.
@@ -82,6 +83,14 @@ function Profile() {
     const url = user?.user_metadata?.avatar_url;
     if (url) setAvatarUrl(url);
   }, [user?.user_metadata?.avatar_url]);
+
+  // Auto-suggest GPS-detected city when location field is blank
+  useEffect(() => {
+    const geoCity = localStorage.getItem(GEO_LS_KEY);
+    if (geoCity) {
+      setFormData(prev => prev.location ? prev : { ...prev, location: geoCity });
+    }
+  }, []);
 
   // Load tracks and user's projects from Supabase on mount
   useEffect(() => {
@@ -277,7 +286,27 @@ function Profile() {
                   </select>
                 </label>
                 <label>
-                  📍 {t('profile.location')}
+                  <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
+                    📍 {t('profile.location')}
+                    {!formData.location && (
+                      <button
+                        type="button"
+                        style={{ fontSize: '0.72rem', background: 'transparent', border: 'none', color: 'var(--music-cyan)', cursor: 'pointer', padding: 0, fontWeight: 600, textDecoration: 'underline' }}
+                        onClick={() => {
+                          if (!navigator.geolocation) return;
+                          navigator.geolocation.getCurrentPosition((pos) => {
+                            import('../lib/geolocation').then(({ nearestCity, GEO_LS_KEY: KEY }) => {
+                              const city = nearestCity(pos.coords.latitude, pos.coords.longitude);
+                              localStorage.setItem(KEY, city);
+                              setFormData(prev => ({ ...prev, location: city }));
+                            });
+                          });
+                        }}
+                      >
+                        📍 {t('geo.useLocation')}
+                      </button>
+                    )}
+                  </span>
                   <select name="location" value={formData.location || ''} onChange={handleChange} className="edit-select">
                     <option value="">{t('dropdowns.selectLocation')}</option>
                     {EN.locations.map((l, i) => <option key={l} value={l}>{Array.isArray(LOCATIONS_LABELS) ? LOCATIONS_LABELS[i] || l : l}</option>)}

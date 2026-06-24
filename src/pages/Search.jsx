@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useLanguage } from '../LanguageContext';
 import { useAuth } from '../AuthContext';
 import { fetchArtists, fetchProjects, fetchUserTracks, fetchUserProjects, sendProjectMessage } from '../lib/db';
+import LocationDetector from '../components/LocationDetector';
+import { proximityLabel } from '../lib/geolocation';
 import './Pages.css';
 
 const GENRE_COLORS = {
@@ -41,6 +43,8 @@ function Search() {
   const [inviteSent, setInviteSent]             = useState(false);
   const [connectMsg, setConnectMsg]             = useState('');
   const panelRef = useRef(null);
+  const [detectedCity, setDetectedCity] = useState(null);
+  const handleCityDetected = useCallback((city) => setDetectedCity(city), []);
 
   const { t } = useLanguage();
   const { user } = useAuth();
@@ -133,6 +137,7 @@ function Search() {
 
   return (
     <div className="page search-page-v2">
+      <LocationDetector onCity={handleCityDetected} />
 
       {/* Hero */}
       <section className="search-hero">
@@ -231,7 +236,19 @@ function Search() {
                       )}
                     </div>
                     {artist.location && (
-                      <span className="artist-location">📍 {artist.location}</span>
+                      <span className="artist-location" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                        📍 {artist.location}
+                        {(() => {
+                          const prox = proximityLabel(detectedCity, artist.location);
+                          if (!prox) return null;
+                          const labels = { exact: t('geo.nearYou'), nearby: t('geo.nearby'), remote: t('geo.remote') };
+                          return (
+                            <span className={`near-you-badge near-you-badge--${prox}`}>
+                              {prox === 'exact' ? '📍' : prox === 'remote' ? '🌐' : '🗺️'} {labels[prox]}
+                            </span>
+                          );
+                        })()}
+                      </span>
                     )}
                   </div>
                   <div className="artist-track-right">
@@ -319,7 +336,19 @@ function Search() {
                       <span className="project-tag">👤 {t('search.ages')} {project.ageRange}</span>
                     )}
                     {project.location && (
-                      <span className="project-tag">📍 {project.location}</span>
+                      <span className="project-tag" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                        📍 {project.location}
+                        {(() => {
+                          const prox = proximityLabel(detectedCity, project.location);
+                          if (!prox) return null;
+                          const labels = { exact: t('geo.nearYou'), nearby: t('geo.nearby'), remote: t('geo.remote') };
+                          return (
+                            <span className={`near-you-badge near-you-badge--${prox}`}>
+                              {prox === 'exact' ? '📍' : prox === 'remote' ? '🌐' : '🗺️'} {labels[prox]}
+                            </span>
+                          );
+                        })()}
+                      </span>
                     )}
                   </div>
                   <Link

@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../LanguageContext';
 import { useAuth } from '../AuthContext';
 import { fetchArtists } from '../lib/db';
 import translations from '../translations';
+import LocationDetector from '../components/LocationDetector';
 import './Pages.css';
 
 /* ── Genre normalisation ──────────────────────────────────────────────
@@ -131,17 +132,20 @@ function OpenStage() {
   const [allArtists, setAllArtists] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedGenre, setSelectedGenre] = useState('All');
+  const [geoCity, setGeoCity] = useState(null);
+
+  const handleCityDetected = useCallback((city) => setGeoCity(city), []);
 
   useEffect(() => {
     fetchArtists().then(data => { setAllArtists(data); setLoading(false); });
   }, []);
 
-  /* User profile preferences */
+  /* User profile preferences — fall back to GPS city when no saved location */
   const userProfile = useMemo(() => {
     const m = user?.user_metadata || {};
     return {
       genres:      (m.favoriteGenres || '').split(',').map(g => normalizeGenre(g.trim())).filter(Boolean),
-      location:    m.location || '',
+      location:    m.location || geoCity || '',
       instruments: (m.instruments || '').toLowerCase().split(',').map(i => i.trim()).filter(Boolean),
       style:       (m.musicStyle || '').toLowerCase().trim(),
       ageRange:    parseAgeRange(m.connectAges),
@@ -206,6 +210,7 @@ function OpenStage() {
 
   return (
     <div className="page open-stage-page">
+      <LocationDetector onCity={handleCityDetected} />
 
       {/* ── Hero ── */}
       <section className="hero">

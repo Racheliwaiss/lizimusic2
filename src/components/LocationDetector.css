@@ -1,0 +1,175 @@
+/* ══════════════════════════════════════════
+   Geo Location Banner
+   ══════════════════════════════════════════ */
+
+.geo-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 1rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  animation: geo-slide-in 0.25s ease;
+  will-change: transform, opacity;
+}
+
+@keyframes geo-slide-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Prompt state */
+.geo-banner--prompt {
+  background: rgba(0, 217, 255, 0.06);
+  border: 1px solid rgba(0, 217, 255, 0.25);
+  color: var(--text-secondary);
+}
+
+/* Active / detected state */
+.geo-banner--active {
+  background: rgba(45, 255, 176, 0.07);
+  border: 1px solid rgba(45, 255, 176, 0.3);
+  color: var(--text-primary);
+}
+
+/* Loading state */
+.geo-banner--loading {
+  background: rgba(138, 43, 226, 0.07);
+  border: 1px solid rgba(138, 43, 226, 0.25);
+  color: var(--text-secondary);
+}
+
+.geo-banner-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.geo-banner-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.geo-banner-text strong {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+/* Pulsing dot for loading */
+.geo-banner-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--music-purple);
+  animation: geo-pulse 1s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes geo-pulse {
+  0%, 100% { opacity: 0.3; transform: scale(0.9); }
+  50%       { opacity: 1;   transform: scale(1.15); }
+}
+
+/* CTA button */
+.geo-banner-cta {
+  padding: 4px 14px;
+  background: linear-gradient(135deg, var(--music-cyan), var(--music-purple));
+  border: none;
+  border-radius: 20px;
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.2s, transform 0.15s;
+  box-shadow: none;
+}
+.geo-banner-cta:hover { opacity: 0.85; transform: scale(1.03); }
+.geo-banner-cta:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Change link */
+.geo-banner-change {
+  background: transparent;
+  border: none;
+  color: var(--music-cyan);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  white-space: nowrap;
+  box-shadow: none;
+}
+.geo-banner-change:hover { opacity: 0.75; transform: none; }
+
+/* Dismiss button */
+.geo-banner-dismiss {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: color 0.15s;
+  flex-shrink: 0;
+  box-shadow: none;
+  margin-left: auto;
+}
+.geo-banner-dismiss:hover { color: var(--text-primary); transform: none; }
+
+/* Near-you badge (used inside cards) */
+.near-you-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.near-you-badge--exact {
+  background: rgba(45, 255, 176, 0.15);
+  border: 1px solid rgba(45, 255, 176, 0.4);
+  color: #2dffb0;
+}
+
+.near-you-badge--nearby {
+  background: rgba(0, 217, 255, 0.1);
+  border: 1px solid rgba(0, 217, 255, 0.3);
+  color: var(--music-cyan);
+}
+
+.near-you-badge--remote {
+  background: rgba(138, 43, 226, 0.1);
+  border: 1px solid rgba(138, 43, 226, 0.3);
+  color: var(--music-purple);
+}
+
+/* Light mode */
+[data-theme="light"] .geo-banner--prompt {
+  background: rgba(0, 140, 180, 0.06);
+  border-color: rgba(0, 140, 180, 0.25);
+}
+[data-theme="light"] .geo-banner--active {
+  background: rgba(0, 140, 100, 0.06);
+  border-color: rgba(0, 140, 100, 0.25);
+}
+[data-theme="light"] .geo-banner--loading {
+  background: rgba(138, 43, 226, 0.05);
+  border-color: rgba(138, 43, 226, 0.2);
+}
+[data-theme="light"] .near-you-badge--exact {
+  background: rgba(0, 140, 100, 0.1);
+  border-color: rgba(0, 140, 100, 0.3);
+  color: #008060;
+}
+[data-theme="light"] .near-you-badge--nearby {
+  background: rgba(0, 100, 150, 0.08);
+  border-color: rgba(0, 100, 150, 0.25);
+  color: #006490;
+}

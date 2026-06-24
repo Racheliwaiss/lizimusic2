@@ -310,6 +310,17 @@ const translations = {
       },
     },
 
+    geo: {
+      prompt: 'Enable location to see nearby musicians & events',
+      useLocation: 'Use My Location',
+      detecting: 'Detecting your location…',
+      showingNear: 'Showing results near',
+      change: 'Change',
+      nearYou: 'Near You',
+      nearby: 'Nearby',
+      remote: 'Remote Friendly',
+    },
+
     contact: {
       title: '📬 Contact Us',
       subtitle: 'We\'d love to hear from you — questions, collaborations, or feedback',
@@ -653,6 +664,17 @@ const translations = {
         description: 'תיאור',
         contact: 'יצירת קשר',
       },
+    },
+
+    geo: {
+      prompt: 'הפעל מיקום כדי לראות מוזיקאים ואירועים קרובים',
+      useLocation: 'השתמש במיקום שלי',
+      detecting: 'מאתר את מיקומך…',
+      showingNear: 'מציג תוצאות קרוב ל',
+      change: 'שנה',
+      nearYou: 'קרוב אליך',
+      nearby: 'באזורך',
+      remote: 'שיתוף פעולה מרחוק',
     },
 
     contact: {

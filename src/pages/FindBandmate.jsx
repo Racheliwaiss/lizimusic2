@@ -1,7 +1,9 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../LanguageContext';
 import { useAuth } from '../AuthContext';
+import LocationDetector from '../components/LocationDetector';
+import { proximityLabel } from '../lib/geolocation';
 import './Pages.css';
 
 const INSTRUMENTS = [
@@ -89,6 +91,14 @@ function FindBandmate() {
   const [formOpen, setFormOpen]                 = useState(false);
   const [formData, setFormData]                 = useState(EMPTY_FORM);
   const [formError, setFormError]               = useState('');
+  const [detectedCity, setDetectedCity]         = useState(null);
+
+  const handleCityDetected = useCallback((city) => {
+    setDetectedCity(city);
+    /* Auto-apply location filter only if user hasn't manually chosen one */
+    setFilterLocation(prev => prev || city);
+    setFormData(prev => prev.location ? prev : { ...prev, location: city });
+  }, []);
 
   const allPosts = useMemo(() => {
     return [...userPosts, ...SEED_POSTS];
@@ -136,6 +146,8 @@ function FindBandmate() {
 
   return (
     <div className="page bandmate-page">
+      <LocationDetector onCity={handleCityDetected} />
+
       <section className="events-hero">
         <div className="feed-eq-bars">
           {[...Array(14)].map((_, i) => (
@@ -273,6 +285,16 @@ function FindBandmate() {
                 </div>
                 <div className="bandmate-meta">
                   <span className="event-meta">📍 {post.location}</span>
+                  {(() => {
+                    const prox = proximityLabel(detectedCity, post.location);
+                    if (!prox) return null;
+                    const labels = { exact: t('geo.nearYou'), nearby: t('geo.nearby'), remote: t('geo.remote') };
+                    return (
+                      <span className={`near-you-badge near-you-badge--${prox}`}>
+                        {prox === 'exact' ? '📍' : prox === 'remote' ? '🌐' : '🗺️'} {labels[prox]}
+                      </span>
+                    );
+                  })()}
                   <span className="event-meta">🕑 {timeAgo(post.postedAt)}</span>
                 </div>
                 {post.description && (

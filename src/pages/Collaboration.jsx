@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState, useCallback, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../LanguageContext';
 import { useAuth } from '../AuthContext';
+import LocationDetector from '../components/LocationDetector';
+import { proximityLabel } from '../lib/geolocation';
 import {
   fetchProjects, createProject, updateProject, deleteProject,
   joinProject, fetchProjectMembers,
@@ -101,6 +103,8 @@ function Collaboration() {
   const [successMessage, setSuccessMessage] = useState('');
   const [showAll, setShowAll]               = useState(false);
   const [genreFilter, setGenreFilter]       = useState('');
+  const [detectedCity, setDetectedCity]     = useState(null);
+  const handleCityDetected = useCallback((city) => setDetectedCity(city), []);
 
   // Modal tabs
   const [modalTab, setModalTab]             = useState('members');  // 'members' | 'tracks' | 'chat'
@@ -332,6 +336,7 @@ function Collaboration() {
   // ── RENDER ────────────────────────────────────────────────
   return (
     <div className="page collab-page">
+      <LocationDetector onCity={handleCityDetected} />
 
       {/* ── Hero ──────────────────────────────────────────── */}
       <section className="collab-hero">
@@ -629,6 +634,16 @@ function Collaboration() {
                   {project.instruments && <span className="album-chip">🎸 {project.instruments}</span>}
                   {project.ageRange    && <span className="album-chip">👤 {project.ageRange}</span>}
                   {project.location    && <span className="album-chip">📍 {project.location}</span>}
+                  {(() => {
+                    const prox = proximityLabel(detectedCity, project.location);
+                    if (!prox) return null;
+                    const labels = { exact: t('geo.nearYou'), nearby: t('geo.nearby'), remote: t('geo.remote') };
+                    return (
+                      <span className={`near-you-badge near-you-badge--${prox}`}>
+                        {prox === 'exact' ? '📍' : prox === 'remote' ? '🌐' : '🗺️'} {labels[prox]}
+                      </span>
+                    );
+                  })()}
                 </div>
 
                 {/* Footer */}
