@@ -32,6 +32,8 @@ function Profile() {
   const [favTab, setFavTab] = useState('all');
   const [isEditing, setIsEditing] = useState(true);
   const [saveError, setSaveError] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
   const [tracks, setTracks] = useState([]);
   const [showUpload, setShowUpload] = useState(false);
   const [editingTrack, setEditingTrack] = useState(null);
