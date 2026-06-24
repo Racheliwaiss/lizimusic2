@@ -2,8 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../LanguageContext';
 import { useAuth } from '../AuthContext';
+import { useGeoContext } from '../GeoContext';
 import { supabase } from '../lib/supabase';
 import './Layout.css';
+import './LocationDetector.css';
 
 function Layout({ children }) {
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
@@ -13,6 +15,8 @@ function Layout({ children }) {
   const connectTimer = useRef(null);
 
   const { language, toggleLanguage, t } = useLanguage();
+  const { city: geoCity, status: geoStatus, detect: geoDetect, clear: geoClear } = useGeoContext();
+  const [geoDismissed, setGeoDismissed] = useState(false);
   const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -170,6 +174,36 @@ function Layout({ children }) {
           )}
         </div>
       </nav>
+
+      {/* ── Geo banner (global, below navbar) ── */}
+      {!geoDismissed && geoStatus !== 'unsupported' && geoStatus !== 'denied' && (
+        <div className="geo-bar-wrap">
+          {geoStatus === 'success' && geoCity ? (
+            <div className="geo-banner geo-banner--active">
+              <span className="geo-banner-icon">📍</span>
+              <span className="geo-banner-text">
+                {t('geo.showingNear')} <strong>{geoCity}</strong>
+              </span>
+              <button className="geo-banner-change" onClick={geoDetect}>{t('geo.change')}</button>
+              <button className="geo-banner-dismiss" onClick={() => { geoClear(); setGeoDismissed(true); }} aria-label="Dismiss">✕</button>
+            </div>
+          ) : geoStatus === 'loading' ? (
+            <div className="geo-banner geo-banner--loading">
+              <span className="geo-banner-dot" />
+              <span className="geo-banner-text">{t('geo.detecting')}</span>
+            </div>
+          ) : (
+            <div className="geo-banner geo-banner--prompt">
+              <span className="geo-banner-icon">📍</span>
+              <span className="geo-banner-text">{t('geo.prompt')}</span>
+              <button className="geo-banner-cta" onClick={geoDetect} disabled={geoStatus === 'loading'}>
+                {t('geo.useLocation')}
+              </button>
+              <button className="geo-banner-dismiss" onClick={() => setGeoDismissed(true)} aria-label="Dismiss">✕</button>
+            </div>
+          )}
+        </div>
+      )}
 
       <main className="main-content">
         {children}

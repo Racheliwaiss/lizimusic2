@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState, useCallback, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../LanguageContext';
 import { useAuth } from '../AuthContext';
-import LocationDetector from '../components/LocationDetector';
+import { useGeoContext } from '../GeoContext';
 import { proximityLabel } from '../lib/geolocation';
 import {
   fetchProjects, createProject, updateProject, deleteProject,
@@ -103,8 +103,7 @@ function Collaboration() {
   const [successMessage, setSuccessMessage] = useState('');
   const [showAll, setShowAll]               = useState(false);
   const [genreFilter, setGenreFilter]       = useState('');
-  const [detectedCity, setDetectedCity]     = useState(null);
-  const handleCityDetected = useCallback((city) => setDetectedCity(city), []);
+  const { city: detectedCity }              = useGeoContext();
 
   // Modal tabs
   const [modalTab, setModalTab]             = useState('members');  // 'members' | 'tracks' | 'chat'
@@ -336,7 +335,6 @@ function Collaboration() {
   // ── RENDER ────────────────────────────────────────────────
   return (
     <div className="page collab-page">
-      <LocationDetector onCity={handleCityDetected} />
 
       {/* ── Hero ──────────────────────────────────────────── */}
       <section className="collab-hero">

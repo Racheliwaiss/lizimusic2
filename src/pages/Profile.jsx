@@ -6,7 +6,7 @@ import UploadTrack from '../components/UploadTrack';
 import AvatarUpload from '../components/AvatarUpload';
 import { fetchUserTracks, saveTrack, updateTrack, deleteLiziMusic, fetchUserProjects, uploadAvatar, uploadTrackFile } from '../lib/db';
 import translations from '../translations';
-import { GEO_LS_KEY } from '../lib/geolocation';
+import { nearestCity, GEO_LS_KEY } from '../lib/geolocation';
 import './Pages.css';
 
 // English values are always used as option values for consistent data storage.
@@ -295,11 +295,9 @@ function Profile() {
                         onClick={() => {
                           if (!navigator.geolocation) return;
                           navigator.geolocation.getCurrentPosition((pos) => {
-                            import('../lib/geolocation').then(({ nearestCity, GEO_LS_KEY: KEY }) => {
-                              const city = nearestCity(pos.coords.latitude, pos.coords.longitude);
-                              localStorage.setItem(KEY, city);
-                              setFormData(prev => ({ ...prev, location: city }));
-                            });
+                            const city = nearestCity(pos.coords.latitude, pos.coords.longitude);
+                            localStorage.setItem(GEO_LS_KEY, city);
+                            setFormData(prev => ({ ...prev, location: city }));
                           });
                         }}
                       >

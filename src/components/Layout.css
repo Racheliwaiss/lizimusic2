@@ -362,6 +362,13 @@
   background: rgba(0, 0, 0, 0.05);
 }
 
+.geo-bar-wrap {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0.5rem var(--spacing-xl) 0;
+  width: 100%;
+}
+
 .main-content {
   flex: 1;
   padding: var(--spacing-xl);

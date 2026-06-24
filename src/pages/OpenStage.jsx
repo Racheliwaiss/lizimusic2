@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../LanguageContext';
 import { useAuth } from '../AuthContext';
 import { fetchArtists } from '../lib/db';
 import translations from '../translations';
-import LocationDetector from '../components/LocationDetector';
+import { useGeoContext } from '../GeoContext';
 import './Pages.css';
 
 /* ── Genre normalisation ──────────────────────────────────────────────
@@ -129,12 +129,10 @@ const FACTOR_META = {
 function OpenStage() {
   const { t } = useLanguage();
   const { user } = useAuth();
+  const { city: geoCity } = useGeoContext();
   const [allArtists, setAllArtists] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedGenre, setSelectedGenre] = useState('All');
-  const [geoCity, setGeoCity] = useState(null);
-
-  const handleCityDetected = useCallback((city) => setGeoCity(city), []);
 
   useEffect(() => {
     fetchArtists().then(data => { setAllArtists(data); setLoading(false); });
@@ -210,7 +208,6 @@ function OpenStage() {
 
   return (
     <div className="page open-stage-page">
-      <LocationDetector onCity={handleCityDetected} />
 
       {/* ── Hero ── */}
       <section className="hero">

@@ -1,8 +1,8 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../LanguageContext';
 import { useAuth } from '../AuthContext';
-import LocationDetector from '../components/LocationDetector';
+import { useGeoContext } from '../GeoContext';
 import { proximityLabel } from '../lib/geolocation';
 import './Pages.css';
 
@@ -85,20 +85,14 @@ function FindBandmate() {
   const [userPosts, setUserPosts] = useState(() => {
     try { return JSON.parse(localStorage.getItem('lizi_bandmate_posts') || '[]'); } catch { return []; }
   });
+  const { city: detectedCity } = useGeoContext();
+
   const [filterInstrument, setFilterInstrument] = useState('');
   const [filterGenre, setFilterGenre]           = useState('');
   const [filterLocation, setFilterLocation]     = useState('');
   const [formOpen, setFormOpen]                 = useState(false);
   const [formData, setFormData]                 = useState(EMPTY_FORM);
   const [formError, setFormError]               = useState('');
-  const [detectedCity, setDetectedCity]         = useState(null);
-
-  const handleCityDetected = useCallback((city) => {
-    setDetectedCity(city);
-    /* Auto-apply location filter only if user hasn't manually chosen one */
-    setFilterLocation(prev => prev || city);
-    setFormData(prev => prev.location ? prev : { ...prev, location: city });
-  }, []);
 
   const allPosts = useMemo(() => {
     return [...userPosts, ...SEED_POSTS];
@@ -146,8 +140,6 @@ function FindBandmate() {
 
   return (
     <div className="page bandmate-page">
-      <LocationDetector onCity={handleCityDetected} />
-
       <section className="events-hero">
         <div className="feed-eq-bars">
           {[...Array(14)].map((_, i) => (

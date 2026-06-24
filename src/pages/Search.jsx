@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useLanguage } from '../LanguageContext';
 import { useAuth } from '../AuthContext';
 import { fetchArtists, fetchProjects, fetchUserTracks, fetchUserProjects, sendProjectMessage } from '../lib/db';
-import LocationDetector from '../components/LocationDetector';
+import { useGeoContext } from '../GeoContext';
 import { proximityLabel } from '../lib/geolocation';
 import './Pages.css';
 
@@ -43,8 +43,7 @@ function Search() {
   const [inviteSent, setInviteSent]             = useState(false);
   const [connectMsg, setConnectMsg]             = useState('');
   const panelRef = useRef(null);
-  const [detectedCity, setDetectedCity] = useState(null);
-  const handleCityDetected = useCallback((city) => setDetectedCity(city), []);
+  const { city: detectedCity } = useGeoContext();
 
   const { t } = useLanguage();
   const { user } = useAuth();
@@ -137,7 +136,6 @@ function Search() {
 
   return (
     <div className="page search-page-v2">
-      <LocationDetector onCity={handleCityDetected} />
 
       {/* Hero */}
       <section className="search-hero">

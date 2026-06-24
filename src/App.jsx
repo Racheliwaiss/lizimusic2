@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { LanguageProvider, useLanguage } from './LanguageContext';
 import { AuthProvider, useAuth } from './AuthContext';
+import { GeoProvider } from './GeoContext';
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -78,8 +79,10 @@ function App() {
   return (
     <LanguageProvider>
       <AuthProvider>
-        <BandBackground />
-        <AppContent />
+        <GeoProvider>
+          <BandBackground />
+          <AppContent />
+        </GeoProvider>
       </AuthProvider>
     </LanguageProvider>
   );

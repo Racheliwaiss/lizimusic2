@@ -1,8 +1,8 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../LanguageContext';
 import { useAuth } from '../AuthContext';
-import LocationDetector from '../components/LocationDetector';
+import { useGeoContext } from '../GeoContext';
 import { proximityLabel } from '../lib/geolocation';
 import './Pages.css';
 
@@ -88,19 +88,14 @@ function Events() {
   const [userEvents, setUserEvents] = useState(() => {
     try { return JSON.parse(localStorage.getItem('lizi_events') || '[]'); } catch { return []; }
   });
+  const { city: detectedCity } = useGeoContext();
+
   const [filterType, setFilterType]     = useState('');
   const [filterLocation, setFilterLocation] = useState('');
   const [filterGenre, setFilterGenre]   = useState('');
   const [formOpen, setFormOpen]         = useState(false);
   const [formData, setFormData]         = useState(EMPTY_FORM);
   const [formError, setFormError]       = useState('');
-  const [detectedCity, setDetectedCity] = useState(null);
-
-  const handleCityDetected = useCallback((city) => {
-    setDetectedCity(city);
-    setFilterLocation(prev => prev || city);
-    setFormData(prev => prev.location ? prev : { ...prev, location: city });
-  }, []);
 
   const allEvents = useMemo(() => {
     const combined = [...SEED_EVENTS, ...userEvents];
@@ -142,8 +137,6 @@ function Events() {
 
   return (
     <div className="page events-page">
-      <LocationDetector onCity={handleCityDetected} />
-
       <section className="events-hero">
         <div className="feed-eq-bars">
           {[...Array(14)].map((_, i) => (
