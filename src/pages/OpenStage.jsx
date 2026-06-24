@@ -5,6 +5,7 @@ import { useAuth } from '../AuthContext';
 import { fetchArtists } from '../lib/db';
 import translations from '../translations';
 import { useGeoContext } from '../GeoContext';
+import { useFavourites } from '../hooks/useFavourites';
 import './Pages.css';
 
 /* ── Genre normalisation ──────────────────────────────────────────────
@@ -130,6 +131,7 @@ function OpenStage() {
   const { t } = useLanguage();
   const { user } = useAuth();
   const { city: geoCity } = useGeoContext();
+  const { isFav, toggle: toggleFav } = useFavourites();
   const [allArtists, setAllArtists] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedGenre, setSelectedGenre] = useState('All');
@@ -321,7 +323,16 @@ function OpenStage() {
                     ⭐ {(artist.followers || 0).toLocaleString()} {t('openStage.followers')}
                   </div>
 
-                  <button className="listen-btn">{t('openStage.connect')}</button>
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                    <button className="listen-btn">{t('openStage.connect')}</button>
+                    <button
+                      className={`fav-btn ${isFav(artist.id) ? 'fav-btn--on' : ''}`}
+                      onClick={() => toggleFav({ type: 'artist', id: artist.id, name: artist.name, avatar: artist.avatar, genre: artist.genre, instruments: artist.instruments, location: artist.location, style: artist.style, followers: artist.followers })}
+                      title={isFav(artist.id) ? 'Remove from favourites' : 'Add to favourites'}
+                    >
+                      {isFav(artist.id) ? '❤️' : '🤍'}
+                    </button>
+                  </div>
                 </div>
               );
             })

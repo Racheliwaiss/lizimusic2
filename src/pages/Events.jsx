@@ -4,6 +4,7 @@ import { useLanguage } from '../LanguageContext';
 import { useAuth } from '../AuthContext';
 import { useGeoContext } from '../GeoContext';
 import { proximityLabel } from '../lib/geolocation';
+import { useFavourites } from '../hooks/useFavourites';
 import './Pages.css';
 
 const EVENT_TYPES = ['Jam Session', 'Rehearsal', 'Gig', 'Workshop', 'Open Mic'];
@@ -89,6 +90,7 @@ function Events() {
     try { return JSON.parse(localStorage.getItem('lizi_events') || '[]'); } catch { return []; }
   });
   const { city: detectedCity } = useGeoContext();
+  const { isFav, toggle: toggleFav } = useFavourites();
 
   const [filterType, setFilterType]     = useState('');
   const [filterLocation, setFilterLocation] = useState('');
