@@ -185,32 +185,36 @@ function Profile() {
   };
 
   const handleSave = async (e) => {
-    if (e) {
-      e.preventDefault();
-    }
+    if (e) e.preventDefault();
 
     setSaveError('');
+    setSaving(true);
+
     const updates = {
-      name: formData.name,
-      bio: formData.bio,
-      about: formData.about,
+      name:           formData.name,
+      bio:            formData.bio,
+      about:          formData.about,
       favoriteGenres: formData.favoriteGenres,
-      instruments: formData.instruments,
-      connectAges: formData.connectAges,
-      lookingFor: formData.lookingFor,
-      createGoals: formData.createGoals,
-      musicStyle: formData.musicStyle,
-      phone:    formData.phone,
-      facebook: formData.facebook,
-      location: formData.location,
+      instruments:    formData.instruments,
+      connectAges:    formData.connectAges,
+      lookingFor:     formData.lookingFor,
+      createGoals:    formData.createGoals,
+      musicStyle:     formData.musicStyle,
+      phone:          formData.phone,
+      facebook:       formData.facebook,
+      location:       formData.location,
     };
 
     const result = await updateProfile(updates);
+    setSaving(false);
+
     if (result.error) {
       setSaveError(result.error);
       return;
     }
 
+    setSaveSuccess(true);
+    setTimeout(() => setSaveSuccess(false), 3000);
     setIsEditing(false);
   };
 
@@ -351,8 +355,10 @@ function Profile() {
                 </label>
                 {saveError && <div className="error-message">{saveError}</div>}
                 <div className="edit-buttons">
-                  <button className="save-btn" type="submit">{t('profile.saveChanges')}</button>
-                  <button className="cancel-btn" type="button" onClick={() => setIsEditing(false)}>{t('profile.cancel')}</button>
+                  <button className="save-btn" type="submit" disabled={saving}>
+                    {saving ? '⏳ Saving…' : `💾 ${t('profile.saveChanges')}`}
+                  </button>
+                  <button className="cancel-btn" type="button" onClick={() => setIsEditing(false)} disabled={saving}>{t('profile.cancel')}</button>
                 </div>
               </form>
             ) : (
