@@ -164,7 +164,7 @@ function Layout({ children }) {
                   <button className="dropdown-item" onClick={() => goTo('/profile')}>
                     👤 View Profile
                   </button>
-                  <button className="dropdown-item" onClick={() => goTo('/profile')}>
+                  <button className="dropdown-item" onClick={() => goTo('/my-tracks')}>
                     🎵 My Tracks
                   </button>
                   <button className="dropdown-item" onClick={() => goTo('/collaboration')}>
