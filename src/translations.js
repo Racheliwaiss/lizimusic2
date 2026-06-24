@@ -90,6 +90,7 @@ const translations = {
       weeksAgo: 'weeks ago',
       location: 'Location',
       saveChanges: 'Save Changes',
+      saved: 'Profile saved successfully!',
       cancel: 'Cancel',
     },
 
@@ -446,6 +447,7 @@ const translations = {
       weeksAgo: 'שבועות',
       location: 'מיקום',
       saveChanges: 'שמירה',
+      saved: 'הפרופיל נשמר בהצלחה!',
       cancel: 'ביטול',
     },
 
