@@ -82,6 +82,71 @@
 - **Styling:** Plain CSS with custom properties (no framework) · full RTL support
 - **Deployment:** Vercel · custom domain via Porkbun (lizimusic.site)
 - **Testing:** Vitest + jsdom
+---
+
+## 📁 מבנה הפרויקט / Project Structure
+
+```
+lizimusic2/
+├── src/
+│   ├── components/              # רכיבים לשימוש חוזר / Reusable UI components
+│   │   ├── Layout.jsx           # מבנה עמוד + ניווט / Page layout & navigation
+│   │   ├── UploadTrack.jsx      # מודל העלאת שירים / Track upload modal
+│   │   ├── AvatarUpload.jsx     # העלאת תמונת פרופיל / Profile photo upload
+│   │   ├── LocationDetector.jsx # זיהוי מיקום / Geolocation UI
+│   │   └── BandBackground.jsx   # רקע אנימטיבי / Animated background
+│   │
+│   ├── pages/                   # עמודי האפליקציה / App pages (routes)
+│   │   ├── Home.jsx             # דף הבית / Landing page
+│   │   ├── Login.jsx            # התחברות / Login
+│   │   ├── AuthCallback.jsx     # קולבק OAuth / OAuth redirect handler
+│   │   ├── Feed.jsx             # פיד קהילתי / Community feed
+│   │   ├── MyTracks.jsx         # השירים שלי / My uploaded tracks
+│   │   ├── Collaboration.jsx    # פרויקטים משותפים / Collaboration projects
+│   │   ├── ProjectDetail.jsx    # עמוד פרויקט / Single project view
+│   │   ├── FindBandmate.jsx     # מציאת שותפים / Find bandmates
+│   │   ├── OpenStage.jsx        # במה פתוחה / Open stage discovery
+│   │   ├── Events.jsx           # אירועים / Events
+│   │   ├── Messages.jsx         # הודעות / Direct messages
+│   │   ├── Profile.jsx          # פרופיל משתמש / User profile
+│   │   ├── Search.jsx           # חיפוש / Search (incl. voice)
+│   │   ├── Memorial.jsx         # קיר הנצחה / Memorial wall
+│   │   ├── About.jsx            # אודות / About
+│   │   └── Contact.jsx          # צור קשר / Contact
+│   │
+│   ├── lib/                     # לוגיקה ושירותים / Core logic & services
+│   │   ├── supabase.js          # אתחול לקוח Supabase / Supabase client
+│   │   ├── db.js                # שאילתות מסד נתונים / DB queries
+│   │   ├── authApi.js           # לוגיקת אימות / Auth logic
+│   │   └── geolocation.js       # שירות מיקום / Geolocation service
+│   │
+│   ├── hooks/                   # React hooks מותאמים / Custom hooks
+│   │   ├── useGeolocation.js    # hook מיקום / Geolocation hook
+│   │   └── useFavourites.js     # hook מועדפים / Favourites hook
+│   │
+│   ├── data/
+│   │   └── artists.js           # נתוני ברירת מחדל / Fallback seed data
+│   │
+│   ├── test/                    # בדיקות / Tests (Vitest)
+│   │   ├── liziMusic.test.js
+│   │   └── setup.js
+│   │
+│   ├── styles/global.css        # סגנונות גלובליים / Global styles
+│   │
+│   ├── AuthContext.jsx          # Context אימות / Auth context
+│   ├── LanguageContext.jsx      # Context שפה (עברית/אנגלית) / Language (i18n) context
+│   ├── GeoContext.jsx           # Context מיקום / Geolocation context
+│   ├── translations.js          # מחרוזות תרגום / Translation strings (HE/EN)
+│   ├── App.jsx                  # רכיב ראשי + routing / Root component & routes
+│   └── main.jsx                 # נקודת כניסה / Entry point
+│
+├── public/                      # נכסים סטטיים / Static assets
+├── index.html
+├── vercel.json                  # הגדרות פריסה + SPA routing / Deploy config
+├── vite.config.js
+└── package.json
+```
+
 
 ---
 
