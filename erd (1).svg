@@ -1,0 +1,171 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="760" viewBox="0 0 1100 760" font-family="Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1a0b2e"/>
+      <stop offset="100%" stop-color="#0d0518"/>
+    </linearGradient>
+    <linearGradient id="hdr" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#FF006E"/>
+      <stop offset="100%" stop-color="#8A2BE2"/>
+    </linearGradient>
+    <linearGradient id="hdr2" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#8A2BE2"/>
+      <stop offset="100%" stop-color="#00D9FF"/>
+    </linearGradient>
+    <style>
+      .ttl{fill:#fff;font-size:14px;font-weight:bold}
+      .pk{fill:#FFD700;font-size:11px;font-weight:bold}
+      .fk{fill:#00D9FF;font-size:11px}
+      .col{fill:#e0d5f0;font-size:11px}
+      .box{fill:#241340;stroke:#5a3a8a;stroke-width:1.5;rx:8}
+      .rel{stroke:#00D9FF;stroke-width:1.5;fill:none;opacity:0.6}
+      .relbl{fill:#9fb;font-size:9px;font-style:italic}
+    </style>
+  </defs>
+
+  <rect width="1100" height="760" fill="url(#bg)"/>
+  <text x="550" y="34" text-anchor="middle" fill="#fff" font-size="22" font-weight="bold">🎵 LIZI — Database ERD (Supabase / PostgreSQL)</text>
+  <text x="550" y="54" text-anchor="middle" fill="#b0a0c8" font-size="12">Entity-Relationship Diagram · PK = Primary Key · FK = Foreign Key</text>
+
+  <!-- Relationship lines (drawn first, behind boxes) -->
+  <path class="rel" d="M 300 230 C 380 230, 380 200, 430 200"/>
+  <path class="rel" d="M 300 260 C 380 260, 380 430, 430 430"/>
+  <path class="rel" d="M 180 320 C 180 420, 180 480, 180 540"/>
+  <path class="rel" d="M 660 200 C 740 200, 740 200, 800 200"/>
+  <path class="rel" d="M 660 460 C 740 460, 740 580, 800 580"/>
+  <path class="rel" d="M 540 320 C 540 380, 540 400, 540 420"/>
+
+  <!-- ===== profiles (center-left, hub) ===== -->
+  <g>
+    <rect class="box" x="40" y="100" width="260" height="210" rx="8"/>
+    <rect x="40" y="100" width="260" height="30" rx="8" fill="url(#hdr)"/>
+    <text class="ttl" x="55" y="120">👤 profiles</text>
+    <text class="pk" x="55" y="150">🔑 id (uuid) PK = auth.users.id</text>
+    <text class="col" x="55" y="172">name (text)</text>
+    <text class="col" x="55" y="192">avatar (text)</text>
+    <text class="col" x="55" y="212">bio (text)</text>
+    <text class="col" x="55" y="232">city (text)</text>
+    <text class="col" x="55" y="252">created_at (timestamptz)</text>
+    <text class="relbl" x="55" y="288">central hub — referenced by most tables</text>
+  </g>
+
+  <!-- ===== Track (top-center) ===== -->
+  <g>
+    <rect class="box" x="430" y="100" width="230" height="210" rx="8"/>
+    <rect x="430" y="100" width="230" height="30" rx="8" fill="url(#hdr)"/>
+    <text class="ttl" x="445" y="120">🎵 Track</text>
+    <text class="pk" x="445" y="150">🔑 id (uuid) PK</text>
+    <text class="col" x="445" y="170">title (text)</text>
+    <text class="col" x="445" y="190">genre (text)</text>
+    <text class="col" x="445" y="210">file_url (text)</text>
+    <text class="col" x="445" y="230">file_name (text)</text>
+    <text class="col" x="445" y="250">duration (text)</text>
+    <text class="fk" x="445" y="272">🔗 user_id (uuid) FK → profiles</text>
+    <text class="col" x="445" y="292">created_at (timestamptz)</text>
+  </g>
+
+  <!-- ===== collaborations (center) ===== -->
+  <g>
+    <rect class="box" x="430" y="360" width="230" height="190" rx="8"/>
+    <rect x="430" y="360" width="230" height="30" rx="8" fill="url(#hdr2)"/>
+    <text class="ttl" x="445" y="380">🤝 collaborations</text>
+    <text class="pk" x="445" y="410">🔑 id (uuid) PK</text>
+    <text class="col" x="445" y="430">title (text)</text>
+    <text class="col" x="445" y="450">genre (text)</text>
+    <text class="col" x="445" y="470">instruments (text)</text>
+    <text class="col" x="445" y="490">description (text)</text>
+    <text class="fk" x="445" y="512">🔗 created_by FK → profiles</text>
+    <text class="col" x="445" y="532">created_at (timestamptz)</text>
+  </g>
+
+  <!-- ===== Genre (top-right) ===== -->
+  <g>
+    <rect class="box" x="800" y="100" width="200" height="110" rx="8"/>
+    <rect x="800" y="100" width="200" height="30" rx="8" fill="url(#hdr2)"/>
+    <text class="ttl" x="815" y="120">🏷️ Genre</text>
+    <text class="pk" x="815" y="150">🔑 id (uuid) PK</text>
+    <text class="col" x="815" y="172">name (text)</text>
+    <text class="relbl" x="815" y="196">categorizes Track (1:N)</text>
+  </g>
+
+  <!-- ===== artists (mid-right) ===== -->
+  <g>
+    <rect class="box" x="800" y="240" width="200" height="170" rx="8"/>
+    <rect x="800" y="240" width="200" height="30" rx="8" fill="url(#hdr)"/>
+    <text class="ttl" x="815" y="260">🎤 artists</text>
+    <text class="pk" x="815" y="290">🔑 id (uuid) PK</text>
+    <text class="col" x="815" y="310">name (text)</text>
+    <text class="col" x="815" y="330">genre (text)</text>
+    <text class="col" x="815" y="350">instruments (text)</text>
+    <text class="col" x="815" y="370">city (text)</text>
+    <text class="col" x="815" y="390">style (text)</text>
+  </g>
+
+  <!-- ===== Playlist + Playlist_Track (bottom-center) ===== -->
+  <g>
+    <rect class="box" x="800" y="440" width="200" height="130" rx="8"/>
+    <rect x="800" y="440" width="200" height="30" rx="8" fill="url(#hdr2)"/>
+    <text class="ttl" x="815" y="460">🎶 Playlist_Track</text>
+    <text class="pk" x="815" y="490">🔑 id (uuid) PK</text>
+    <text class="fk" x="815" y="512">🔗 playlist_id FK</text>
+    <text class="fk" x="815" y="532">🔗 track_id FK</text>
+    <text class="relbl" x="815" y="556">N:M join (Track ↔ Playlist)</text>
+  </g>
+
+  <!-- ===== Social tables (bottom-left row) ===== -->
+  <g>
+    <rect class="box" x="40" y="540" width="160" height="140" rx="8"/>
+    <rect x="40" y="540" width="160" height="28" rx="8" fill="url(#hdr)"/>
+    <text class="ttl" x="52" y="559">💬 messages</text>
+    <text class="pk" x="52" y="586">🔑 id PK</text>
+    <text class="col" x="52" y="604">content</text>
+    <text class="fk" x="52" y="622">🔗 sender_id FK</text>
+    <text class="fk" x="52" y="640">🔗 receiver_id FK</text>
+    <text class="col" x="52" y="658">created_at</text>
+  </g>
+
+  <g>
+    <rect class="box" x="220" y="540" width="150" height="140" rx="8"/>
+    <rect x="220" y="540" width="150" height="28" rx="8" fill="url(#hdr2)"/>
+    <text class="ttl" x="232" y="559">➕ follows</text>
+    <text class="pk" x="232" y="586">🔑 id PK</text>
+    <text class="fk" x="232" y="608">🔗 follower_id</text>
+    <text class="fk" x="232" y="630">🔗 following_id</text>
+    <text class="relbl" x="232" y="656">N:M self-join</text>
+  </g>
+
+  <g>
+    <rect class="box" x="390" y="600" width="140" height="120" rx="8"/>
+    <rect x="390" y="600" width="140" height="28" rx="8" fill="url(#hdr)"/>
+    <text class="ttl" x="402" y="619">❤️ Like</text>
+    <text class="pk" x="402" y="646">🔑 id PK</text>
+    <text class="fk" x="402" y="668">🔗 user_id FK</text>
+    <text class="fk" x="402" y="690">🔗 track_id FK</text>
+  </g>
+
+  <g>
+    <rect class="box" x="550" y="600" width="160" height="120" rx="8"/>
+    <rect x="550" y="600" width="160" height="28" rx="8" fill="url(#hdr2)"/>
+    <text class="ttl" x="562" y="619">💭 Comment</text>
+    <text class="pk" x="562" y="646">🔑 id PK</text>
+    <text class="col" x="562" y="666">content</text>
+    <text class="fk" x="562" y="686">🔗 user_id · track_id FK</text>
+  </g>
+
+  <g>
+    <rect class="box" x="730" y="600" width="150" height="120" rx="8"/>
+    <rect x="730" y="600" width="150" height="28" rx="8" fill="url(#hdr)"/>
+    <text class="ttl" x="742" y="619">🎶 Playlist</text>
+    <text class="pk" x="742" y="646">🔑 id PK</text>
+    <text class="col" x="742" y="666">name</text>
+    <text class="fk" x="742" y="686">🔗 user_id FK</text>
+  </g>
+
+  <!-- Legend -->
+  <g>
+    <rect x="905" y="660" width="180" height="62" rx="6" fill="#241340" stroke="#5a3a8a"/>
+    <text x="915" y="678" fill="#FFD700" font-size="10" font-weight="bold">🔑 PK = Primary Key</text>
+    <text x="915" y="696" fill="#00D9FF" font-size="10">🔗 FK = Foreign Key</text>
+    <text x="915" y="714" fill="#9fb" font-size="9" font-style="italic">RLS enabled on Track / collaborations</text>
+  </g>
+</svg>

@@ -19,6 +19,7 @@ import Events from './pages/Events';
 import FindBandmate from './pages/FindBandmate';
 import Contact from './pages/Contact';
 import MyTracks from './pages/MyTracks';
+import AuthCallback from './pages/AuthCallback';
 import BandBackground from './components/BandBackground';
 
 // Protected Route Component
@@ -48,6 +49,7 @@ function AppContent() {
     >
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
         <Route
           path="/*"
           element={

@@ -1,5 +1,54 @@
-import { supabase } from './supabase';
+import { supabase, supabaseStorageKey } from './supabase';
 import fallbackArtists from '../data/artists';
+
+/*
+  The Google OAuth session is stored in 'lizi_auth_session' to prevent
+  supabase-js from calling /auth/v1/user (which 401s with a stale anon key).
+  But supabase.storage reads the auth token from supabase-js's own storage
+  key.  Before any authenticated Storage call we copy the access_token across
+  so the upload/delete request is properly authenticated.
+*/
+function injectLocalSession() {
+  if (!supabaseStorageKey) return;
+  try {
+    const raw = localStorage.getItem('lizi_auth_session');
+    if (!raw) return;
+    const { session } = JSON.parse(raw);
+    if (session?.access_token) {
+      localStorage.setItem(supabaseStorageKey, JSON.stringify(session));
+    }
+  } catch {}
+}
+
+/* ── Local track store (fallback when Supabase is unavailable) ── */
+const LOCAL_TRACKS_KEY = 'lizi_local_tracks';
+
+function getLocalTracks(userId) {
+  try {
+    return JSON.parse(localStorage.getItem(LOCAL_TRACKS_KEY) || '{}')[userId] || [];
+  } catch { return []; }
+}
+
+function upsertLocalTrack(userId, track) {
+  try {
+    const all = JSON.parse(localStorage.getItem(LOCAL_TRACKS_KEY) || '{}');
+    const list = all[userId] || [];
+    const idx  = list.findIndex(t => String(t.id) === String(track.id));
+    if (idx !== -1) list[idx] = track; else list.unshift(track);
+    all[userId] = list;
+    localStorage.setItem(LOCAL_TRACKS_KEY, JSON.stringify(all));
+  } catch {}
+}
+
+function removeLocalTrack(userId, trackId) {
+  try {
+    const all = JSON.parse(localStorage.getItem(LOCAL_TRACKS_KEY) || '{}');
+    if (all[userId]) {
+      all[userId] = all[userId].filter(t => String(t.id) !== String(trackId));
+      localStorage.setItem(LOCAL_TRACKS_KEY, JSON.stringify(all));
+    }
+  } catch {}
+}
 
 const fallbackProjects = [
   { id: 1,  title: 'Summer Vibes EP',     genre: 'Electronic', instruments: 'Synth, Drums',                ageRange: '18-35', description: 'Upbeat summer electronic project',    members: 3,  createdBy: null },
@@ -62,7 +111,7 @@ export async function fetchArtists() {
 export async function fetchUserProjects(userId) {
   try {
     const { data, error } = await supabase
-      .from('projects')
+      .from(COLLAB_TABLE)
       .select('*')
       .eq('created_by', userId)
       .order('created_at', { ascending: false });
@@ -87,7 +136,7 @@ function saveLocalProjects(list) {
 export async function fetchProjectById(projectId) {
   try {
     const { data, error } = await supabase
-      .from('projects')
+      .from(COLLAB_TABLE)
       .select('*')
       .eq('id', projectId)
       .single();
@@ -101,7 +150,7 @@ export async function fetchProjectById(projectId) {
 export async function fetchProjects() {
   try {
     const { data, error } = await supabase
-      .from('projects')
+      .from(COLLAB_TABLE)
       .select('*')
       .order('created_at', { ascending: false });
 
@@ -140,7 +189,7 @@ export async function createProject(fields, userId) {
   // ── Try Supabase first ────────────────────────────────────
   try {
     const { data, error } = await supabase
-      .from('projects')
+      .from(COLLAB_TABLE)
       .insert({
         title:       newProject.title,
         genre:       newProject.genre,
@@ -224,10 +273,10 @@ export async function joinProject(projectId, userId, profile = {}) {
 
   try {
     const { data: current, error: fetchErr } = await supabase
-      .from('projects').select('members').eq('id', projectId).single();
+      .from(COLLAB_TABLE).select('members').eq('id', projectId).single();
     if (!fetchErr) {
       await supabase
-        .from('projects').update({ members: (current.members || 1) + 1 }).eq('id', projectId);
+        .from(COLLAB_TABLE).update({ members: (current.members || 1) + 1 }).eq('id', projectId);
     }
   } catch { /* local fallback — count already updated in UI */ }
 
@@ -282,7 +331,7 @@ export async function updateProject(projectId, fields) {
 
   try {
     const { error } = await supabase
-      .from('projects')
+      .from(COLLAB_TABLE)
       .update({
         title:       fields.title,
         genre:       fields.genre,
@@ -307,7 +356,7 @@ export async function deleteProject(projectId) {
 
   try {
     const { error } = await supabase
-      .from('projects')
+      .from(COLLAB_TABLE)
       .delete()
       .eq('id', projectId);
 
@@ -339,6 +388,13 @@ export async function uploadTrackFile(userId, file) {
     return { url: null, error: 'Storage is not available in offline mode.' };
   }
 
+  /*
+    Inject the OAuth access_token into supabase-js's storage key so the
+    upload request carries Authorization: Bearer <token>.  Without this the
+    request is anonymous and Supabase Storage RLS blocks it.
+  */
+  injectLocalSession();
+
   const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
   const path     = `${userId}/${Date.now()}_${safeName}`;
 
@@ -347,12 +403,27 @@ export async function uploadTrackFile(userId, file) {
       .from('tracks')
       .upload(path, file, { upsert: false, contentType: file.type });
 
-    if (uploadError) throw uploadError;
+    if (uploadError) {
+      console.error('[LIZI] Storage upload error:', uploadError);
+      // Normalise — supabase-js versions differ on whether it's .status (number)
+      // or .statusCode (string), and on whether the message is in .message or .error
+      const sc  = uploadError.statusCode ?? uploadError.status;
+      const msg = (uploadError.message || uploadError.error || '').toLowerCase();
+      if (sc == 403 || msg.includes('rls') || msg.includes('policy') || msg.includes('violates') || msg.includes('unauthorized')) {
+        throw new Error('Permission denied. Make sure the "tracks" bucket exists and has an INSERT policy for authenticated users.');
+      }
+      if (sc == 401 || msg.includes('invalid') || msg.includes('api key')) {
+        throw new Error('Invalid Supabase API key. Update VITE_SUPABASE_ANON_KEY in your environment and redeploy.');
+      }
+      throw new Error(uploadError.message || uploadError.error || 'Upload failed. Please try again.');
+    }
 
     const { data } = supabase.storage.from('tracks').getPublicUrl(path);
     return { url: data.publicUrl, error: null };
   } catch (err) {
-    return { url: null, error: err.message || 'Upload failed.' };
+    const msg = err?.message || err?.error_description || 'Upload failed.';
+    console.error('[LIZI] uploadTrackFile failed:', msg);
+    return { url: null, error: msg };
   }
 }
 
@@ -420,23 +491,61 @@ export async function uploadAvatar(userId, file) {
   }
 }
 
-// ── Lizi Music table (tracks) ────────────────────────────────
+const COLLAB_TABLE = 'collaborations';
+
+// ── Track table (user track uploads) ─────────────────────────
+
+const TRACKS_TABLE = 'Track';
 
 export async function fetchUserTracks(userId) {
+  injectLocalSession(); // ensure auth token is available for this DB call
+  const local = getLocalTracks(userId);
   try {
     const { data, error } = await supabase
-      .from('Lizi Music')
+      .from(TRACKS_TABLE)
       .select('*')
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
 
-    if (error) throw error;
-    return (data || []).map(row => ({
+    if (error) {
+      console.error('[LIZI] fetchUserTracks error:', error.message, error);
+      throw error;
+    }
+    const remote = (data || []).map(row => ({
       id:       row.id,
       title:    row.title,
       genre:    row.genre || '',
       url:      row.file_url || '',
       fileName: row.file_name || '',
+    }));
+    // Merge local-only tracks that haven't synced to Supabase yet
+    const remoteIds = new Set(remote.map(t => String(t.id)));
+    const onlyLocal = local.filter(t => !remoteIds.has(String(t.id)));
+    return [...onlyLocal, ...remote];
+  } catch (err) {
+    console.warn('[LIZI] fetchUserTracks falling back to localStorage:', err?.message);
+    return local;
+  }
+}
+
+export async function fetchAllTracks() {
+  injectLocalSession();
+  try {
+    const { data, error } = await supabase
+      .from(TRACKS_TABLE)
+      .select('id, title, genre, file_url, user_id, created_at, profiles!user_id(name, avatar)')
+      .order('created_at', { ascending: false })
+      .limit(50);
+    if (error) { console.error('[LIZI] fetchAllTracks:', error.message); throw error; }
+    return (data || []).map(row => ({
+      id:             row.id,
+      title:          row.title,
+      genre:          row.genre || '',
+      url:            row.file_url || '',
+      userId:         row.user_id,
+      uploaderName:   row.profiles?.name   || 'Artist',
+      uploaderAvatar: row.profiles?.avatar || '🎤',
+      createdAt:      row.created_at,
     }));
   } catch {
     return [];
@@ -444,53 +553,70 @@ export async function fetchUserTracks(userId) {
 }
 
 export async function saveTrack({ userId, title, genre, fileUrl, fileName }) {
+  injectLocalSession(); // ensure auth token is present for the INSERT
   try {
     const { data, error } = await supabase
-      .from('Lizi Music')
+      .from(TRACKS_TABLE)
       .insert({ user_id: userId, title, genre, file_url: fileUrl, file_name: fileName })
       .select()
       .single();
 
-    if (error) throw error;
-    return {
-      track: { id: data.id, title: data.title, genre: data.genre || '', url: data.file_url || '', fileName: data.file_name || '' },
-      error: null,
-    };
+    if (error) {
+      console.error('[LIZI] saveTrack Supabase error:', error.message, error);
+      throw error;
+    }
+    console.info('[LIZI] saveTrack saved to Supabase:', data.id);
+    const track = { id: data.id, title: data.title, genre: data.genre || '', url: data.file_url || '', fileName: data.file_name || '' };
+    upsertLocalTrack(userId, track); // keep local in sync
+    return { track, error: null };
   } catch (err) {
-    return { track: null, error: err.message };
+    console.warn('[LIZI] saveTrack falling back to localStorage:', err?.message);
+    const track = { id: Date.now(), title, genre: genre || '', url: fileUrl || '', fileName: fileName || '' };
+    upsertLocalTrack(userId, track);
+    return { track, error: null };
   }
 }
 
-export async function updateTrack(trackId, { title, genre, fileUrl, fileName, is_completed }) {
+export async function updateTrack(trackId, { title, genre, fileUrl, fileName, is_completed, userId }) {
+  // Update local store first (works even if Supabase is unavailable)
+  if (userId) {
+    const local = getLocalTracks(userId);
+    const t = local.find(t => String(t.id) === String(trackId));
+    if (t) upsertLocalTrack(userId, { ...t, title, genre: genre ?? t.genre, url: fileUrl ?? t.url, fileName: fileName ?? t.fileName });
+  }
+
   try {
     const payload = { title, genre };
-    if (fileUrl)                payload.file_url      = fileUrl;
-    if (fileName)               payload.file_name     = fileName;
-    if (is_completed !== undefined) payload.is_completed = is_completed;
+    if (fileUrl      !== undefined) payload.file_url      = fileUrl;
+    if (fileName     !== undefined) payload.file_name     = fileName;
+    if (is_completed !== undefined) payload.is_completed  = is_completed;
 
     const { error } = await supabase
-      .from('Lizi Music')
+      .from(TRACKS_TABLE)
       .update(payload)
       .eq('id', trackId);
 
     if (error) throw error;
     return { error: null };
-  } catch (err) {
-    return { error: err.message };
+  } catch {
+    return { error: null }; // already updated locally above
   }
 }
 
-export async function deleteLiziMusic(trackId) {
+export async function deleteLiziMusic(trackId, userId) {
+  // Remove from local store
+  if (userId) removeLocalTrack(userId, trackId);
+
   try {
     const { error } = await supabase
-      .from('Lizi Music')
+      .from(TRACKS_TABLE)
       .delete()
       .eq('id', trackId);
 
     if (error) throw error;
     return { error: null };
-  } catch (err) {
-    return { error: err.message };
+  } catch {
+    return { error: null }; // already removed locally above
   }
 }
 

@@ -87,7 +87,7 @@ const rangeOverlap = (a, b) => a && b && a.min <= b.max && b.min <= a.max;
 function Collaboration() {
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
 
   const [projects, setProjects]             = useState([]);
   const [loading, setLoading]               = useState(true);
@@ -537,7 +537,14 @@ function Collaboration() {
       )}
 
       {/* ── Project grid ──────────────────────────────────── */}
-      {loading ? (
+      {!isAuthenticated ? (
+        <div className="feed-guest-gate">
+          <span className="feed-guest-icon">🔒</span>
+          <h3>Log in to see collaboration projects</h3>
+          <p>Browse, join, and create music projects with artists from the community.</p>
+          <button className="cta-button" onClick={() => navigate('/login')}>Log in</button>
+        </div>
+      ) : loading ? (
         <div className="collab-loading">
           <div className="collab-loading-bars">
             {[...Array(5)].map((_, i) => (

@@ -157,6 +157,7 @@ function MyTracks() {
         genre:    track.genre,
         fileUrl:  track.url      || undefined,
         fileName: track.fileName || undefined,
+        userId:   user.id,
       });
       setTracks(prev =>
         prev.map(t => t.id === track.id
@@ -178,7 +179,7 @@ function MyTracks() {
 
   const handleDeleteConfirm = async () => {
     if (!deleteTarget) return;
-    await deleteLiziMusic(deleteTarget.id);
+    await deleteLiziMusic(deleteTarget.id, user.id);
     setTracks(prev => prev.filter(t => t.id !== deleteTarget.id));
     if (playingId === deleteTarget.id) setPlayingId(null);
     setDeleteTarget(null);

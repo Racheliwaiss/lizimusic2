@@ -110,15 +110,42 @@ const mockAuth = {
   },
 };
 
-const isSupabaseConfigured = 
-  supabaseUrl && 
-  supabaseAnonKey && 
-  supabaseUrl !== 'https://your-supabase-url' && 
+const isSupabaseConfigured =
+  supabaseUrl &&
+  supabaseAnonKey &&
+  supabaseUrl !== 'https://your-supabase-url' &&
   supabaseAnonKey !== 'your-supabase-anon-key';
+
+if (isSupabaseConfigured) {
+  console.info(
+    `[LIZI] Real Supabase client active → ${supabaseUrl}\n` +
+    `       Key prefix: ${supabaseAnonKey.slice(0, 16)}…`
+  );
+} else {
+  console.info('[LIZI] No Supabase config — using localStorage mock auth');
+}
 
 // Export the real Supabase client if configured, otherwise fallback to mock
 export const supabase = isSupabaseConfigured
-  ? createClient(supabaseUrl, supabaseAnonKey)
+  ? createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        /* detectSessionFromUrl disabled so supabase-js does NOT auto-process
+           the OAuth hash or make a /auth/v1/user validation call on startup.
+           AuthCallback handles the hash manually to avoid the 401. */
+        detectSessionFromUrl: false,
+        autoRefreshToken:     true,
+        persistSession:       true,
+      },
+    })
   : { auth: mockAuth };
+
+/* The project reference extracted from the Supabase URL.
+   supabase-js stores sessions under  sb-<ref>-auth-token  in localStorage. */
+export const supabaseStorageKey = (() => {
+  if (!isSupabaseConfigured) return null;
+  try {
+    return `sb-${new URL(supabaseUrl).hostname.split('.')[0]}-auth-token`;
+  } catch { return null; }
+})();
 
 

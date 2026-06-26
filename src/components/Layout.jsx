@@ -3,7 +3,6 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../LanguageContext';
 import { useAuth } from '../AuthContext';
 import { useGeoContext } from '../GeoContext';
-import { supabase } from '../lib/supabase';
 import './Layout.css';
 import './LocationDetector.css';
 
@@ -12,13 +11,14 @@ function Layout({ children }) {
   const [profileOpen, setProfileOpen] = useState(false);
   const [connectOpen, setConnectOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [welcomeToast, setWelcomeToast] = useState(null);
   const profileRef = useRef(null);
   const connectTimer = useRef(null);
 
   const { language, toggleLanguage, t } = useLanguage();
   const { city: geoCity, status: geoStatus, detect: geoDetect, clear: geoClear } = useGeoContext();
   const [geoDismissed, setGeoDismissed] = useState(false);
-  const { user, logout } = useAuth();
+  const { user, loading, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -37,6 +37,21 @@ function Layout({ children }) {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
+  // Close mobile menu on route change
+  useEffect(() => { setMenuOpen(false); }, [location.pathname]);
+
+  // Show welcome toast once after Google / OAuth login
+  useEffect(() => {
+    if (!user) return;
+    try {
+      if (sessionStorage.getItem('lizi_welcome_pending')) {
+        sessionStorage.removeItem('lizi_welcome_pending');
+        setWelcomeToast(user);
+        setTimeout(() => setWelcomeToast(null), 4500);
+      }
+    } catch {}
+  }, [user]);
+
   const toggleTheme = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);
@@ -45,12 +60,12 @@ function Layout({ children }) {
 
   const handleLogout = async () => {
     setProfileOpen(false);
-    try { await supabase.auth.signOut(); } catch {}
+    setMenuOpen(false);
+    await logout(); // clears lizi_auth_session + supabase_user + updates React state
     navigate('/');
   };
 
   const goTo = (path) => { setProfileOpen(false); setMenuOpen(false); navigate(path); };
-  const closeMenu = () => setMenuOpen(false);
 
   const openConnect = () => { clearTimeout(connectTimer.current); setConnectOpen(true); };
   const closeConnect = () => { connectTimer.current = setTimeout(() => setConnectOpen(false), 150); };
@@ -67,7 +82,7 @@ function Layout({ children }) {
     <div className="layout">
       <nav className="navbar">
         <div className="logo">
-          <Link to="/" onClick={closeMenu}>{t('nav.logo')}</Link>
+          <Link to="/" onClick={() => setMenuOpen(false)}>{t('nav.logo')}</Link>
         </div>
 
         {/* Hamburger — mobile only */}
@@ -80,10 +95,36 @@ function Layout({ children }) {
           <span /><span /><span />
         </button>
 
-        <div className={`nav-links ${menuOpen ? 'nav-links--open' : ''}`} onClick={closeMenu}>
-          <Link to="/feed"          className={isActive('/feed')           ? 'active' : ''}>{t('nav.feed')}</Link>
-          <Link to="/open-stage"    className={isActive('/open-stage')     ? 'active' : ''}>{t('nav.discover')}</Link>
-          <Link to="/search"        className={isActive('/search')         ? 'active' : ''}>{t('nav.search')}</Link>
+        <div className={`nav-links ${menuOpen ? 'nav-links--open' : ''}`}>
+
+          {/* ── Mobile-only user section (top of hamburger menu) ── */}
+          {user && (
+            <div className="mobile-user-section">
+              <div className="mobile-user-header">
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt="avatar" className="mobile-user-avatar" />
+                ) : (
+                  <span className="mobile-user-emoji">🎵</span>
+                )}
+                <div className="mobile-user-info">
+                  <p className="mobile-user-name">{displayName}</p>
+                  <p className="mobile-user-email">{user.email}</p>
+                </div>
+              </div>
+              <div className="mobile-user-links">
+                <button className="mobile-user-btn" onClick={() => goTo('/profile')}>👤 My Profile</button>
+                <button className="mobile-user-btn" onClick={() => goTo('/my-tracks')}>🎵 My Tracks</button>
+                <button className="mobile-user-btn" onClick={() => goTo('/messages')}>💬 Messages</button>
+                <button className="mobile-user-btn mobile-user-btn--danger" onClick={handleLogout}>🚪 Logout</button>
+              </div>
+              <div className="mobile-section-divider" />
+            </div>
+          )}
+
+          {/* ── Main nav links ── */}
+          <Link to="/feed"          className={isActive('/feed')           ? 'active' : ''} onClick={() => setMenuOpen(false)}>{t('nav.feed')}</Link>
+          <Link to="/open-stage"    className={isActive('/open-stage')     ? 'active' : ''} onClick={() => setMenuOpen(false)}>{t('nav.discover')}</Link>
+          <Link to="/search"        className={isActive('/search')         ? 'active' : ''} onClick={() => setMenuOpen(false)}>{t('nav.search')}</Link>
           <div
             className="nav-dropdown-wrap"
             onMouseEnter={openConnect}
@@ -98,35 +139,35 @@ function Layout({ children }) {
             {connectOpen && (
               <div className="nav-dropdown nav-dropdown-wide" onMouseEnter={openConnect} onMouseLeave={closeConnect}>
                 <p className="nav-dropdown-section-label">{t('nav.collaborate')}</p>
-                <Link to="/collaboration" className="nav-dropdown-item" onClick={() => setConnectOpen(false)}>
+                <Link to="/collaboration" className="nav-dropdown-item" onClick={() => { setConnectOpen(false); setMenuOpen(false); }}>
                   🎼 {t('nav.collaborateMenu.browseProjects')}
                 </Link>
-                <Link to="/collaboration" className="nav-dropdown-item" onClick={() => setConnectOpen(false)}>
+                <Link to="/collaboration" className="nav-dropdown-item" onClick={() => { setConnectOpen(false); setMenuOpen(false); }}>
                   ➕ {t('nav.collaborateMenu.createProject')}
                 </Link>
-                <Link to="/profile" className="nav-dropdown-item" onClick={() => setConnectOpen(false)}>
+                <Link to="/profile" className="nav-dropdown-item" onClick={() => { setConnectOpen(false); setMenuOpen(false); }}>
                   👤 {t('nav.collaborateMenu.myProjects')}
                 </Link>
                 <div className="nav-dropdown-divider" />
                 <p className="nav-dropdown-section-label">{t('nav.findBandmate')}</p>
-                <Link to="/find-bandmate" className="nav-dropdown-item" onClick={() => setConnectOpen(false)}>
+                <Link to="/find-bandmate" className="nav-dropdown-item" onClick={() => { setConnectOpen(false); setMenuOpen(false); }}>
                   🥁 {t('nav.bandmateMenu.browseListings')}
                 </Link>
-                <Link to="/find-bandmate" className="nav-dropdown-item" onClick={() => setConnectOpen(false)}>
+                <Link to="/find-bandmate" className="nav-dropdown-item" onClick={() => { setConnectOpen(false); setMenuOpen(false); }}>
                   📋 {t('nav.bandmateMenu.postListing')}
                 </Link>
-                <Link to="/search" className="nav-dropdown-item" onClick={() => setConnectOpen(false)}>
+                <Link to="/search" className="nav-dropdown-item" onClick={() => { setConnectOpen(false); setMenuOpen(false); }}>
                   🔍 {t('nav.bandmateMenu.searchMusicians')}
                 </Link>
               </div>
             )}
           </div>
-          <Link to="/events"        className={isActive('/events')         ? 'active' : ''}>{t('nav.events')}</Link>
-          <Link to="/messages"      className={isActive('/messages')       ? 'active' : ''}>{t('nav.messages')}</Link>
-          <Link to="/about"         className={isActive('/about')          ? 'active' : ''}>{t('nav.about')}</Link>
-          <Link to="/contact"       className={isActive('/contact')        ? 'active' : ''}>{t('nav.contact')}</Link>
-          <Link to="/memorial"      className={isActive('/memorial')       ? 'active' : ''}>{t('nav.memorial')}</Link>
-          <Link to="/"              className={isActive('/')               ? 'active' : ''}>{t('nav.home')}</Link>
+          <Link to="/events"   className={isActive('/events')   ? 'active' : ''} onClick={() => setMenuOpen(false)}>{t('nav.events')}</Link>
+          <Link to="/messages" className={isActive('/messages') ? 'active' : ''} onClick={() => setMenuOpen(false)}>{t('nav.messages')}</Link>
+          <Link to="/about"    className={isActive('/about')    ? 'active' : ''} onClick={() => setMenuOpen(false)}>{t('nav.about')}</Link>
+          <Link to="/contact"  className={isActive('/contact')  ? 'active' : ''} onClick={() => setMenuOpen(false)}>{t('nav.contact')}</Link>
+          <Link to="/memorial" className={isActive('/memorial') ? 'active' : ''} onClick={() => setMenuOpen(false)}>{t('nav.memorial')}</Link>
+          <Link to="/"         className={isActive('/')         ? 'active' : ''} onClick={() => setMenuOpen(false)}>{t('nav.home')}</Link>
         </div>
 
         <div className="navbar-controls">
@@ -137,7 +178,11 @@ function Layout({ children }) {
             {theme === 'dark' ? '☀️' : '🌙'}
           </button>
 
-          {user ? (
+          {/* ── Auth button ── */}
+          {loading ? (
+            // Prevents "Login" flash while session is being restored
+            <div className="nav-auth-loading" aria-hidden="true" />
+          ) : user ? (
             <div className="profile-dropdown-wrap" ref={profileRef}>
               <button
                 className={`profile-trigger ${profileOpen ? 'open' : ''}`}
@@ -188,7 +233,7 @@ function Layout({ children }) {
         </div>
       </nav>
 
-      {/* ── Geo banner (global, below navbar) ── */}
+      {/* ── Geo banner ── */}
       {!geoDismissed && geoStatus !== 'unsupported' && geoStatus !== 'denied' && (
         <div className="geo-bar-wrap">
           {geoStatus === 'success' && geoCity ? (
@@ -221,6 +266,32 @@ function Layout({ children }) {
       <main className="main-content">
         {children}
       </main>
+
+      {/* ── Welcome toast after Google login ── */}
+      {welcomeToast && (
+        <div className="welcome-toast" role="status" aria-live="polite">
+          {(welcomeToast.user_metadata?.avatar_url || welcomeToast.user_metadata?.picture) ? (
+            <img
+              src={welcomeToast.user_metadata.avatar_url || welcomeToast.user_metadata.picture}
+              alt=""
+              className="welcome-toast-avatar"
+            />
+          ) : (
+            <span className="welcome-toast-emoji">🎵</span>
+          )}
+          <div className="welcome-toast-body">
+            <p className="welcome-toast-title">
+              Welcome, {welcomeToast.user_metadata?.name || welcomeToast.email?.split('@')[0]}!
+            </p>
+            <p className="welcome-toast-email">{welcomeToast.email}</p>
+          </div>
+          <button
+            className="welcome-toast-close"
+            onClick={() => setWelcomeToast(null)}
+            aria-label="Dismiss"
+          >✕</button>
+        </div>
+      )}
     </div>
   );
 }

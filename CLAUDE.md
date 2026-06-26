@@ -56,7 +56,7 @@ Key Supabase tables used by `db.js`:
 - `artists` — discovered via `fetchArtists()`
 - `projects` — collaboration projects; CRUD via `fetchProjects`, `createProject`, `updateProject`, `deleteProject`, `joinProject`
 - `project_members` — join table linking users to projects
-- `Lizi Music` — user track uploads (note: the table name has a space, not underscored)
+- `Track` — user track uploads (columns: `id`, `user_id`, `title`, `genre`, `file_url`, `file_name`, `created_at`)
 - `profiles` — user profile data referenced in project member queries
 - Storage buckets: `tracks` (audio files, max 50 MB), `avatars` (images, max 5 MB; base64 fallback when bucket unavailable)
 

@@ -1,5 +1,5 @@
 /**
- * Lizi Music — backend operation tests
+ * Track table — backend operation tests
  *
  * Strategy: vi.mock the Supabase client so every test runs
  * entirely in-process with no network calls. Each test group
@@ -114,13 +114,13 @@ describe('1. createTrack (saveTrack)', () => {
 
     await saveTrack({ userId: USER_A, title: 'My Song', genre: 'Pop', fileUrl: 'u', fileName: 'f' })
 
-    expect(supabase.from).toHaveBeenCalledWith('Lizi Music')
+    expect(supabase.from).toHaveBeenCalledWith('Track')
     expect(chain.insert).toHaveBeenCalledWith(
       expect.objectContaining({ user_id: USER_A, title: 'My Song', genre: 'Pop' })
     )
   })
 
-  it('returns error when Supabase insert fails', async () => {
+  it('falls back to localStorage when Supabase insert fails', async () => {
     const chain = mockFrom({ data: null, error: null })
     chain.single.mockResolvedValue({ data: null, error: { message: 'insert failed' } })
 
@@ -128,8 +128,9 @@ describe('1. createTrack (saveTrack)', () => {
       userId: USER_A, title: 'T', genre: 'G', fileUrl: 'u', fileName: 'f',
     })
 
-    expect(track).toBeNull()
-    expect(error).toBe('insert failed')
+    // localStorage fallback: track is still returned, no error thrown to caller
+    expect(error).toBeNull()
+    expect(track).toMatchObject({ title: 'T', genre: 'G' })
   })
 })
 
@@ -145,7 +146,7 @@ describe('2. fetchUserTracks — isolation by user_id', () => {
 
     const tracks = await fetchUserTracks(USER_A)
 
-    expect(supabase.from).toHaveBeenCalledWith('Lizi Music')
+    expect(supabase.from).toHaveBeenCalledWith('Track')
     expect(chain.eq).toHaveBeenCalledWith('user_id', USER_A)
     expect(tracks).toHaveLength(2)
     expect(tracks[0]).toMatchObject({ id: 1, title: 'My Song' })
@@ -182,7 +183,7 @@ describe('3. updateTrack — correct fields are sent', () => {
 
     const result = await updateTrack(42, { title: 'New Title', genre: 'Jazz' })
 
-    expect(supabase.from).toHaveBeenCalledWith('Lizi Music')
+    expect(supabase.from).toHaveBeenCalledWith('Track')
     expect(chain.update).toHaveBeenCalledWith(
       expect.objectContaining({ title: 'New Title', genre: 'Jazz' })
     )
@@ -238,7 +239,7 @@ describe('4. deleteLiziMusic — removes the row', () => {
 
     const result = await deleteLiziMusic(55)
 
-    expect(supabase.from).toHaveBeenCalledWith('Lizi Music')
+    expect(supabase.from).toHaveBeenCalledWith('Track')
     expect(chain.delete).toHaveBeenCalled()
     expect(chain.eq).toHaveBeenCalledWith('id', 55)
     expect(result.error).toBeNull()

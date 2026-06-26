@@ -17,7 +17,7 @@ function UploadTrack({ onUpload, onClose, initialData, uploadFn }) {
   const [genre, setGenre]     = useState(initialData?.genre || '');
   const [file, setFile]       = useState(null);
   const [dragging, setDragging] = useState(false);
-  const [error, setError]     = useState('');
+  const [error, setError]       = useState('');
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef();
 
@@ -44,6 +44,7 @@ function UploadTrack({ onUpload, onClose, initialData, uploadFn }) {
     let fileName = isEdit ? (initialData.fileName || '') : '';
 
     // Upload new file to Supabase Storage if one was selected
+    let fileUploadFailed = false;
     if (file) {
       if (!uploadFn) {
         // No storage function provided — fall back to local object URL
@@ -56,11 +57,17 @@ function UploadTrack({ onUpload, onClose, initialData, uploadFn }) {
         setUploading(false);
 
         if (uploadErr) {
-          setError(uploadErr);
-          return;           // stay open so user can retry
+          // Save the track metadata even if the file upload failed,
+          // so the user never loses their title/genre entry.
+          fileUploadFailed = true;
+          setError(`⚠️ File upload failed: ${uploadErr}. Track saved without audio — edit it later to add the file.`);
+          fileUrl  = '';
+          fileName = file.name;
+          // fall through and save metadata below
+        } else {
+          fileUrl  = url;
+          fileName = file.name;
         }
-        fileUrl  = url;
-        fileName = file.name;
       }
     }
 
@@ -72,7 +79,10 @@ function UploadTrack({ onUpload, onClose, initialData, uploadFn }) {
       fileName,
       _isEdit:  isEdit,
     });
-    onClose();
+
+    // Stay open if file upload failed so user can see the warning message.
+    // The track metadata was already saved above.
+    if (!fileUploadFailed) onClose();
   };
 
   return (
