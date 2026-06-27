@@ -533,7 +533,7 @@ export async function fetchAllTracks() {
   try {
     const { data, error } = await supabase
       .from(TRACKS_TABLE)
-      .select('id, title, genre, file_url, user_id, created_at, profiles!user_id(name, avatar)')
+      .select('id, title, genre, file_url, user_id, created_at, profiles!user_id(name)')
       .order('created_at', { ascending: false })
       .limit(50);
     if (error) { console.error('[LIZI] fetchAllTracks:', error.message); throw error; }
@@ -543,8 +543,8 @@ export async function fetchAllTracks() {
       genre:          row.genre || '',
       url:            row.file_url || '',
       userId:         row.user_id,
-      uploaderName:   row.profiles?.name   || 'Artist',
-      uploaderAvatar: row.profiles?.avatar || '🎤',
+      uploaderName:   row.profiles?.name || 'Artist',
+      uploaderAvatar: '🎤',
       createdAt:      row.created_at,
     }));
   } catch {
