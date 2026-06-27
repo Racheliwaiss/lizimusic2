@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../LanguageContext';
 import { useAuth } from '../AuthContext';
-import { fetchArtists } from '../lib/db';
+import { fetchArtists, fetchRecentProfiles } from '../lib/db';
 import translations from '../translations';
 import { useGeoContext } from '../GeoContext';
 import { useFavourites } from '../hooks/useFavourites';
@@ -128,17 +128,22 @@ const FACTOR_META = {
    Component
    ══════════════════════════════════════════════════════════════════════ */
 function OpenStage() {
-  const { t } = useLanguage();
-  const { user } = useAuth();
+  const { t, language } = useLanguage();
+  const { user, isAuthenticated } = useAuth();
   const { city: geoCity } = useGeoContext();
   const { isFav, toggle: toggleFav } = useFavourites();
-  const [allArtists, setAllArtists] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedGenre, setSelectedGenre] = useState('All');
+  const [allArtists, setAllArtists]         = useState([]);
+  const [loading, setLoading]               = useState(true);
+  const [selectedGenre, setSelectedGenre]   = useState('All');
+  const [recentProfiles, setRecentProfiles] = useState([]);
 
   useEffect(() => {
     fetchArtists().then(data => { setAllArtists(data); setLoading(false); });
   }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) fetchRecentProfiles(8).then(setRecentProfiles);
+  }, [isAuthenticated]);
 
   /* User profile preferences — fall back to GPS city when no saved location */
   const userProfile = useMemo(() => {
@@ -264,6 +269,7 @@ function OpenStage() {
             <p className="no-results">No artists found for this genre.</p>
           ) : (
             filteredArtists.map(artist => {
+
               const match = artist.match;
               const pct   = match?.pct ?? null;
               const dimmed = pct !== null && pct === 0;

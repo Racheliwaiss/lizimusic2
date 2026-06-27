@@ -528,6 +528,32 @@ export async function fetchUserTracks(userId) {
   }
 }
 
+export async function fetchRecentProfiles(limit = 8) {
+  injectLocalSession();
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, name, genre, instruments, location, bio')
+      .not('name', 'is', null)
+      .neq('name', '')
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    if (error) throw error;
+    return (data || []).filter(p => p.name?.trim());
+  } catch {
+    // created_at may not exist — retry without ordering
+    try {
+      const { data } = await supabase
+        .from('profiles')
+        .select('id, name, genre, instruments, location, bio')
+        .not('name', 'is', null)
+        .neq('name', '')
+        .limit(limit);
+      return (data || []).filter(p => p.name?.trim());
+    } catch { return []; }
+  }
+}
+
 export async function fetchAllTracks() {
   injectLocalSession();
   try {
