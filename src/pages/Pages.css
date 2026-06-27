@@ -2706,6 +2706,50 @@
   opacity: 0.6;
 }
 
+/* Guest login banner in Search */
+.search-guest-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1.25rem;
+  margin: 0.5rem 0 1rem;
+  background: rgba(255, 0, 110, 0.06);
+  border: 1px solid rgba(255, 0, 110, 0.2);
+  border-radius: 10px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  flex-wrap: wrap;
+}
+
+.search-guest-login-btn {
+  padding: 0.35rem 1rem;
+  background: linear-gradient(135deg, var(--music-pink), var(--music-purple));
+  border: none;
+  border-radius: 20px;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.2s;
+}
+.search-guest-login-btn:hover { opacity: 0.85; }
+
+/* Type badge on unified search result cards */
+.search-type-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 20px;
+  white-space: nowrap;
+  align-self: center;
+  flex-shrink: 0;
+}
+.search-type-badge--artist  { background: rgba(138, 43, 226, 0.2);  color: var(--music-purple); }
+.search-type-badge--track   { background: rgba(255, 0, 110, 0.15);  color: var(--music-pink);   }
+.search-type-badge--project { background: rgba(0, 217, 255, 0.15);  color: var(--music-cyan);   }
+
 /* ── Artist track list ────────────────── */
 .artist-track-list {
   display: flex;
