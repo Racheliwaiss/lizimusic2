@@ -345,6 +345,31 @@ function OpenStage() {
           )}
         </div>
       )}
+
+      {/* ── Recently Joined ── */}
+      {recentProfiles.length > 0 && (
+        <section className="os-recent-section">
+          <h2 className="os-recent-title">
+            🆕 {language === 'he' ? 'הצטרפו לאחרונה' : 'Recently Joined'}
+          </h2>
+          <div className="artists-grid">
+            {recentProfiles.map(profile => (
+              <div key={profile.id} className="artist-card">
+                <div className="artist-avatar">🎤</div>
+                <h3>{profile.name}</h3>
+                {profile.genre       && <p className="genre-tag">{profile.genre}</p>}
+                {profile.instruments && <p className="instruments">🎸 {profile.instruments}</p>}
+                {profile.location    && <p className="artist-location">📍 {profile.location}</p>}
+                {profile.bio && (
+                  <p className="os-profile-bio">
+                    {profile.bio.length > 80 ? profile.bio.slice(0, 80) + '…' : profile.bio}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }
