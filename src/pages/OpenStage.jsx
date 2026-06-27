@@ -357,9 +357,9 @@ function OpenStage() {
               <div key={profile.id} className="artist-card">
                 <div className="artist-avatar">🎤</div>
                 <h3>{profile.name}</h3>
-                {profile.genre       && <p className="genre-tag">{profile.genre}</p>}
-                {profile.instruments && <p className="instruments">🎸 {profile.instruments}</p>}
-                {profile.location    && <p className="artist-location">📍 {profile.location}</p>}
+                {profile.favorite_genres && <p className="genre-tag">{profile.favorite_genres}</p>}
+                {profile.instruments     && <p className="instruments">🎸 {profile.instruments}</p>}
+                {profile.music_style     && <p className="style-tag">{profile.music_style}</p>}
                 {profile.bio && (
                   <p className="os-profile-bio">
                     {profile.bio.length > 80 ? profile.bio.slice(0, 80) + '…' : profile.bio}

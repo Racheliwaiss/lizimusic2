@@ -533,7 +533,7 @@ export async function fetchRecentProfiles(limit = 8) {
   try {
     const { data, error } = await supabase
       .from('profiles')
-      .select('id, name, genre, instruments, location, bio')
+      .select('id, name, favorite_genres, instruments, bio, music_style')
       .not('name', 'is', null)
       .neq('name', '')
       .order('created_at', { ascending: false })
@@ -541,11 +541,10 @@ export async function fetchRecentProfiles(limit = 8) {
     if (error) throw error;
     return (data || []).filter(p => p.name?.trim());
   } catch {
-    // created_at may not exist — retry without ordering
     try {
       const { data } = await supabase
         .from('profiles')
-        .select('id, name, genre, instruments, location, bio')
+        .select('id, name, favorite_genres, instruments, bio, music_style')
         .not('name', 'is', null)
         .neq('name', '')
         .limit(limit);
