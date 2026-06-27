@@ -154,19 +154,22 @@ export async function fetchProjects() {
       .select('*')
       .order('created_at', { ascending: false });
 
-    if (error) throw error;
+    if (error) { console.error('fetchProjects error:', error); throw error; }
     if (data && data.length > 0) {
-      // Merge any locally-created projects that aren't in Supabase yet
-      const local = getLocalProjects();
+      // Local-only projects not yet in Supabase come first, then real projects, then seed filler
+      const local       = getLocalProjects();
       const supabaseIds = new Set(data.map(r => String(r.id)));
-      const onlyLocal = local.filter(p => !supabaseIds.has(String(p.id)));
-      return [...onlyLocal, ...data.map(normalizeProject)];
+      const onlyLocal   = local.filter(p => !supabaseIds.has(String(p.id)));
+      const realProjects = data.map(normalizeProject);
+      const coveredIds  = new Set([...data.map(r => String(r.id)), ...local.map(p => String(p.id))]);
+      const seedFiller  = fallbackProjects.filter(p => !coveredIds.has(String(p.id)));
+      return [...onlyLocal, ...realProjects, ...seedFiller];
     }
   } catch {
     // fall through to local + fallback
   }
 
-  // Supabase unavailable — merge local with dummy seed
+  // Supabase unavailable or empty — merge local with seed
   const local = getLocalProjects();
   const localIds = new Set(local.map(p => String(p.id)));
   const seed = fallbackProjects.filter(p => !localIds.has(String(p.id)));
@@ -197,13 +200,12 @@ export async function createProject(fields, userId) {
         age_range:   newProject.ageRange,
         description: newProject.description,
         location:    newProject.location,
-        members:     1,
         created_by:  userId || null,
       })
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) { console.error('createProject error:', error); throw error; }
     return { project: normalizeProject(data), error: null };
   } catch {
     // Supabase failed — persist locally so it survives page refresh
@@ -491,7 +493,7 @@ export async function uploadAvatar(userId, file) {
   }
 }
 
-const COLLAB_TABLE = 'collaborations';
+const COLLAB_TABLE = 'projects';
 
 // ── Track table (user track uploads) ─────────────────────────
 
