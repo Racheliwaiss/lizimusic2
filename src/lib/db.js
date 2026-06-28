@@ -532,6 +532,23 @@ export async function fetchUserTracks(userId) {
 
 export async function saveProfile(userId, fields) {
   injectLocalSession();
+  // supabase-js v2 may cache currentSession=null at startup when the user arrived via
+  // OAuth (token lives in lizi_auth_session, not supabase's own storage key).
+  // setSession() forces the JWT into supabase-js's in-memory state so the upsert
+  // carries Authorization: Bearer <token> and auth.uid() resolves in RLS.
+  // If the JWT is not expired this is a local decode only — no network call.
+  try {
+    const stored = localStorage.getItem('lizi_auth_session');
+    if (stored) {
+      const { session: s } = JSON.parse(stored);
+      if (s?.access_token) {
+        await supabase.auth.setSession({ access_token: s.access_token, refresh_token: s.refresh_token || '' });
+      }
+    }
+  } catch {}
+
+  console.log('saveProfile id:', userId);
+
   const { error } = await supabase
     .from('profiles')
     .upsert(
