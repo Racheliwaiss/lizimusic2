@@ -532,46 +532,54 @@ export async function fetchUserTracks(userId) {
 
 export async function saveProfile(userId, fields) {
   console.log('saveProfile id:', userId);
-
-  // ── DIAGNOSTIC: log the real token shape ──────────────────────────────────
-  const _raw = localStorage.getItem('lizi_auth_session');
-  const _parsed = _raw ? JSON.parse(_raw) : null;
-  const _s = _parsed?.session;
   console.log('[saveProfile] token check:', JSON.parse(localStorage.getItem('lizi_auth_session')));
-  console.log('[saveProfile] access_token preview:', (_s?.access_token || '').slice(0, 50) || 'MISSING');
-  console.log('[saveProfile] getSession BEFORE setSession:', await supabase.auth.getSession());
-  // ─────────────────────────────────────────────────────────────────────────
 
-  injectLocalSession();
-  try {
-    if (_s?.access_token) {
-      await supabase.auth.setSession({ access_token: _s.access_token, refresh_token: _s.refresh_token || '' });
-    } else {
-      console.warn('[saveProfile] NO access_token in lizi_auth_session — upsert will be anonymous');
-    }
-  } catch (e) { console.error('[saveProfile] setSession threw:', e); }
+  const _raw    = localStorage.getItem('lizi_auth_session');
+  const _parsed = _raw ? JSON.parse(_raw) : null;
+  const token   = _parsed?.session?.access_token || null;
 
-  console.log('[saveProfile] getSession AFTER setSession:', await supabase.auth.getSession());
+  console.log('[saveProfile] access_token preview:', token ? token.slice(0, 50) + '…' : 'MISSING');
 
-  const { error } = await supabase
-    .from('profiles')
-    .upsert(
-      {
-        id:              userId,
-        name:            fields.name           || null,
-        bio:             fields.bio            || null,
-        about:           fields.about          || null,
-        favorite_genres: fields.favoriteGenres || null,
-        instruments:     fields.instruments    || null,
-        connect_ages:    fields.connectAges    || null,
-        looking_for:     fields.lookingFor     || null,
-        create_goals:    fields.createGoals    || null,
-        music_style:     fields.musicStyle     || null,
-        phone:           fields.phone          || null,
-      },
-      { onConflict: 'id' }
-    );
-  if (error) { console.error('saveProfile error:', error); return { error: error.message }; }
+  if (!token) {
+    console.error('[saveProfile] No auth token — cannot write to Supabase profiles');
+    return { error: 'No auth token — please log out and log in again' };
+  }
+
+  // Direct PostgREST fetch — bypasses supabase-js session management entirely.
+  // supabase-js never receives the OAuth session by design in this app, so
+  // supabase.from().upsert() always sends anonymous requests regardless of
+  // injectLocalSession() or setSession(). We pass the JWT manually instead.
+  const SUPABASE_URL      = import.meta.env.VITE_SUPABASE_URL;
+  const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/profiles?on_conflict=id`, {
+    method: 'POST',
+    headers: {
+      'Content-Type':  'application/json',
+      'apikey':        SUPABASE_ANON_KEY,
+      'Authorization': `Bearer ${token}`,
+      'Prefer':        'resolution=merge-duplicates,return=representation',
+    },
+    body: JSON.stringify({
+      id:              userId,
+      name:            fields.name           || null,
+      bio:             fields.bio            || null,
+      about:           fields.about          || null,
+      favorite_genres: fields.favoriteGenres || null,
+      instruments:     fields.instruments    || null,
+      connect_ages:    fields.connectAges    || null,
+      looking_for:     fields.lookingFor     || null,
+      create_goals:    fields.createGoals    || null,
+      music_style:     fields.musicStyle     || null,
+      phone:           fields.phone          || null,
+    }),
+  });
+
+  if (!res.ok) {
+    const errText = await res.text();
+    console.error('[saveProfile] PostgREST error:', res.status, errText);
+    return { error: errText };
+  }
   return { error: null };
 }
 

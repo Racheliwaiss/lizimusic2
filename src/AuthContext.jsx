@@ -261,13 +261,16 @@ export function AuthProvider({ children }) {
       }
       return { user: data?.user, error: null };
     } catch {
-      // Merge locally when API is unavailable
+      // Merge locally when API is unavailable.
+      // Preserve the existing session object so the access_token is not erased —
+      // db.js reads it from lizi_auth_session for authenticated writes.
       const merged = {
         ...user,
         user_metadata: { ...(user.user_metadata || {}), ...updates },
       };
       setUser(merged);
-      writeLocalSession(merged);
+      const existing = readLocalSession();
+      writeLocalSession(merged, existing?.session ?? null);
       return { user: merged, error: null };
     }
   };

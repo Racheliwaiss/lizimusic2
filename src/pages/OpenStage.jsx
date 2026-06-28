@@ -352,21 +352,25 @@ function OpenStage() {
           <h2 className="os-recent-title">
             🆕 {language === 'he' ? 'הצטרפו לאחרונה' : 'Recently Joined'}
           </h2>
-          <div className="artists-grid">
-            {recentProfiles.map(profile => (
-              <div key={profile.id} className="artist-card">
-                <div className="artist-avatar">🎤</div>
-                <h3>{profile.name}</h3>
-                {profile.favorite_genres && <p className="genre-tag">{profile.favorite_genres}</p>}
-                {profile.instruments     && <p className="instruments">🎸 {profile.instruments}</p>}
-                {profile.music_style     && <p className="style-tag">{profile.music_style}</p>}
-                {profile.bio && (
-                  <p className="os-profile-bio">
-                    {profile.bio.length > 80 ? profile.bio.slice(0, 80) + '…' : profile.bio}
-                  </p>
-                )}
-              </div>
-            ))}
+          <div className="recent-pills-wrap">
+            {recentProfiles.map((profile, i) => {
+              const PILL_COLORS = ['#534AB7', '#1D9E75', '#D4537E', '#00D9FF', '#BA7517'];
+              const accent = PILL_COLORS[i % PILL_COLORS.length];
+              const genre  = profile.favorite_genres || profile.music_style || null;
+              return (
+                <div
+                  key={profile.id}
+                  className="recent-pill"
+                  style={{ '--pill-accent': accent, borderColor: accent }}
+                >
+                  <div className="recent-pill-avatar" style={{ background: accent }}>🎤</div>
+                  <div className="recent-pill-info">
+                    <span className="recent-pill-name">{profile.name}</span>
+                    {genre && <span className="recent-pill-genre" style={{ color: accent }}>{genre}</span>}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </section>
       )}
