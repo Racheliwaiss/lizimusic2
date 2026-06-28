@@ -762,3 +762,83 @@ export function sendProjectMessage(projectId, { text, senderName, senderAvatar }
   try { localStorage.setItem(projectChatKey(projectId), JSON.stringify(next)); } catch {}
   return next;
 }
+
+// ── Direct Messages (real Supabase, direct PostgREST fetch) ───────────────────
+// Table: messages  columns: id, sender_id, receiver_id, content, read_at, created_at
+// RLS: SELECT when auth.uid() = sender_id OR receiver_id; INSERT when auth.uid() = sender_id
+
+export async function sendDirectMessage(senderId, receiverId, content) {
+  const token = getAuthToken();
+  if (!token) {
+    console.error('[sendDirectMessage] No auth token');
+    return { data: null, error: 'No auth token — please log out and log in again' };
+  }
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/messages`, {
+    method: 'POST',
+    headers: {
+      'Content-Type':  'application/json',
+      'apikey':        SUPABASE_ANON_KEY,
+      'Authorization': `Bearer ${token}`,
+      'Prefer':        'return=representation',
+    },
+    body: JSON.stringify({ sender_id: senderId, receiver_id: receiverId, content }),
+  });
+  if (!res.ok) {
+    const errText = await res.text();
+    console.error('[sendDirectMessage] PostgREST error:', res.status, errText);
+    return { data: null, error: errText };
+  }
+  const data = await res.json();
+  return { data: Array.isArray(data) ? data[0] : data, error: null };
+}
+
+export async function fetchMessages(userId, otherUserId) {
+  const token = getAuthToken();
+  if (!token) {
+    console.error('[fetchMessages] No auth token');
+    return { data: [], error: 'No auth token' };
+  }
+  const filter =
+    `or=(and(sender_id.eq.${userId},receiver_id.eq.${otherUserId}),` +
+    `and(sender_id.eq.${otherUserId},receiver_id.eq.${userId}))`;
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/messages?${filter}&order=created_at.asc`,
+    { headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${token}` } }
+  );
+  if (!res.ok) {
+    const errText = await res.text();
+    console.error('[fetchMessages] PostgREST error:', res.status, errText);
+    return { data: [], error: errText };
+  }
+  return { data: await res.json(), error: null };
+}
+
+export async function fetchConversations(userId) {
+  const token = getAuthToken();
+  if (!token) {
+    console.error('[fetchConversations] No auth token');
+    return { data: [], error: 'No auth token' };
+  }
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/messages` +
+    `?or=(sender_id.eq.${userId},receiver_id.eq.${userId})&order=created_at.desc`,
+    { headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${token}` } }
+  );
+  if (!res.ok) {
+    const errText = await res.text();
+    console.error('[fetchConversations] PostgREST error:', res.status, errText);
+    return { data: [], error: errText };
+  }
+  const rows = await res.json();
+  // Collapse to unique other-party UUIDs; rows are desc so first hit = most recent
+  const seen = new Set();
+  const conversations = [];
+  for (const row of rows) {
+    const otherUserId = row.sender_id === userId ? row.receiver_id : row.sender_id;
+    if (!seen.has(otherUserId)) {
+      seen.add(otherUserId);
+      conversations.push({ otherUserId, lastMessage: row.content, lastAt: row.created_at });
+    }
+  }
+  return { data: conversations, error: null };
+}
