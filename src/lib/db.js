@@ -563,13 +563,6 @@ export async function saveProfile(userId, fields) {
     return { error: 'No auth token — please log out and log in again' };
   }
 
-  // Direct PostgREST fetch — bypasses supabase-js session management entirely.
-  // supabase-js never receives the OAuth session by design in this app, so
-  // supabase.from().upsert() always sends anonymous requests regardless of
-  // injectLocalSession() or setSession(). We pass the JWT manually instead.
-  const SUPABASE_URL      = import.meta.env.VITE_SUPABASE_URL;
-  const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
   const res = await fetch(`${SUPABASE_URL}/rest/v1/profiles?on_conflict=id`, {
     method: 'POST',
     headers: {
