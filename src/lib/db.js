@@ -763,6 +763,44 @@ export function sendProjectMessage(projectId, { text, senderName, senderAvatar }
   return next;
 }
 
+export async function fetchProfilesByIds(ids) {
+  if (!ids?.length) return { data: [], error: null };
+  const token = getAuthToken();
+  if (!token) {
+    console.error('[fetchProfilesByIds] No auth token');
+    return { data: [], error: 'No auth token' };
+  }
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/profiles?id=in.(${ids.join(',')})&select=id,name,phone`,
+    { headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${token}` } }
+  );
+  if (!res.ok) {
+    const errText = await res.text();
+    console.error('[fetchProfilesByIds] PostgREST error:', res.status, errText);
+    return { data: [], error: errText };
+  }
+  return { data: await res.json(), error: null };
+}
+
+export async function fetchAllProfiles() {
+  const token = getAuthToken();
+  if (!token) {
+    console.error('[fetchAllProfiles] No auth token');
+    return { data: [], error: 'No auth token' };
+  }
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/profiles?select=id,name,phone&order=name.asc&limit=100`,
+    { headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${token}` } }
+  );
+  if (!res.ok) {
+    const errText = await res.text();
+    console.error('[fetchAllProfiles] PostgREST error:', res.status, errText);
+    return { data: [], error: errText };
+  }
+  const data = await res.json();
+  return { data: (data || []).filter(p => p.name?.trim()), error: null };
+}
+
 // ── Direct Messages (real Supabase, direct PostgREST fetch) ───────────────────
 // Table: messages  columns: id, sender_id, receiver_id, content, read_at, created_at
 // RLS: SELECT when auth.uid() = sender_id OR receiver_id; INSERT when auth.uid() = sender_id
