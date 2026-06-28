@@ -531,23 +531,27 @@ export async function fetchUserTracks(userId) {
 }
 
 export async function saveProfile(userId, fields) {
-  injectLocalSession();
-  // supabase-js v2 may cache currentSession=null at startup when the user arrived via
-  // OAuth (token lives in lizi_auth_session, not supabase's own storage key).
-  // setSession() forces the JWT into supabase-js's in-memory state so the upsert
-  // carries Authorization: Bearer <token> and auth.uid() resolves in RLS.
-  // If the JWT is not expired this is a local decode only — no network call.
-  try {
-    const stored = localStorage.getItem('lizi_auth_session');
-    if (stored) {
-      const { session: s } = JSON.parse(stored);
-      if (s?.access_token) {
-        await supabase.auth.setSession({ access_token: s.access_token, refresh_token: s.refresh_token || '' });
-      }
-    }
-  } catch {}
-
   console.log('saveProfile id:', userId);
+
+  // ── DIAGNOSTIC: log the real token shape ──────────────────────────────────
+  const _raw = localStorage.getItem('lizi_auth_session');
+  const _parsed = _raw ? JSON.parse(_raw) : null;
+  const _s = _parsed?.session;
+  console.log('[saveProfile] token check:', JSON.parse(localStorage.getItem('lizi_auth_session')));
+  console.log('[saveProfile] access_token preview:', (_s?.access_token || '').slice(0, 50) || 'MISSING');
+  console.log('[saveProfile] getSession BEFORE setSession:', await supabase.auth.getSession());
+  // ─────────────────────────────────────────────────────────────────────────
+
+  injectLocalSession();
+  try {
+    if (_s?.access_token) {
+      await supabase.auth.setSession({ access_token: _s.access_token, refresh_token: _s.refresh_token || '' });
+    } else {
+      console.warn('[saveProfile] NO access_token in lizi_auth_session — upsert will be anonymous');
+    }
+  } catch (e) { console.error('[saveProfile] setSession threw:', e); }
+
+  console.log('[saveProfile] getSession AFTER setSession:', await supabase.auth.getSession());
 
   const { error } = await supabase
     .from('profiles')
