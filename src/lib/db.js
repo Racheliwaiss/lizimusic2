@@ -530,6 +530,30 @@ export async function fetchUserTracks(userId) {
   }
 }
 
+export async function saveProfile(userId, fields) {
+  injectLocalSession();
+  const { error } = await supabase
+    .from('profiles')
+    .upsert(
+      {
+        id:              userId,
+        name:            fields.name           || null,
+        bio:             fields.bio            || null,
+        about:           fields.about          || null,
+        favorite_genres: fields.favoriteGenres || null,
+        instruments:     fields.instruments    || null,
+        connect_ages:    fields.connectAges    || null,
+        looking_for:     fields.lookingFor     || null,
+        create_goals:    fields.createGoals    || null,
+        music_style:     fields.musicStyle     || null,
+        phone:           fields.phone          || null,
+      },
+      { onConflict: 'id' }
+    );
+  if (error) { console.error('saveProfile error:', error); return { error: error.message }; }
+  return { error: null };
+}
+
 export async function fetchRecentProfiles(limit = 8) {
   injectLocalSession();
   try {

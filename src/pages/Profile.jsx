@@ -4,7 +4,7 @@ import { useLanguage } from '../LanguageContext';
 import { useAuth } from '../AuthContext';
 import UploadTrack from '../components/UploadTrack';
 import AvatarUpload from '../components/AvatarUpload';
-import { fetchUserTracks, saveTrack, updateTrack, deleteLiziMusic, fetchUserProjects, uploadAvatar, uploadTrackFile } from '../lib/db';
+import { fetchUserTracks, saveTrack, updateTrack, deleteLiziMusic, fetchUserProjects, uploadAvatar, uploadTrackFile, saveProfile } from '../lib/db';
 import translations from '../translations';
 import { nearestCity, GEO_LS_KEY } from '../lib/geolocation';
 import { useFavourites } from '../hooks/useFavourites';
@@ -186,11 +186,26 @@ function Profile() {
 
   const handleSave = async (e) => {
     if (e) e.preventDefault();
-
     setSaveError('');
     setSaving(true);
 
-    const updates = {
+    // Write to the profiles table — only real columns, correct snake_case names
+    const { error: dbError } = await saveProfile(user.id, {
+      name:           formData.name,
+      bio:            formData.bio,
+      about:          formData.about,
+      favoriteGenres: formData.favoriteGenres,
+      instruments:    formData.instruments,
+      connectAges:    formData.connectAges,
+      lookingFor:     formData.lookingFor,
+      createGoals:    formData.createGoals,
+      musicStyle:     formData.musicStyle,
+      phone:          formData.phone,
+    });
+
+    // Always sync auth metadata so the UI and localStorage stay current
+    // (facebook + location live here only — they have no profiles column)
+    await updateProfile({
       name:           formData.name,
       bio:            formData.bio,
       about:          formData.about,
@@ -203,13 +218,12 @@ function Profile() {
       phone:          formData.phone,
       facebook:       formData.facebook,
       location:       formData.location,
-    };
+    });
 
-    const result = await updateProfile(updates);
     setSaving(false);
 
-    if (result.error) {
-      setSaveError(result.error);
+    if (dbError) {
+      setSaveError(`Profile not saved to database: ${dbError}`);
       return;
     }
 
