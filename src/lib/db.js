@@ -1,6 +1,24 @@
 import { supabase, supabaseStorageKey } from './supabase';
 import fallbackArtists from '../data/artists';
 
+// Shared PostgREST base URL and anon key — used by all direct-fetch functions
+// (saveProfile, sendDirectMessage, fetchMessages, fetchConversations).
+// supabase.from() goes out anonymous in this app because supabase-js never
+// receives the OAuth session; these constants let us pass the JWT manually.
+const SUPABASE_URL      = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+// Read the access_token from the custom OAuth session storage key.
+// Returns null when unauthenticated or when the session was never written.
+function getAuthToken() {
+  try {
+    const raw = localStorage.getItem('lizi_auth_session');
+    if (!raw) return null;
+    const { session } = JSON.parse(raw);
+    return session?.access_token || null;
+  } catch { return null; }
+}
+
 /*
   The Google OAuth session is stored in 'lizi_auth_session' to prevent
   supabase-js from calling /auth/v1/user (which 401s with a stale anon key).
